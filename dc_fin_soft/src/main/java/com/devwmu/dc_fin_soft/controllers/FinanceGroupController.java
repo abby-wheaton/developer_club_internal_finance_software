@@ -26,6 +26,8 @@ public class FinanceGroupController {
         description = "Takes in no input, and returns all of the rows in the Finance Group table"
     )
     public Iterable<FinanceGroup> getAllFinanceGroups() {
+        // INPUT: N/A
+        // OUTPUT: returns all rows in the finance group table
         return this.financeGroupRepository.findAll();
     }
     
@@ -37,15 +39,13 @@ public class FinanceGroupController {
     public Iterable<FinanceGroup> filterFinanceGroups(@RequestBody Filter[] filters){
     // custom
     // filterFinanceGroups(filterArray[]): Iterable<FinGroup> 	
-        //     Filters through the finance groups based on array specs
-        //     OUTPUT: the selected rows
-
-        // id: equality
-        // title: contains
-        // deleted: equality
+        //     INPUT: filters: Filter[] -  an array of filters to apply to the table
+        //      ex) [{"col":"est_attendance", "op":"geq", "val":16}] - this will apply a filter for if the estimated attendance is >= 16
+        //     OUTPUT: the selected rows of the finance group table
     
         // returns the events that match
         Specification<FinanceGroup> spec = Specification.unrestricted();
+        // goes through every filter item passed in the parameter array
         for (Filter filter: filters){
             String col = filter.getCol();
             String op = filter.getOp().toLowerCase();
@@ -56,6 +56,7 @@ public class FinanceGroupController {
             }
 
             Specification<FinanceGroup> condition = null;
+            // goes through every possiable operation for that table
             switch (op) {
                 case "like":
                     try{
@@ -72,7 +73,7 @@ public class FinanceGroupController {
                         criteriaBuilder.equal(root.get(col), value);
                     break;
             }
-            
+            // combines the conditons together to stack them
             if (condition != null){
                 spec = spec.and(condition);
             }
@@ -89,7 +90,7 @@ public class FinanceGroupController {
     public FinanceGroup addUserToGroup(){
         // custom
         // addUserToGroup(user, group): bool
-        //     Adds a specific user to a group
+        //     INPUT: Adds a specific user to a group
         //     OUTPUT: The updated User
 
         // modify finGroup column of users table - will have to add finGroup col to do this
@@ -121,7 +122,9 @@ public class FinanceGroupController {
     public FinanceGroup createGroup(@RequestBody FinanceGroup financeGroup){
         // createGroup(name): bool
         //     Creates a new finance group
-        //     OUTPUT: new finance group
+        //      INPUT: financeGroup: FinanceGroup - the new financeGroup row to be created
+        //     OUTPUT: the new finance group
+        // adds the new finance group to the database
         return this.financeGroupRepository.save(financeGroup);
     }
 
@@ -132,8 +135,9 @@ public class FinanceGroupController {
     )
     public FinanceGroup removeGroup(@PathVariable("id") Integer id){
         // removeGroup(name): bool
-        //     removes a group by its name
+        //     INPUT: id: Integer - the id of the finance group to be removed
         //     OUTPUT: removed group
+        // sets the deleted flag on that specific finance group to be 1
         Optional<FinanceGroup> finGroupToDeleteOptional = this.financeGroupRepository.findById(id);
         if (!finGroupToDeleteOptional.isPresent()){
             return null;

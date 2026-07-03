@@ -27,9 +27,10 @@ public class RequestController {
         summary = "Retrives all of the requests",
         description = "Takes in no input, and returns all of the rows in the Requests table"
     )
-    public Iterable<Request> getAllRequests() {   
+    public Iterable<Request> getAllRequests() {  
+        //      INPUT: N/A 
         //      OUTPUT: all of the requests
-
+        // returns all of the rows in the requests table
         return this.requestRepository.findAll();
     }
     @PutMapping("/requests/search")
@@ -38,26 +39,16 @@ public class RequestController {
         description = "Takes in a JSON array, where each element is a Filter object consisting of the column to filter by, the operation to filter based on, and the desired value, and returns all of the rows in the Requests table which match the Filter objects"
     )
     public Iterable<Request> filterRequests(@RequestBody Filter[] filters){
-        // custom
-        // filterRequests(filterArray[]) ? 
-        //     Take an array of column names and desired values, and output the selected SQL rows
-        //     OUTPUT: requests
+        // filterRequests(Filter[]) Iterable<Request>
+        //     INPUT: filters: Filter[] -  an array of filters to apply to the table
+        //      ex) [{"col":"est_attendance", "op":"geq", "val":16}] - this will apply a filter for if the estimated attendance is >= 16
+        //     OUTPUT: the selected rows of the requests table
 
-        // id: equality
-        // community_name: equality/ maybe LIKE
-        // requestee_user: equality/ maybe LIKE
-        // item_name: equality/ maybe LIKE
-        // approval: equality
-        // quantity: less than, greater than, equality
-        // price_per: less than, greater than, equality
-        // deadline: less than, equality
-        // purpose: equality/ maybe LIKE
-        // deleted: equality
-    
         // returns the events that match
 
         Specification<Request> spec = Specification.unrestricted();
         for (Filter filter: filters){
+            // iterates through all of the filters in the given array
             String col = filter.getCol();
             String op = filter.getOp().toLowerCase();
             Object value = filter.getVal();
@@ -67,6 +58,7 @@ public class RequestController {
             }
 
             Specification<Request> condition = null;
+            // goes through all of the operators for this table
             switch (op) {
                 case "like":
                     try{
@@ -117,7 +109,7 @@ public class RequestController {
                         criteriaBuilder.equal(root.get(col), value);
                     break;
             }
-            
+            // combines all of the conditions to layer them
             if (condition != null){
                 spec = spec.and(condition);
             }
@@ -135,7 +127,7 @@ public class RequestController {
         // createRequest(name, community, username, itemName, quantity, pricePerUnit, deadline, purpose): bool
         //     Creates a new entry in the club requests table
         //     OUTPUT: created request
-
+        // saves the new request to the database
         return this.requestRepository.save(request);
     }
 
@@ -145,9 +137,12 @@ public class RequestController {
         description = "Takes in a JSON object and the id of the event to edit, and edits that Request in the Requests table with the new values provided. Returns the object on success"
     )
     public Request editRequest(@PathVariable("id") Integer id, @RequestBody Request request){
-        // editRequest(id, request): bool
-        //     The id of the request and the updated request
+        // editRequest(id, request): Request
+        //     INPUT: id: Integer - The id of the request, request: Request - the updated request
         //     OUTPUT: the updated request
+
+
+        // looks to see if the given request object has its columns set, and it it is set, then updates the new request with those values
         Optional<Request> requestToUpdateOptional = this.requestRepository.findById(id);
         if (!requestToUpdateOptional.isPresent()){
             return null;
@@ -193,7 +188,10 @@ public class RequestController {
     public Request deleteRequest(@PathVariable("id") Integer id){
         // deleteRequest(id): bool
         //     The id of the request to be deleted (will just set deleted to 1)
+        //      INPUT: id: Integer - the id of the request to be deleted
         //     OUTPUT: the deleted request
+
+        // sets the deleted flag to be 1
         Optional<Request> requestToUpdateOptional = this.requestRepository.findById(id);
         if (!requestToUpdateOptional.isPresent()){
             return null;
@@ -204,21 +202,28 @@ public class RequestController {
     }
 
 
-    @PutMapping("/request/approve_{id}")
+    @PutMapping("/request/approve_id={id}_val={val}")
     @Operation(
         summary = "Toggles the approved flag for an event",
         description = "Using the id provided, it will toggle the approved flag for an expense to either 1 or 0"
     )
-    public Request approveRequest(@PathVariable("id") Integer id){
+    public Request approveRequest(@PathVariable("id") Integer id, @PathVariable("val") Integer value){
         // approveRequest(id, decision) bool: 
         //     will mark a request as approved/disapproved in the club requests table
-        //     OUTPUT: success or not
+        //     INPUT: id: Integer - The id of the item to change the conference flag (from database), val: Integer -  what to set the flag to
+        //     OUTPUT: the updated Request
+        // approves a request by setting it to 1 or 0 based on the value provided
         Optional<Request> requestToUpdateOptional = this.requestRepository.findById(id);
         if (!requestToUpdateOptional.isPresent()){
             return null;
         }
         Request approveRequest = requestToUpdateOptional.get();
-        approveRequest.setApproval(1);
+        if (value == 1){
+            approveRequest.setApproval(1);
+        }
+        else{
+            approveRequest.setApproval(0);
+        }
         return this.requestRepository.save(approveRequest);
     }
 

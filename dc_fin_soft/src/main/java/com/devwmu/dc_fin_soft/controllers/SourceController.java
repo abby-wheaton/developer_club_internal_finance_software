@@ -39,19 +39,10 @@ public class SourceController {
     )
     public Iterable<Source> filterSources(@RequestBody Filter[] filters) {
         // custom
-        // filterSources(filterArray[]) ?
-        //      Take an array of column names and desired values, and output the selected SQL rows
-        //      OUTPUT: sources
-
-        // id: equality
-        // name: equality/ maybe LIKE
-        // type: equality/ maybe LIKE
-        // internal: equality
-        // money_cap: less than, greater than, equality
-        // spent: less than, greater than, equality
-        // budgeted: equality
-        // available: equality
-        // deleted: equality
+        // filterSources(filterArray[]) Iterable<Source>
+        //      INPUT: filters: Filter[] -  an array of filters to apply to the table
+        //      ex) [{"col":"est_attendance", "op":"geq", "val":16}] - this will apply a filter for if the estimated attendance is >= 16
+        //     OUTPUT: the selected rows of the sources table
 
         // returns the events that match
         Specification<Source> spec = Specification.unrestricted();
@@ -118,8 +109,9 @@ public class SourceController {
     )
     public Source createSource(@RequestBody Source source){
         return this.sourceRepository.save(source);
-        // createSource(name, cap, type, internal): bool
-        //     Adds a source to the source database
+        // createSource(name, cap, type, internal): Source
+        //      Adds a source to the source database
+        //     INPUT: source: Source - the source to be added to the source database
         //     OUTPUT: created source
     }
 
@@ -131,6 +123,7 @@ public class SourceController {
     public Source editSource(@PathVariable("id") Integer id, @RequestBody Source source){
         // editSource((id, editArray[]): bool
         //     Edits columns of a source
+        //      INPUT: id: Integer - the id of the souce to be updated, source: Source - the souce to be updated
         //     OUTPUT: edited source
         Optional<Source> sourceToUpdateOptional = this.sourceRepository.findById(id);
         if (!sourceToUpdateOptional.isPresent()){
@@ -173,8 +166,9 @@ public class SourceController {
         description = "Modifies the deleted column of the source based on the id provided to be 1"
     )
     public Source deleteSource(@PathVariable("id") Integer id){
-        // deleteSource(sourceID): bool
+        // deleteSource(sourceID): Source
         //     Deletes a source from the database
+        //     INPUT: id: Integer - the id of the source to be deleted
         //     OUTPUT: deleted source
 
         Optional<Source> sourceToDeleteOptional = this.sourceRepository.findById(id);

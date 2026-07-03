@@ -30,22 +30,14 @@ public class EventController {
     @PutMapping("/events/search")
     public Iterable<Event> filterEvents(@RequestBody Filter[] filters){
         // filterEvents(filterArray[]) Iterable<Event>
-        //     Take an array of column names and desired values, and output the selected SQL rows
-        //     OUTPUT: events
-
-        // id: just equality
-        // name: equality/ maybe LIKE
-        // date: less than, equality
-        // location: equality/ maybe LIKE
-        // est_attendance: less than, greater, equality
-        // fee_flag: equality
-        // phil flagg: equality
-        // conference flag: equality
-        // deleted: equality
+        //     INPUT: filters: Filter[] -  an array of filters to apply to the table
+        //      ex) [{"col":"est_attendance", "op":"geq", "val":16}] - this will apply a filter for if the estimated attendance is >= 16
+        //     OUTPUT: the selected rows of the events table
     
         // returns the events that match
 
         Specification<Event> spec = Specification.unrestricted();
+        // iterates through each Filter item in the array passed
         for (Filter filter: filters){
             String col = filter.getCol();
             String op = filter.getOp().toLowerCase();
@@ -56,6 +48,7 @@ public class EventController {
             }
 
             Specification<Event> condition = null;
+            // looks through the different cases of operations
             switch (op) {
                 case "like":
                     try{
@@ -69,6 +62,7 @@ public class EventController {
                         break;
                     }
                 case "bw":
+                    // between two dates
                     try {
                         ArrayList<String> value2 = (ArrayList<String>) value;
                         LocalDateTime date1 = LocalDateTime.parse(value2.get(0));
@@ -106,7 +100,7 @@ public class EventController {
                         criteriaBuilder.equal(root.get(col), value);
                     break;
             }
-            
+            // if a condition was applied, then it adds it on (all together will chain with other filters)
             if (condition != null){
                 spec = spec.and(condition);
             }
@@ -131,9 +125,10 @@ public class EventController {
     )
     public Event createEvent(@RequestBody Event event){
         // createEvent(name, date, location, attendance, fee?, philanthropy?, conference?):
-        //     Takes in info to create an entry in the Event table
+        //     INPUT: event: Event - the event to be saved to the database
         //     OUTPUT: created event
 
+        // saves the passed Event object to the database
         return this.eventRepository.save(event);
     }
 
@@ -144,14 +139,15 @@ public class EventController {
     )
     public Event editEvent(@PathVariable("id") Integer id, @RequestBody Event event){
         // editEvent(id, editArray[]): bool
-        //     The ID of the event and the array of columns to be changed
+        //     INPUT: id: int - The ID of the event, event: Event - the updated Event object
         //     OUTPUT: success or not
         Optional<Event> eventToUpdateOptional = this.eventRepository.findById(id);
         if (!eventToUpdateOptional.isPresent()){
             return null;
         }
         Event newEvent = eventToUpdateOptional.get();
-
+        // looks through the attributes of the event and if it is set in the object passed, will 
+        // set it to be the same in the new event
         if (event.getName() != null){
             newEvent.setName(event.getName());
         }
@@ -187,12 +183,14 @@ public class EventController {
     )
     public Event feeFlagEvent(@PathVariable("id") Integer id, @PathVariable("num") Integer num){
         // feeFlagEvent(id, num): bool
-        //     The id of the item to change the fee flag (from database), and what to set it to
+        //     INPUT: id: Integer - The id of the item to change the fee flag (from database), num: Integer -  what to set the flag to
         //     OUTPUT: updated event
+        // sets the feeFlag to be 1 or 0
         Optional<Event> eventToUpdateOptional = this.eventRepository.findById(id);
         if (!eventToUpdateOptional.isPresent()){
             return null;
         }
+
         Event updateEvent = eventToUpdateOptional.get();
         if (num == 0){
             updateEvent.setFeeFlag(0);
@@ -210,8 +208,9 @@ public class EventController {
     )
     public Event philFlagEvent(@PathVariable("id") Integer id, @PathVariable("num") Integer num){
         // feeFlagEvent(id, num): bool
-        //     The id of the item to change the fee flag (from database), and what to set it to
+        //     INPUT: id: Integer - The id of the item to change the philanthropy flag (from database), num: Integer -  what to set the flag to
         //     OUTPUT: updated event
+        // sets the philanthropyFlag to be 1 or 0
         Optional<Event> eventToUpdateOptional = this.eventRepository.findById(id);
         if (!eventToUpdateOptional.isPresent()){
             return null;
@@ -233,8 +232,9 @@ public class EventController {
     @PutMapping("/event/conf_flag_id={id}_num={num}")
     public Event confFlagEvent(@PathVariable("id") Integer id, @PathVariable("num") Integer num){
         // feeFlagEvent(id, num): bool
-        //     The id of the item to change the fee flag (from database), and what to set it to
+        //     INPUT: id: Integer - The id of the item to change the conference flag (from database), num: Integer -  what to set the flag to
         //     OUTPUT: updated event
+        // sets the conferenceFlag to be 1 or 0
         Optional<Event> eventToUpdateOptional = this.eventRepository.findById(id);
         if (!eventToUpdateOptional.isPresent()){
             return null;
@@ -256,8 +256,9 @@ public class EventController {
     )
     public Event deleteEvent(@PathVariable("id") Integer id){
         // deleteEvent(id): bool
-        //     The id of the item to be deleted (from display, not database)
+        //     INPUT: id: Integer - The id of the item to be deleted (from the database)
         //     OUTPUT: deleted event
+        // sets the delete flag to be 1 
         Optional<Event> eventToDeleteOptional = this.eventRepository.findById(id);
         if (!eventToDeleteOptional.isPresent()){
             return null;
