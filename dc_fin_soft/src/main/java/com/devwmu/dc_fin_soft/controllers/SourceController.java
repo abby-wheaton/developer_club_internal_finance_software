@@ -21,7 +21,7 @@ public class SourceController {
     public SourceController(final SourceRepository sourceRepository) {
     this.sourceRepository = sourceRepository;
   }
-    @GetMapping("/sources")
+    @GetMapping("/all")
     @Operation(
         summary = "Retrives all of the sources",
         description = "Takes in no input, and returns all of the rows in the Sources table"
@@ -32,7 +32,7 @@ public class SourceController {
         return this.sourceRepository.findAll();
     }
 
-    @PutMapping("/sources/search")
+    @PutMapping("/search")
     @Operation(
         summary = "Filters through the sources based on specified values",
         description = "Takes in a JSON array, where each element is a Filter object consisting of the column to filter by, the operation to filter based on, and the desired value, and returns all of the rows in the Sources table which match the Filter objects"
@@ -102,7 +102,7 @@ public class SourceController {
         return this.sourceRepository.findAll(spec);
     }
 
-    @PostMapping("/source")
+    @PostMapping("/source/create")
     @Operation(
         summary = "Adds a source to the Sources table",
         description = "Takes in a JSON object and adds that Request to the Sources table. Returns the object on success"
@@ -115,7 +115,7 @@ public class SourceController {
         //     OUTPUT: created source
     }
 
-    @PutMapping("/source/edit_{id}")
+    @PutMapping("/source/edit_id={id}")
     @Operation(
         summary = "Edits a source in the Sources table",
         description = "Takes in a JSON object and the id of the event to edit, and edits that Source in the Sources table with the new values provided. Returns the object on success"
@@ -160,7 +160,7 @@ public class SourceController {
 
     }
 
-    @PutMapping("/source/delete_{id}")
+    @PutMapping("/source/delete_id={id}")
     @Operation(
         summary = "Deletes a source from the Sources table",
         description = "Modifies the deleted column of the source based on the id provided to be 1"

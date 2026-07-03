@@ -22,7 +22,7 @@ public class RequestController {
     this.requestRepository = requestRepository;
   }
 
-    @GetMapping("/requests")
+    @GetMapping("/all")
     @Operation(
         summary = "Retrives all of the requests",
         description = "Takes in no input, and returns all of the rows in the Requests table"
@@ -33,7 +33,7 @@ public class RequestController {
         // returns all of the rows in the requests table
         return this.requestRepository.findAll();
     }
-    @PutMapping("/requests/search")
+    @PutMapping("/search")
     @Operation(
         summary = "Filters through the requests based on specified values",
         description = "Takes in a JSON array, where each element is a Filter object consisting of the column to filter by, the operation to filter based on, and the desired value, and returns all of the rows in the Requests table which match the Filter objects"
@@ -118,7 +118,7 @@ public class RequestController {
         return this.requestRepository.findAll(spec);
     }
 
-    @PostMapping("/request")
+    @PostMapping("/request/create")
     @Operation(
         summary = "Adds a request to the Requests table",
         description = "Takes in a JSON object and adds that Request to the Requests table. Returns the object on success"
@@ -131,7 +131,7 @@ public class RequestController {
         return this.requestRepository.save(request);
     }
 
-    @PutMapping("/request/edit_{id}")
+    @PutMapping("/request/edit_id={id}")
     @Operation(
         summary = "Edits a request in the Requests table",
         description = "Takes in a JSON object and the id of the event to edit, and edits that Request in the Requests table with the new values provided. Returns the object on success"
@@ -180,7 +180,7 @@ public class RequestController {
         return this.requestRepository.save(newRequest);
     }
 
-    @PutMapping("/request/delete_{id}")
+    @PutMapping("/request/delete_id={id}")
     @Operation(
         summary = "Deletes an event from the Requests table",
         description = "Modifies the deleted column of the request based on the id provided to be 1"

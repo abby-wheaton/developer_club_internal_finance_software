@@ -27,7 +27,7 @@ public class EventController {
         summary = "Filters through events based on specified values",
         description = "Takes in a JSON array, where each element is a Filter object consisting of the column to filter by, the operation to filter based on, and the desired value, and returns all of the rows in the Events table which match the Filter objects"
     )
-    @PutMapping("/events/search")
+    @PutMapping("/search")
     public Iterable<Event> filterEvents(@RequestBody Filter[] filters){
         // filterEvents(filterArray[]) Iterable<Event>
         //     INPUT: filters: Filter[] -  an array of filters to apply to the table
@@ -113,12 +113,12 @@ public class EventController {
         summary = "Retrives all of the events",
         description = "Takes in no input, and returns all of the rows in the Events table"
     )
-    @GetMapping("/all_events")
+    @GetMapping("/all")
     public Iterable<Event> getAllEvents() {
         return this.eventRepository.findAll();
     }
     
-    @PostMapping("/event")
+    @PostMapping("/event/create")
     @Operation(
         summary = "Adds an event to the Events table",
         description = "Takes in a JSON object and adds that Event to the Events table. Returns the object on success"
@@ -132,7 +132,7 @@ public class EventController {
         return this.eventRepository.save(event);
     }
 
-    @PutMapping("/event/edit_{id}")
+    @PutMapping("/event/edit_id={id}")
     @Operation(
         summary = "Edits a calandar event in the Events table",
         description = "Takes in a JSON object and the id of the event to edit, and edits that Event in the Events table with the new values provided. Returns the object on success"
@@ -176,14 +176,14 @@ public class EventController {
         return this.eventRepository.save(newEvent);
     }
 
-    @PutMapping("/event/fee_flag_id={id}_num={num}")
+    @PutMapping("/event/fee_flag_id={id}_val={val}")
     @Operation(
         summary = "Toggles the feeFlag for an event",
         description = "Using the id provided, it will toggle the feeFlag for an event to either 1 or 0"
     )
-    public Event feeFlagEvent(@PathVariable("id") Integer id, @PathVariable("num") Integer num){
-        // feeFlagEvent(id, num): bool
-        //     INPUT: id: Integer - The id of the item to change the fee flag (from database), num: Integer -  what to set the flag to
+    public Event feeFlagEvent(@PathVariable("id") Integer id, @PathVariable("val") Integer val){
+        // feeFlagEvent(id, val): bool
+        //     INPUT: id: Integer - The id of the item to change the fee flag (from database), val: Integer -  what to set the flag to
         //     OUTPUT: updated event
         // sets the feeFlag to be 1 or 0
         Optional<Event> eventToUpdateOptional = this.eventRepository.findById(id);
@@ -192,7 +192,7 @@ public class EventController {
         }
 
         Event updateEvent = eventToUpdateOptional.get();
-        if (num == 0){
+        if (val == 0){
             updateEvent.setFeeFlag(0);
         }
         else{
@@ -201,14 +201,14 @@ public class EventController {
         return this.eventRepository.save(updateEvent);
     }
 
-    @PutMapping("/event/phil_flag_id={id}_num=_{num}")
+    @PutMapping("/event/phil_flag_id={id}_val=_{val}")
     @Operation(
         summary = "Toggles the philanthropyFlag for an event",
         description = "Using the id provided, it will toggle the philanthropyFlag for an event to either 1 or 0"
     )
-    public Event philFlagEvent(@PathVariable("id") Integer id, @PathVariable("num") Integer num){
-        // feeFlagEvent(id, num): bool
-        //     INPUT: id: Integer - The id of the item to change the philanthropy flag (from database), num: Integer -  what to set the flag to
+    public Event philFlagEvent(@PathVariable("id") Integer id, @PathVariable("val") Integer val){
+        // feeFlagEvent(id, val): bool
+        //     INPUT: id: Integer - The id of the item to change the philanthropy flag (from database), val: Integer -  what to set the flag to
         //     OUTPUT: updated event
         // sets the philanthropyFlag to be 1 or 0
         Optional<Event> eventToUpdateOptional = this.eventRepository.findById(id);
@@ -216,7 +216,7 @@ public class EventController {
             return null;
         }
         Event updateEvent = eventToUpdateOptional.get();
-        if (num == 0){
+        if (val == 0){
             updateEvent.setPhilanthropyFlag(0);
         }
         else{
@@ -229,10 +229,10 @@ public class EventController {
         summary = "Toggles the conferenceFlag for an event",
         description = "Using the id provided, it will toggle the conferenceFlag for an event to either 1 or 0"
     )
-    @PutMapping("/event/conf_flag_id={id}_num={num}")
-    public Event confFlagEvent(@PathVariable("id") Integer id, @PathVariable("num") Integer num){
-        // feeFlagEvent(id, num): bool
-        //     INPUT: id: Integer - The id of the item to change the conference flag (from database), num: Integer -  what to set the flag to
+    @PutMapping("/event/conf_flag_id={id}_val={val}")
+    public Event confFlagEvent(@PathVariable("id") Integer id, @PathVariable("val") Integer val){
+        // feeFlagEvent(id, val): bool
+        //     INPUT: id: Integer - The id of the item to change the conference flag (from database), val: Integer -  what to set the flag to
         //     OUTPUT: updated event
         // sets the conferenceFlag to be 1 or 0
         Optional<Event> eventToUpdateOptional = this.eventRepository.findById(id);
@@ -240,7 +240,7 @@ public class EventController {
             return null;
         }
         Event updateEvent = eventToUpdateOptional.get();
-        if (num == 0){
+        if (val == 0){
             updateEvent.setConferenceFlag(0);
         }
         else{
@@ -249,7 +249,7 @@ public class EventController {
         return this.eventRepository.save(updateEvent);
     }
 
-    @PutMapping("/event/delete_{id}")
+    @PutMapping("/event/delete_id={id}")
     @Operation(
         summary = "Deletes an event from the Events table",
         description = "Modifies the deleted column of the event based on the id provided to be 1"

@@ -20,7 +20,7 @@ public class FinanceGroupController {
     public FinanceGroupController(final FinanceGroupRepository financeGroupRepository) {
     this.financeGroupRepository = financeGroupRepository;
   }
-    @GetMapping("/finance_groups")
+    @GetMapping("/all")
     @Operation(
         summary = "Retrives all of the finance groups",
         description = "Takes in no input, and returns all of the rows in the Finance Group table"
@@ -82,7 +82,7 @@ public class FinanceGroupController {
         return this.financeGroupRepository.findAll(spec);
     }
 
-    @PutMapping("/finance_group_users/add_{user}")
+    @PutMapping("/finance_group_users/add_user={user}")
     @Operation(
         summary = "Adds a user to a specific finance group",
         description = "Modifies the finance group attribute of a user, using the id provided and the group name. Returns the user on success"
@@ -98,7 +98,7 @@ public class FinanceGroupController {
         return new FinanceGroup();
     }
 
-    @PutMapping("/finance_group_users/remove_{user}")
+    @PutMapping("/finance_group_users/remove_user={user}")
     @Operation(
         summary = "Deletes a user from a specific finance group",
         description = "Modifies the finance group attribute of a user, using the id provided. Returns the user on success"
@@ -114,7 +114,7 @@ public class FinanceGroupController {
         return new FinanceGroup();
     }
 
-    @PostMapping("/finance_group")
+    @PostMapping("/finance_group/create")
     @Operation(
         summary = "Adds a new finance group",
         description = "Takes in a JSON representation of a FinanceGroup object and adds it to the Finance Group table. Returns the FinanceGroup object on success"
@@ -128,7 +128,7 @@ public class FinanceGroupController {
         return this.financeGroupRepository.save(financeGroup);
     }
 
-    @PutMapping("/finance_group_{id}")
+    @PutMapping("/finance_group/remove_id={id}")
     @Operation(
         summary = "Removes a finance group",
         description = "Takes in the id of a Finance Group and sets the deleted column to 1. Returns the FinanceGroup object on success"
