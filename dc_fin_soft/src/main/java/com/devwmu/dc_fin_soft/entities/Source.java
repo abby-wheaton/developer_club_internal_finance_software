@@ -2,6 +2,8 @@ package com.devwmu.dc_fin_soft.entities;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @Entity
 @Table(name = "Source")
 public class Source {
@@ -11,27 +13,35 @@ public class Source {
     @Column(name = "id")
     private Integer id;
 
+    @Schema(description = "The name of the source", example = "WSA", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="name")
     private String name;
 
+    @Schema(description = "What type the source is", example = "Event", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     @Column(name ="type")
     private String type;
 
+    @Schema(description = "A flag for if the source is internal or external", example = "0", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="internal")
     private Integer internal;
 
+    @Schema(description = "What the cap on money spent is for this source", example = "8000", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="money_cap")
     private BigDecimal money_cap;
 
+    @Schema(description = "How much money has already been spent for this source", example = "1000", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="spent")
     private BigDecimal spent;
 
+    @Schema(description = "How much money has been budgeted for for this source", example = "1500", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="budgeted")
     private BigDecimal budgeted;
 
+    @Schema(description = "How much money is avaiable for this source", example = "6500", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="available")
     private BigDecimal available;
 
+    @Schema(description = "A flag for if this source is deleted or not", example = "0", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="deleted")
     private Integer deleted;
 
