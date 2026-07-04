@@ -1,8 +1,6 @@
 package com.devwmu.dc_fin_soft.entities;
 import java.time.LocalDateTime;
 
-import org.springframework.boot.micrometer.metrics.autoconfigure.export.prometheus.PrometheusProperties.Pushgateway.Scheme;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 

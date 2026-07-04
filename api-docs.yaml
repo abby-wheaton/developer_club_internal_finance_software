@@ -1,15 +1,36 @@
 openapi: 3.1.0
 info:
-  title: OpenAPI definition
-  version: v0
+  title: WMU Developer Club's Financial API
+  description: What this api is
+  contact:
+    name: API support
+    email: devclubidk@email.com
+  version: v1.0
 servers:
 - url: http://localhost:8080
   description: Generated server url
+tags:
+- name: Finance Groups
+  description: Controls the various finance groups and who is all in them
+- name: Calendar Events
+  description: This controller interacts with the Calandar table to display calandar
+    events
+- name: Sources
+  description: This controller interacts with the sources table in various ways
+- name: Expense Controller
+  description: This controller interacts with the expense table in various ways
+- name: Event Controller
+  description: This controller interacts with the Event table in various ways
 paths:
-  /requests/requests/search:
+  /requests/search:
     put:
       tags:
       - request-controller
+      summary: Filters through the requests based on specified values
+      description: "Takes in a JSON array, where each element is a Filter object consisting\
+        \ of the column to filter by, the operation to filter based on, and the desired\
+        \ value, and returns all of the rows in the Requests table which match the\
+        \ Filter objects"
       operationId: filterRequests
       requestBody:
         content:
@@ -26,10 +47,14 @@ paths:
             '*/*':
               schema:
                 type: object
-  /requests/request/edit_{id}:
+  /requests/request/edit_id={id}:
     put:
       tags:
       - request-controller
+      summary: Edits a request in the Requests table
+      description: "Takes in a JSON object and the id of the event to edit, and edits\
+        \ that Request in the Requests table with the new values provided. Returns\
+        \ the object on success"
       operationId: editRequest
       parameters:
       - name: id
@@ -51,10 +76,13 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Request"
-  /requests/request/delete_{id}:
+  /requests/request/delete_id={id}:
     put:
       tags:
       - request-controller
+      summary: Deletes an event from the Requests table
+      description: Modifies the deleted column of the request based on the id provided
+        to be 1
       operationId: deleteRequest
       parameters:
       - name: id
@@ -70,13 +98,22 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Request"
-  /requests/request/approve_{id}:
+  /requests/request/approve_id={id}_val={val}:
     put:
       tags:
       - request-controller
+      summary: Toggles the approved flag for an event
+      description: "Using the id provided, it will toggle the approved flag for an\
+        \ expense to either 1 or 0"
       operationId: approveRequest
       parameters:
       - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: val
         in: path
         required: true
         schema:
@@ -92,7 +129,10 @@ paths:
   /expense/item/s_buying_flag_id={id}_num={num}:
     put:
       tags:
-      - expense-controller
+      - Expense Controller
+      summary: Toggles the startedBuyingFlag for an expense
+      description: "Using the id provided, it will toggle the startedBuyingFlag for\
+        \ an expense to either 1 or 0"
       operationId: sBuyingFlagItem
       parameters:
       - name: id
@@ -117,7 +157,10 @@ paths:
   /expense/item/requested_flag_id={id}_num={num}:
     put:
       tags:
-      - expense-controller
+      - Expense Controller
+      summary: Toggles the requestedFlag for an expense
+      description: "Using the id provided, it will toggle the requestedFlag for an\
+        \ expense to either 1 or 0"
       operationId: requestedFlagItem
       parameters:
       - name: id
@@ -142,7 +185,10 @@ paths:
   /expense/item/reimbursed_flag_id={id}_num={num}:
     put:
       tags:
-      - expense-controller
+      - Expense Controller
+      summary: Toggles the reimbursedFlag for an expense
+      description: "Using the id provided, it will toggle the reimbursedFlag for an\
+        \ expense to either 1 or 0"
       operationId: reimbursedFlagItem
       parameters:
       - name: id
@@ -167,7 +213,10 @@ paths:
   /expense/item/picked_up_flag_id={id}_num={num}:
     put:
       tags:
-      - expense-controller
+      - Expense Controller
+      summary: Toggles the pickedUpFlag for an expense
+      description: "Using the id provided, it will toggle the pickedUpFlag for an\
+        \ expense to either 1 or 0"
       operationId: pickedUpFlagItem
       parameters:
       - name: id
@@ -192,7 +241,10 @@ paths:
   /expense/item/food_flag_id={id}_num={num}:
     put:
       tags:
-      - expense-controller
+      - Expense Controller
+      summary: Toggles the feeFlag for an expense
+      description: "Using the id provided, it will toggle the foodFlag for an expense\
+        \ to either 1 or 0"
       operationId: FoodFlagItem
       parameters:
       - name: id
@@ -217,7 +269,10 @@ paths:
   /expense/item/f_buying_flag_id={id}_num={num}:
     put:
       tags:
-      - expense-controller
+      - Expense Controller
+      summary: Toggles the finishedBuyingFlag for an expense
+      description: "Using the id provided, it will toggle the finishedBuyingFlag for\
+        \ an expense to either 1 or 0"
       operationId: fBuyingFlagItem
       parameters:
       - name: id
@@ -242,7 +297,11 @@ paths:
   /expense/item/edit_{id}:
     put:
       tags:
-      - expense-controller
+      - Expense Controller
+      summary: Edits an expense in the Expenses table
+      description: "Takes in a JSON object and the id of the expense to edit, and\
+        \ edits that expense in the Expenses table with the new values provided. Returns\
+        \ the object on success"
       operationId: editItem
       parameters:
       - name: id
@@ -267,7 +326,10 @@ paths:
   /expense/item/delete_{id}:
     put:
       tags:
-      - expense-controller
+      - Expense Controller
+      summary: Deletes an expense from the Expenses table
+      description: Modifies the deleted column of the expense based on the id provided
+        to be 1
       operationId: deleteItem
       parameters:
       - name: id
@@ -283,10 +345,40 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Expense"
-  /event/events/search:
+  /expense/expenses/search:
     put:
       tags:
-      - event-controller
+      - Expense Controller
+      summary: Filters through expenses based on specified values
+      description: "Takes in a JSON array, where each element is a Filter object consisting\
+        \ of the column to filter by, the operation to filter based on, and the desired\
+        \ value, and returns all of the rows in the Expenses table which match the\
+        \ Filter objects"
+      operationId: filterExpenses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/Filter"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /event/search:
+    put:
+      tags:
+      - Event Controller
+      summary: Filters through events based on specified values
+      description: "Takes in a JSON array, where each element is a Filter object consisting\
+        \ of the column to filter by, the operation to filter based on, and the desired\
+        \ value, and returns all of the rows in the Events table which match the Filter\
+        \ objects"
       operationId: filterEvents
       requestBody:
         content:
@@ -303,10 +395,13 @@ paths:
             '*/*':
               schema:
                 type: object
-  /event/event/phil_flag_id={id}_num=_{num}:
+  /event/event/phil_flag_id={id}_val=_{val}:
     put:
       tags:
-      - event-controller
+      - Event Controller
+      summary: Toggles the philanthropyFlag for an event
+      description: "Using the id provided, it will toggle the philanthropyFlag for\
+        \ an event to either 1 or 0"
       operationId: philFlagEvent
       parameters:
       - name: id
@@ -315,7 +410,7 @@ paths:
         schema:
           type: integer
           format: int32
-      - name: num
+      - name: val
         in: path
         required: true
         schema:
@@ -328,10 +423,13 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Event"
-  /event/event/fee_flag_id={id}_num={num}:
+  /event/event/fee_flag_id={id}_val={val}:
     put:
       tags:
-      - event-controller
+      - Event Controller
+      summary: Toggles the feeFlag for an event
+      description: "Using the id provided, it will toggle the feeFlag for an event\
+        \ to either 1 or 0"
       operationId: feeFlagEvent
       parameters:
       - name: id
@@ -340,7 +438,7 @@ paths:
         schema:
           type: integer
           format: int32
-      - name: num
+      - name: val
         in: path
         required: true
         schema:
@@ -353,10 +451,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Event"
-  /event/event/edit_{id}:
+  /event/event/edit_id={id}:
     put:
       tags:
-      - event-controller
+      - Event Controller
+      summary: Edits a calandar event in the Events table
+      description: "Takes in a JSON object and the id of the event to edit, and edits\
+        \ that Event in the Events table with the new values provided. Returns the\
+        \ object on success"
       operationId: editEvent
       parameters:
       - name: id
@@ -378,10 +480,13 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Event"
-  /event/event/delete_{id}:
+  /event/event/delete_id={id}:
     put:
       tags:
-      - event-controller
+      - Event Controller
+      summary: Deletes an event from the Events table
+      description: Modifies the deleted column of the event based on the id provided
+        to be 1
       operationId: deleteEvent
       parameters:
       - name: id
@@ -397,10 +502,13 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Event"
-  /event/event/conf_flag_id={id}_num={num}:
+  /event/event/conf_flag_id={id}_val={val}:
     put:
       tags:
-      - event-controller
+      - Event Controller
+      summary: Toggles the conferenceFlag for an event
+      description: "Using the id provided, it will toggle the conferenceFlag for an\
+        \ event to either 1 or 0"
       operationId: confFlagEvent
       parameters:
       - name: id
@@ -409,7 +517,7 @@ paths:
         schema:
           type: integer
           format: int32
-      - name: num
+      - name: val
         in: path
         required: true
         schema:
@@ -422,10 +530,39 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Event"
+  /calendar/calendar_events/search:
+    put:
+      tags:
+      - Calendar Events
+      summary: Filters through the calandar events based on specified values
+      description: "Takes in a JSON array, where each element is a Filter object consisting\
+        \ of the column to filter by, the operation to filter based on, and the desired\
+        \ value, and returns all of the rows in the calandar table which match the\
+        \ Filter objects"
+      operationId: filterCalendarEvents
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/Filter"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
   /calendar/calendar_event/edit_{id}:
     put:
       tags:
-      - calendar-event-controller
+      - Calendar Events
+      summary: Edits a calandar event in the Calandar table
+      description: "Takes in a JSON object and the id of the event to edit, and edits\
+        \ that CalandarEvent in the Calandar table with the new values provided. Returns\
+        \ the object on success"
       operationId: editCalendarEvent
       parameters:
       - name: id
@@ -447,30 +584,36 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CalendarEvent"
-  /admin/sources/sources/search:
+  /calendar/calendar_event/delete_{id}:
     put:
       tags:
-      - source-controller
-      operationId: filterSources
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: "#/components/schemas/Filter"
+      - Calendar Events
+      summary: Deletes an event from the Calandar table
+      description: Modifies the deleted column of the calandar event based on the
+        id provided to be 1
+      operationId: deleteCalendarEvent
+      parameters:
+      - name: id
+        in: path
         required: true
+        schema:
+          type: integer
+          format: int32
       responses:
         "200":
           description: OK
           content:
             '*/*':
               schema:
-                type: object
-  /admin/sources/source/edit_{id}:
+                $ref: "#/components/schemas/CalendarEvent"
+  /admin/sources/source/edit_id={id}:
     put:
       tags:
-      - source-controller
+      - Sources
+      summary: Edits a source in the Sources table
+      description: "Takes in a JSON object and the id of the event to edit, and edits\
+        \ that Source in the Sources table with the new values provided. Returns the\
+        \ object on success"
       operationId: editSource
       parameters:
       - name: id
@@ -492,10 +635,13 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Source"
-  /admin/sources/source/delete_{id}:
+  /admin/sources/source/delete_id={id}:
     put:
       tags:
-      - source-controller
+      - Sources
+      summary: Deletes a source from the Sources table
+      description: Modifies the deleted column of the source based on the id provided
+        to be 1
       operationId: deleteSource
       parameters:
       - name: id
@@ -511,10 +657,40 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Source"
+  /admin/sources/search:
+    put:
+      tags:
+      - Sources
+      summary: Filters through the sources based on specified values
+      description: "Takes in a JSON array, where each element is a Filter object consisting\
+        \ of the column to filter by, the operation to filter based on, and the desired\
+        \ value, and returns all of the rows in the Sources table which match the\
+        \ Filter objects"
+      operationId: filterSources
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/Filter"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
   /admin/groups/finance_groups/search:
     put:
       tags:
-      - finance-group-controller
+      - Finance Groups
+      summary: Filters through finance groups based on specified values
+      description: "Takes in a JSON array, where each element is a Filter object consisting\
+        \ of the column to filter by, the operation to filter based on, and the desired\
+        \ value, and returns all of the rows in the Finance Group table which match\
+        \ the Filter objects"
       operationId: filterFinanceGroups
       requestBody:
         content:
@@ -531,29 +707,13 @@ paths:
             '*/*':
               schema:
                 type: object
-  /admin/groups/finance_group_{id}:
+  /admin/groups/finance_group_users/remove_user={user}:
     put:
       tags:
-      - finance-group-controller
-      operationId: removeGroup
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int32
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/FinanceGroup"
-  /admin/groups/finance_group_users/remove_{user}:
-    put:
-      tags:
-      - finance-group-controller
+      - Finance Groups
+      summary: Deletes a user from a specific finance group
+      description: "Modifies the finance group attribute of a user, using the id provided.\
+        \ Returns the user on success"
       operationId: removeUserFromGroup
       responses:
         "200":
@@ -562,11 +722,36 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/FinanceGroup"
-  /admin/groups/finance_group_users/add_{user}:
+  /admin/groups/finance_group_users/add_user={user}:
     put:
       tags:
-      - finance-group-controller
+      - Finance Groups
+      summary: Adds a user to a specific finance group
+      description: "Modifies the finance group attribute of a user, using the id provided\
+        \ and the group name. Returns the user on success"
       operationId: addUserToGroup
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/FinanceGroup"
+  /admin/groups/finance_group/remove_id={id}:
+    put:
+      tags:
+      - Finance Groups
+      summary: Removes a finance group
+      description: Takes in the id of a Finance Group and sets the deleted column
+        to 1. Returns the FinanceGroup object on success
+      operationId: removeGroup
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
       responses:
         "200":
           description: OK
@@ -586,10 +771,13 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Request"
-  /requests/request:
+  /requests/request/create:
     post:
       tags:
       - request-controller
+      summary: Adds a request to the Requests table
+      description: Takes in a JSON object and adds that Request to the Requests table.
+        Returns the object on success
       operationId: createRequest
       requestBody:
         content:
@@ -619,7 +807,7 @@ paths:
   /expense/receipt:
     post:
       tags:
-      - expense-controller
+      - Expense Controller
       operationId: addReceipt
       responses:
         "200":
@@ -631,7 +819,7 @@ paths:
   /expense/operational_allocation_form:
     post:
       tags:
-      - expense-controller
+      - Expense Controller
       operationId: createOperationalAllocationForm
       responses:
         "200":
@@ -643,7 +831,10 @@ paths:
   /expense/item:
     post:
       tags:
-      - expense-controller
+      - Expense Controller
+      summary: Adds an event to the Expenses table
+      description: Takes in a JSON object and adds that Expense to the Expenses table.
+        Returns the object on success
       operationId: budgetItem
       requestBody:
         content:
@@ -661,7 +852,7 @@ paths:
   /expense/food_budget_too_high:
     post:
       tags:
-      - expense-controller
+      - Expense Controller
       operationId: foodBudgetTooHighAlert
       responses:
         "200":
@@ -673,7 +864,7 @@ paths:
   /expense/deadline_past:
     post:
       tags:
-      - expense-controller
+      - Expense Controller
       operationId: deadlinePastAlert
       responses:
         "200":
@@ -685,7 +876,7 @@ paths:
   /expense/allocation_too_big:
     post:
       tags:
-      - expense-controller
+      - Expense Controller
       operationId: allocationTooBigAlert
       responses:
         "200":
@@ -697,7 +888,7 @@ paths:
   /expense/allocation_not_spent:
     post:
       tags:
-      - expense-controller
+      - Expense Controller
       operationId: allocationNotSpentAlert
       responses:
         "200":
@@ -709,7 +900,7 @@ paths:
   /event/event_allocation_form:
     post:
       tags:
-      - event-controller
+      - Event Controller
       operationId: createEventAllocationForm
       responses:
         "200":
@@ -718,10 +909,13 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Event"
-  /event/event:
+  /event/event/create:
     post:
       tags:
-      - event-controller
+      - Event Controller
+      summary: Adds an event to the Events table
+      description: Takes in a JSON object and adds that Event to the Events table.
+        Returns the object on success
       operationId: createEvent
       requestBody:
         content:
@@ -739,7 +933,7 @@ paths:
   /event/conference_allocation_form:
     post:
       tags:
-      - event-controller
+      - Event Controller
       operationId: createConferenceAllocationForm
       responses:
         "200":
@@ -751,7 +945,7 @@ paths:
   /calendar/reimbursement_deadline_soon:
     post:
       tags:
-      - calendar-event-controller
+      - Calendar Events
       operationId: reimbursementDeadlineSoonNotify
       responses:
         "200":
@@ -763,7 +957,7 @@ paths:
   /calendar/item_deadline_soon:
     post:
       tags:
-      - calendar-event-controller
+      - Calendar Events
       operationId: itemDeadlineSoonNotify
       responses:
         "200":
@@ -775,7 +969,7 @@ paths:
   /calendar/deliberation_deadline_soon:
     post:
       tags:
-      - calendar-event-controller
+      - Calendar Events
       operationId: deliberationDeadlineSoonNotify
       responses:
         "200":
@@ -787,7 +981,10 @@ paths:
   /calendar/calendar_event:
     post:
       tags:
-      - calendar-event-controller
+      - Calendar Events
+      summary: Adds a calandar event to the Calandar table
+      description: Takes in a JSON object and adds that CalandarEvent to the Calandar
+        table. Returns the object on success
       operationId: createCalendarEvent
       requestBody:
         content:
@@ -805,7 +1002,7 @@ paths:
   /calendar/allocate_deadline_soon:
     post:
       tags:
-      - calendar-event-controller
+      - Calendar Events
       operationId: allocateDeadlineSoonNotify
       responses:
         "200":
@@ -814,10 +1011,13 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CalendarEvent"
-  /admin/sources/source:
+  /admin/sources/source/create:
     post:
       tags:
-      - source-controller
+      - Sources
+      summary: Adds a source to the Sources table
+      description: Takes in a JSON object and adds that Request to the Sources table.
+        Returns the object on success
       operationId: createSource
       requestBody:
         content:
@@ -832,10 +1032,13 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Source"
-  /admin/groups/finance_group:
+  /admin/groups/finance_group/create:
     post:
       tags:
-      - finance-group-controller
+      - Finance Groups
+      summary: Adds a new finance group
+      description: Takes in a JSON representation of a FinanceGroup object and adds
+        it to the Finance Group table. Returns the FinanceGroup object on success
       operationId: createGroup
       requestBody:
         content:
@@ -850,10 +1053,13 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/FinanceGroup"
-  /requests/requests:
+  /requests/all:
     get:
       tags:
       - request-controller
+      summary: Retrives all of the requests
+      description: "Takes in no input, and returns all of the rows in the Requests\
+        \ table"
       operationId: getAllRequests
       responses:
         "200":
@@ -865,7 +1071,7 @@ paths:
   /expense/total_price:
     get:
       tags:
-      - expense-controller
+      - Expense Controller
       operationId: calculateRecommendedTotalPrice
       responses:
         "200":
@@ -877,7 +1083,7 @@ paths:
   /expense/source:
     get:
       tags:
-      - expense-controller
+      - Expense Controller
       operationId: calculateRecommendedSource
       responses:
         "200":
@@ -886,30 +1092,27 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Expense"
-  /expense/expenses/search:
+  /expense/expenses:
     get:
       tags:
-      - expense-controller
-      operationId: filterExpenses
-      parameters:
-      - name: filterArray
-        in: query
-        required: true
-        schema:
-          type: array
-          items:
-            type: string
+      - Expense Controller
+      summary: Retrieves all of the expenses
+      description: "Takes in no input, and returns all of the rows in the Expense\
+        \ table"
+      operationId: getAllExpenses
       responses:
         "200":
           description: OK
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Expense"
-  /event/all_events:
+                type: object
+  /event/all:
     get:
       tags:
-      - event-controller
+      - Event Controller
+      summary: Retrives all of the events
+      description: "Takes in no input, and returns all of the rows in the Events table"
       operationId: getAllEvents
       responses:
         "200":
@@ -918,22 +1121,28 @@ paths:
             '*/*':
               schema:
                 type: object
-  /calendar/calendar_events/search:
+  /calendar/calendar_events:
     get:
       tags:
-      - calendar-event-controller
-      operationId: filterCalendarEvents
+      - Calendar Events
+      summary: Retrives all of the calandar events
+      description: "Takes in no input, and returns all of the rows in the calandar\
+        \ table"
+      operationId: getAllCalendarEvents
       responses:
         "200":
           description: OK
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/CalendarEvent"
-  /admin/sources/sources:
+                type: object
+  /admin/sources/all:
     get:
       tags:
-      - source-controller
+      - Sources
+      summary: Retrives all of the sources
+      description: "Takes in no input, and returns all of the rows in the Sources\
+        \ table"
       operationId: getAllSources
       responses:
         "200":
@@ -942,10 +1151,13 @@ paths:
             '*/*':
               schema:
                 type: object
-  /admin/groups/finance_groups:
+  /admin/groups/all:
     get:
       tags:
-      - finance-group-controller
+      - Finance Groups
+      summary: Retrives all of the finance groups
+      description: "Takes in no input, and returns all of the rows in the Finance\
+        \ Group table"
       operationId: getAllFinanceGroups
       responses:
         "200":
@@ -954,25 +1166,6 @@ paths:
             '*/*':
               schema:
                 type: object
-  /calendar/calendar_event/delete_{id}:
-    delete:
-      tags:
-      - calendar-event-controller
-      operationId: deleteCalendarEvent
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int32
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/CalendarEvent"
 components:
   schemas:
     Filter:
@@ -993,17 +1186,27 @@ components:
         approval:
           type: integer
           format: int32
+          description: "Whether or not the request has been approved, denied, or neither"
+          example: 1
         quantity:
           type: integer
           format: int32
+          description: The number of items that is being requested
+          example: 12
         deadline:
           type: string
           format: date-time
+          description: When the item is needed by
+          example: 2026-05-23T05:00:00
         purpose:
           type: string
+          description: Why the requestee is asking for the item
+          example: the attendees of event x need food
         deleted:
           type: integer
           format: int32
+          description: A flag for if the request has been deleted or not
+          example: 0
         itemName:
           type: string
         pricePerUnit:
@@ -1013,6 +1216,11 @@ components:
           format: int32
         requesteeUser:
           type: string
+      required:
+      - deadline
+      - deleted
+      - purpose
+      - quantity
     Expense:
       type: object
       properties:
@@ -1036,12 +1244,10 @@ components:
         deleted:
           type: integer
           format: int32
-        deliberationDeadline:
-          type: string
-          format: date-time
-        reimbursementDeadline:
-          type: string
-          format: date-time
+        eventId:
+          type: integer
+          format: int32
+          writeOnly: true
         totalPrice:
           type: number
         sourceId:
@@ -1054,6 +1260,9 @@ components:
           type: number
         paymentType:
           type: string
+        approvedFlag:
+          type: integer
+          format: int32
         pricePerUnit:
           type: number
         itemDeadline:
@@ -1062,9 +1271,12 @@ components:
         requestedFlag:
           type: integer
           format: int32
-        approvedFlag:
-          type: integer
-          format: int32
+        deliberationDeadline:
+          type: string
+          format: date-time
+        reimbursementDeadline:
+          type: string
+          format: date-time
         startedBuyingFlag:
           type: integer
           format: int32
@@ -1084,10 +1296,6 @@ components:
         allocationDeadline:
           type: string
           format: date-time
-        eventId:
-          type: integer
-          format: int32
-          writeOnly: true
     Event:
       type: object
       properties:
@@ -1096,14 +1304,22 @@ components:
           format: int32
         name:
           type: string
+          description: The name of the event
+          example: Opening night
         date:
           type: string
           format: date-time
+          description: The date that the event takes place
+          example: 2026-05-23T05:00:00
         location:
           type: string
+          description: The location that the event takes place
+          example: D204 Floyd Hall
         deleted:
           type: integer
           format: int32
+          description: A flag for if this event is deleted
+          example: 1
         feeFlag:
           type: integer
           format: int32
@@ -1116,6 +1332,11 @@ components:
         conferenceFlag:
           type: integer
           format: int32
+      required:
+      - date
+      - deleted
+      - location
+      - name
     CalendarEvent:
       type: object
       properties:
@@ -1132,9 +1353,6 @@ components:
         deleted:
           type: integer
           format: int32
-        startDateTime:
-          type: string
-          format: date-time
         eventName:
           type: string
         endDateTime:
@@ -1143,27 +1361,51 @@ components:
         groupId:
           type: integer
           format: int32
+        startDateTime:
+          type: string
+          format: date-time
     Source:
       type: object
       properties:
         name:
           type: string
+          description: The name of the source
+          example: WSA
         type:
           type: string
+          description: What type the source is
+          example: Event
         internal:
           type: integer
           format: int32
+          description: A flag for if the source is internal or external
+          example: 0
         spent:
           type: number
+          description: How much money has already been spent for this source
+          example: 1000
         budgeted:
           type: number
+          description: How much money has been budgeted for for this source
+          example: 1500
         available:
           type: number
+          description: How much money is avaiable for this source
+          example: 6500
         deleted:
           type: integer
           format: int32
+          description: A flag for if this source is deleted or not
+          example: 0
         moneyCap:
           type: number
+      required:
+      - available
+      - budgeted
+      - deleted
+      - internal
+      - name
+      - spent
     FinanceGroup:
       type: object
       properties:
@@ -1172,6 +1414,13 @@ components:
           format: int32
         title:
           type: string
+          description: The title of the finance group
+          example: Admin
         deleted:
           type: integer
           format: int32
+          description: A flag for if this finance group is deleted or not
+          example: 1
+      required:
+      - deleted
+      - title
