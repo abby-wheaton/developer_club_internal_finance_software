@@ -1,4 +1,6 @@
 package com.devwmu.dc_fin_soft.controllers;
+import com.devwmu.dc_fin_soft.repositories.ExpenseRepository;
+import com.devwmu.dc_fin_soft.entities.Expense;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.*;
 import com.devwmu.dc_fin_soft.entities.Event;
@@ -16,6 +18,7 @@ import org.apache.commons.io.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.math.BigDecimal;
 
 
 // Fix outputs and inputs
@@ -24,11 +27,15 @@ import java.io.FileOutputStream;
 @RequestMapping("/event")
 @Tag(name = "Event Controller", description = "This controller interacts with the Event table in various ways")
 public class EventController {
+    private final ExpenseRepository expenseRepository;
     private final EventRepository eventRepository;
 
-    public EventController(final EventRepository eventRepository) {
+    public EventController(final EventRepository eventRepository, final ExpenseRepository expenseRepository) {
     this.eventRepository = eventRepository;
+    this.expenseRepository = expenseRepository; 
     }
+
+    
     @Operation(
         summary = "Filters through events based on specified values",
         description = "Takes in a JSON array, where each element is a Filter object consisting of the column to filter by, the operation to filter based on, and the desired value, and returns all of the rows in the Events table which match the Filter objects"
@@ -331,8 +338,117 @@ public class EventController {
             Cell cellr10cE = r10.getCell(4);
             cellr10cE.setCellValue(event.getName());;
 
+            // set event date
+            Row r11 = sheet.getRow(10);
+            Cell cellr11cE = r11.getCell(4);
+            cellr11cE.setCellValue(event.getDate());
 
+            // set event location
+            Row r12 = sheet.getRow(11);
+            Cell cellr12cE = r12.getCell(4);
+            cellr12cE.setCellValue(event.getLocation());
 
+            // set est attendance
+            Row r13 = sheet.getRow(12);
+            Cell cellr13cE = r13.getCell(4);
+            cellr13cE.setCellValue(Integer.toString(event.getEstAttendance()));
+
+            // set fee flag
+            Row r14 = sheet.getRow(13);
+            Cell cellr14cE = r14.getCell(4);
+            if (event.getFeeFlag() == 0){
+                cellr14cE.setCellValue("No");
+            }
+            else{
+                cellr14cE.setCellValue("Yes");
+            }
+
+            // set event already happened flag
+            Row r15 = sheet.getRow(14);
+            Cell cellr15cE = r15.getCell(4);
+            LocalDateTime now = LocalDateTime.now();
+            // checks to see if event has passed
+            if (now.isAfter(event.getDate())){
+                cellr15cE.setCellValue("Yes");
+            }
+            else{
+                cellr15cE.setCellValue("No");
+            }
+
+            // set phil flag
+            Row r16 = sheet.getRow(15);
+            Cell cellr16cE = r16.getCell(4);
+            if (event.getPhilanthropyFlag() == 0){
+                cellr16cE.setCellValue("No");
+            }
+            else{
+                cellr16cE.setCellValue("Yes");
+            }
+
+            // need to get all of the expenses related to this event that is not food
+            Iterable<Expense> expensesNonFood = this.expenseRepository.findByEventIdAndFoodFlag(event.getId(), 0);
+            Integer curRow = 21;
+            BigDecimal foodExpense = new BigDecimal("0");
+            for (Expense expense: expensesNonFood){
+                // name of item
+                Row row = sheet.getRow(curRow);
+                Cell cellName = row.getCell(1);
+                cellName.setCellValue(expense.getName());
+
+                // vendor name
+                Cell cellVendor = row.getCell(2);
+                cellVendor.setCellValue(expense.getVendor());
+
+                // cost
+                Cell cellCost = row.getCell(3);
+                cellCost.setCellValue(expense.getTotalPrice().toString());
+
+                // amount requesting
+                // for now, just total cost as placeholder
+                Cell cellRequesting = row.getCell(4);
+                cellRequesting.setCellValue(expense.getTotalPrice().toString());
+                foodExpense = foodExpense.add(expense.getTotalPrice());
+
+                curRow += 1;
+            }
+
+            // need to get all of the expenses related to this event that is food
+            Iterable<Expense> expensesFood = this.expenseRepository.findByEventIdAndFoodFlag(event.getId(), 1);
+            curRow = 21;
+            BigDecimal nonFoodExpense = new BigDecimal("0");
+            for (Expense expense: expensesFood){
+                // name of item
+                Row row = sheet.getRow(curRow);
+                Cell cellName = row.getCell(6);
+                cellName.setCellValue(expense.getName());
+
+                // vendor name
+                Cell cellVendor = row.getCell(7);
+                cellVendor.setCellValue(expense.getVendor());
+
+                // cost
+                Cell cellCost = row.getCell(8);
+                cellCost.setCellValue(expense.getTotalPrice().toString());
+
+                // amount requesting
+                // for now, just total cost as placeholder
+                Cell cellRequesting = row.getCell(9);
+                cellRequesting.setCellValue(expense.getTotalPrice().toString());
+                nonFoodExpense = nonFoodExpense.add(expense.getTotalPrice());
+
+                curRow += 1;
+            }
+
+            // set totals
+            Cell totalNonFoodCell = r11.getCell(9);
+            totalNonFoodCell.setCellValue(foodExpense.toString());
+
+            Cell totalFoodCell = r12.getCell(9);
+            totalFoodCell.setCellValue(nonFoodExpense.toString());
+
+            Cell totalCell = r15.getCell(9);
+            totalCell.setCellValue(foodExpense.add(nonFoodExpense).toString());
+            
 
             try(FileOutputStream outFile = new FileOutputStream(new File("src/main/java/com/devwmu/dc_fin_soft/controllers/forms/(2026) WSAAC Event Proposal - Developer Club.xlsx"))){
                 workbook.write(outFile);

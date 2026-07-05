@@ -101,7 +101,7 @@ public class ExpenseController {
 
     @PostMapping("/item")
     @Operation(
-        summary = "Adds an event to the Expenses table",
+        summary = "Adds an expense to the Expenses table",
         description = "Takes in a JSON object and adds that Expense to the Expenses table. Returns the object on success"
     )
     public Expense budgetItem(@RequestBody Expense expense){

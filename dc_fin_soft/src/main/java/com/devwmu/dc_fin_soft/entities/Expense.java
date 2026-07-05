@@ -123,6 +123,9 @@ public class Expense {
         return this.source_id;
     }
 
+    public Integer getEventId(){
+        return this.event_id;
+    }
     public String getLink() {
         return this.link;
     }
