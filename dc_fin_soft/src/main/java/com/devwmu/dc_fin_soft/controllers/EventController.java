@@ -11,6 +11,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import org.apache.poi.ss.usermodel.*;
+import org.apache.commons.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
 
 // Fix outputs and inputs
 
@@ -268,18 +274,78 @@ public class EventController {
         return this.eventRepository.save(deleteEvent);
     }
 
-    @PostMapping("/event_allocation_form")
-    public Event createEventAllocationForm(){
+    @PostMapping("/event_allocation_form_id={id}")
+    public Event createEventAllocationForm(@PathVariable("id") Integer id){
         // CUSTOM
         // createEventAllocationForm(ExpenseID): bool
         //     Generates an Event request form
         //     OUTPUT: form
-
+        
         // takes in the event id, extracts info for form, 
+        String rsoName = "Developer Club";
+        String rsoRep = "Khang";
+        String email = "email@email.com";
+
+        Optional<Event> eventOptional = this.eventRepository.findById(id);
+        if (!eventOptional.isPresent()){
+            return null;
+        }
+        Event event = eventOptional.get();
+        File sourceFile = new File("src/main/java/com/devwmu/dc_fin_soft/controllers/forms/(2026) WSAAC Event Proposal - RSO Name.xlsx");
+        File outfile = new File("src/main/java/com/devwmu/dc_fin_soft/controllers/forms/(2026) WSAAC Event Proposal - Developer Club.xlsx");
+        // copy the file, so that it can work on copy to preserve the source file
+        try{
+            FileUtils.copyFile(sourceFile, outfile);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        try(FileInputStream infile = new FileInputStream(outfile)){
+            // create workbook
+            Workbook workbook = WorkbookFactory.create(infile);
+
+            // get proposal sheet
+            Sheet sheet = workbook.getSheetAt(0);
+
+            // set rso name
+            Row r3 = sheet.getRow(2);
+            Cell cellr3cE = r3.getCell(4);
+            cellr3cE.setCellValue(rsoName);
+
+            // set rso rep
+            Row r4 = sheet.getRow(3);
+            Cell cellr4cE = r4.getCell(4);
+            cellr4cE.setCellValue(rsoRep);
+
+            // set email 
+            Row r5 = sheet.getRow(4);
+            Cell cellr5cE = r5.getCell(4);
+            cellr5cE.setCellValue(email);
+
+            // set signiture
+            Row r8 = sheet.getRow(7);
+            Cell cellr8cE = r8.getCell(4);
+            cellr8cE.setCellValue(rsoRep);
+
+            // set event name
+            Row r10 = sheet.getRow(9);
+            Cell cellr10cE = r10.getCell(4);
+            cellr10cE.setCellValue(event.getName());;
+
+
+
+
+            try(FileOutputStream outFile = new FileOutputStream(new File("src/main/java/com/devwmu/dc_fin_soft/controllers/forms/(2026) WSAAC Event Proposal - Developer Club.xlsx"))){
+                workbook.write(outFile);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
         // make calls to excel api to edit the excel file, 
         // then output the form
         return new Event();
-    }
+    } 
 
     @PostMapping("/conference_allocation_form")
     public Event createConferenceAllocationForm(){
