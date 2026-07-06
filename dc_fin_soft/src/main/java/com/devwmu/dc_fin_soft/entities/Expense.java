@@ -31,7 +31,7 @@ public class Expense {
     private String vendor;
 
     @Column(name ="event_id")
-    private Integer event_id;
+    private Integer eventId;
 
     @Column(name ="source_id")
     private Integer source_id;
@@ -46,7 +46,7 @@ public class Expense {
     private Integer community;
 
     @Column(name ="food_flag")
-    private Integer food_flag;
+    private Integer foodFlag;
 
     @Column(name ="requested_flag")
     private Integer requested_flag;
@@ -124,7 +124,7 @@ public class Expense {
     }
 
     public Integer getEventId(){
-        return this.event_id;
+        return this.eventId;
     }
     public String getLink() {
         return this.link;
@@ -139,7 +139,7 @@ public class Expense {
     }
 
     public Integer getFoodFlag() {
-        return this.food_flag;
+        return this.foodFlag;
     }
 
     public Integer getRequestedFlag() {
@@ -224,7 +224,7 @@ public class Expense {
     }
 
     public void setEventId(Integer event_id) {
-        this.event_id = event_id;
+        this.eventId = event_id;
     }
 
     public void setSourceId(Integer source_id) {
@@ -244,7 +244,7 @@ public class Expense {
     }
 
     public void setFoodFlag(Integer food_flag) {
-        this.food_flag = food_flag;
+        this.foodFlag = food_flag;
     }
 
     public void setRequestedFlag(Integer requested_flag) {

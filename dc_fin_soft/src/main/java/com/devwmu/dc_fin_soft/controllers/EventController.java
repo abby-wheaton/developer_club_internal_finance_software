@@ -1,7 +1,11 @@
 package com.devwmu.dc_fin_soft.controllers;
 import com.devwmu.dc_fin_soft.repositories.ExpenseRepository;
 import com.devwmu.dc_fin_soft.entities.Expense;
+
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.devwmu.dc_fin_soft.entities.Event;
 import com.devwmu.dc_fin_soft.repositories.EventRepository;
@@ -18,7 +22,8 @@ import org.apache.commons.io.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.math.BigDecimal;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 
 
 // Fix outputs and inputs
@@ -282,7 +287,7 @@ public class EventController {
     }
 
     @PostMapping("/event_allocation_form_id={id}")
-    public Event createEventAllocationForm(@PathVariable("id") Integer id){
+    public ResponseEntity<?> createEventAllocationForm(@PathVariable("id") Integer id){
         // CUSTOM
         // createEventAllocationForm(ExpenseID): bool
         //     Generates an Event request form
@@ -388,7 +393,6 @@ public class EventController {
             // need to get all of the expenses related to this event that is not food
             Iterable<Expense> expensesNonFood = this.expenseRepository.findByEventIdAndFoodFlag(event.getId(), 0);
             Integer curRow = 21;
-            BigDecimal foodExpense = new BigDecimal("0");
             for (Expense expense: expensesNonFood){
                 // name of item
                 Row row = sheet.getRow(curRow);
@@ -401,13 +405,12 @@ public class EventController {
 
                 // cost
                 Cell cellCost = row.getCell(3);
-                cellCost.setCellValue(expense.getTotalPrice().toString());
+                cellCost.setCellValue(expense.getTotalPrice().doubleValue());
 
                 // amount requesting
                 // for now, just total cost as placeholder
                 Cell cellRequesting = row.getCell(4);
-                cellRequesting.setCellValue(expense.getTotalPrice().toString());
-                foodExpense = foodExpense.add(expense.getTotalPrice());
+                cellRequesting.setCellValue(expense.getTotalPrice().doubleValue());
 
                 curRow += 1;
             }
@@ -415,7 +418,6 @@ public class EventController {
             // need to get all of the expenses related to this event that is food
             Iterable<Expense> expensesFood = this.expenseRepository.findByEventIdAndFoodFlag(event.getId(), 1);
             curRow = 21;
-            BigDecimal nonFoodExpense = new BigDecimal("0");
             for (Expense expense: expensesFood){
                 // name of item
                 Row row = sheet.getRow(curRow);
@@ -428,28 +430,19 @@ public class EventController {
 
                 // cost
                 Cell cellCost = row.getCell(8);
-                cellCost.setCellValue(expense.getTotalPrice().toString());
+                cellCost.setCellValue(expense.getTotalPrice().doubleValue());
 
                 // amount requesting
                 // for now, just total cost as placeholder
                 Cell cellRequesting = row.getCell(9);
-                cellRequesting.setCellValue(expense.getTotalPrice().toString());
-                nonFoodExpense = nonFoodExpense.add(expense.getTotalPrice());
+                cellRequesting.setCellValue(expense.getTotalPrice().doubleValue());
 
                 curRow += 1;
             }
 
-            // set totals
-            Cell totalNonFoodCell = r11.getCell(9);
-            totalNonFoodCell.setCellValue(foodExpense.toString());
-
-            Cell totalFoodCell = r12.getCell(9);
-            totalFoodCell.setCellValue(nonFoodExpense.toString());
-
-            Cell totalCell = r15.getCell(9);
-            totalCell.setCellValue(foodExpense.add(nonFoodExpense).toString());
             
 
+            workbook.getCreationHelper().createFormulaEvaluator().evaluateAll();
             try(FileOutputStream outFile = new FileOutputStream(new File("src/main/java/com/devwmu/dc_fin_soft/controllers/forms/(2026) WSAAC Event Proposal - Developer Club.xlsx"))){
                 workbook.write(outFile);
             }catch (Exception e){
@@ -460,7 +453,23 @@ public class EventController {
         }
         // make calls to excel api to edit the excel file, 
         // then output the form
-        return new Event();
+        File file = new File("src/main/java/com/devwmu/dc_fin_soft/controllers/forms/(2026) WSAAC Event Proposal - Developer Club.xlsx");
+        try{
+            InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+            String contentType = "application/octet-stream";
+        String headerValue = "attachment; filename=\"" + file.getName() + "\"";
+        
+
+        return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType(contentType))
+            .header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
+            .contentLength(file.length())
+            .body(resource);
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: file not found");
+        }
     } 
 
     @PostMapping("/conference_allocation_form")
