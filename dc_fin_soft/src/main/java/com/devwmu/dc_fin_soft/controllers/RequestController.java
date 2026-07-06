@@ -6,6 +6,7 @@ import com.devwmu.dc_fin_soft.entities.Request;
 import com.devwmu.dc_fin_soft.repositories.RequestRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/requests")
+@Tag(name = "Requests", description = "This controller interacts with the requests table in various ways")
 public class RequestController {
     private final RequestRepository requestRepository;
 

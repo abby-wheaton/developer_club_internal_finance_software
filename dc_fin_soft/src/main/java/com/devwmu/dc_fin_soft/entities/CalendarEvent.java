@@ -2,6 +2,8 @@ package com.devwmu.dc_fin_soft.entities;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @Entity
 @Table(name = "Calendar")
 public class CalendarEvent {
@@ -11,27 +13,35 @@ public class CalendarEvent {
     @GeneratedValue
     private Integer id;
 
+    @Schema(description = "The name of the event", example = "Weekly Meeting", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="event_name")
     private String event_name;
 
+    @Schema(description = "The location", example = "Floyd Hall", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     @Column(name ="location")
     private String location;
 
+    @Schema(description = "The start day and time of the event", example = "2026-12-03T10:15:30", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="start_date_time")
     private LocalDateTime start_date_time;
 
+    @Schema(description = "The end day and time of the event", example = "2026-12-03T10:15:40", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="end_date_time")
     private LocalDateTime end_date_time;
 
+    @Schema(description = "The creator of the event", example = "user_id", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="creator")
     private String creator;
 
+    @Schema(description = "The id of the group associated with the event", example = "12", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="group_id")
     private Integer group_id;
 
+    @Schema(description = "The category of the event", example = "Web Team", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="category")
     private Integer category;
 
+    @Schema(description = "Will be deleted eventually", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="deleted")
     private Integer deleted;
 

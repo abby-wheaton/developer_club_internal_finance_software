@@ -386,39 +386,6 @@ public class ExpenseController {
         return new Expense();
     }
 
-    @PostMapping("/allocation_not_spent")
-    public Expense allocationNotSpentAlert(){
-        // allocationNotSpentAlert(expenseID) success
-        //     Sends an alert to the dev club admin if [CONDITION] 
-        //     OUTPUT: success or not
-
-        return new Expense();
-    }
-
-    @PostMapping("/food_budget_too_high")
-    public Expense foodBudgetTooHighAlert(){
-        // foodBudgetTooHighAlert(expenseID) success
-        //     Sends an alert to the dev club admin if the food budget is greater than 20 dollars per estimated attendee
-        //     OUTPUT: success or not
-        return new Expense();
-    }
-
-    @PostMapping("/allocation_too_big")
-    public Expense allocationTooBigAlert(){
-        // allocationTooBigAlert(expenseID) success
-        //     Sends an alert to the dev club admin if the allocation is too big for the amount of money in the source
-        //     OUTPUT: success or not
-        return new Expense();
-    }
-
-    @PostMapping("/deadline_past")
-    public Expense deadlinePastAlert(){
-        // deadlinePastAlert(expenseID) success
-        //     Sends an alert to the dev club admin if the deadline for an item is in the past
-        //     OUTPUT: success or not
-        return new Expense();
-    }
-
     @GetMapping("/total_price")
     public Expense calculateRecommendedTotalPrice(){
         // calcRecommendedTotalPrice(qty, pricePerUnit) double

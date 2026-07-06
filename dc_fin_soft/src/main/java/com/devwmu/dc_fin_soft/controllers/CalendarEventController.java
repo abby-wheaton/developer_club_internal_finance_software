@@ -16,7 +16,7 @@ import com.devwmu.dc_fin_soft.entities.CalendarEvent;
 // when they log in, assign/check role
 
 @RestController
-@RequestMapping("/calendar")
+@RequestMapping("/calendar_events")
 @Tag(name = "Calendar Events", description = "This controller interacts with the Calandar table to display calandar events")
 public class CalendarEventController {
     private final CalendarEventRepository calendarEventRepository;
@@ -25,7 +25,7 @@ public class CalendarEventController {
         this.calendarEventRepository = calendarEventRepository;
     }
 
-    @GetMapping("/calendar_events")
+    @GetMapping("")
     @Operation(
         summary = "Retrives all of the calandar events",
         description = "Takes in no input, and returns all of the rows in the calandar table"
@@ -36,7 +36,7 @@ public class CalendarEventController {
         return this.calendarEventRepository.findAll();
     }
 
-    @PutMapping("/calendar_events/search")
+    @PutMapping("/search")
     @Operation(
         summary = "Filters through the calandar events based on specified values",
         description = "Takes in a JSON array, where each element is a Filter object consisting of the column to filter by, the operation to filter based on, and the desired value, and returns all of the rows in the calandar table which match the Filter objects"
@@ -108,7 +108,7 @@ public class CalendarEventController {
         summary = "Adds a calandar event to the Calandar table",
         description = "Takes in a JSON object and adds that CalandarEvent to the Calandar table. Returns the object on success"
     )
-    @PostMapping("/calendar_event")
+    @PostMapping("")
     public CalendarEvent createCalendarEvent(@RequestBody CalendarEvent calendarEvent){
         // createCalendarEvent(name, location, start, end, creator, group, category): success
         //     Uses the input info to enter a calendar event into the database
@@ -121,7 +121,7 @@ public class CalendarEventController {
         summary = "Edits a calandar event in the Calandar table",
         description = "Takes in a JSON object and the id of the event to edit, and edits that CalandarEvent in the Calandar table with the new values provided. Returns the object on success"
     )
-    @PutMapping("/calendar_event/edit_{id}")
+    @PutMapping("edit_{id}")
     public CalendarEvent editCalendarEvent(@PathVariable("id") Integer id, @RequestBody CalendarEvent calendarEvent){
         // editCalendarEvent(id, editArray[]): success
         //     The ID of the calendar event and the array of columns to be changed
@@ -166,7 +166,7 @@ public class CalendarEventController {
         summary = "Deletes an event from the Calandar table",
         description = "Modifies the deleted column of the calandar event based on the id provided to be 1"
     )
-    @PutMapping("/calendar_event/delete_{id}")
+    @PutMapping("delete_{id}")
     public CalendarEvent deleteCalendarEvent(@PathVariable("id") Integer id){
         // deleteCalendarEvent(id): success
         //     The id of the calendar event to be deleted (from display, not database)
@@ -181,41 +181,5 @@ public class CalendarEventController {
         
         return this.calendarEventRepository.save(calendarEvent);     
     }
-
-    @PostMapping("/reimbursement_deadline_soon")
-    public CalendarEvent reimbursementDeadlineSoonNotify(){
-        // reimbursementDeadlineSoonNotify(): bool
-        //     Sends a notification to the dev club admin if the reimbursement deadline is approaching
-        //     OUTPUT: success or not
-
-        return new CalendarEvent();
-    }
-
-    @PostMapping("/deliberation_deadline_soon")
-    public CalendarEvent deliberationDeadlineSoonNotify(){
-        // deliberationDeadlineSoonNotify(): bool
-        //     Sends a notification to the dev club admin if the deliberation deadline is approaching
-        //     OUTPUT: success or not
-
-        return new CalendarEvent();
-    }
-
-    @PostMapping("/item_deadline_soon")
-    public CalendarEvent itemDeadlineSoonNotify(){
-        // itemDeadlineSoonNotify(): bool
-        //     Sends a notification to the dev club admin if the item deadline is approaching
-        //     OUTPUT: success or not
-
-        return new CalendarEvent();
-    }
-
-    @PostMapping("/allocate_deadline_soon")
-    public CalendarEvent allocateDeadlineSoonNotify(){
-        // allocateDeadlineSoonNotify(): bool
-        //     Sends a notification to the dev club admin if the allocation deadline is approaching
-        //     OUTPUT: success or not
-
-        return new CalendarEvent();
-    }
-
+    
 }

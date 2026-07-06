@@ -36,8 +36,8 @@ public class EventController {
     private final EventRepository eventRepository;
 
     public EventController(final EventRepository eventRepository, final ExpenseRepository expenseRepository) {
-    this.eventRepository = eventRepository;
-    this.expenseRepository = expenseRepository; 
+        this.eventRepository = eventRepository;
+        this.expenseRepository = expenseRepository; 
     }
 
     
