@@ -10,8 +10,6 @@ import java.util.Optional;
 
 import com.devwmu.dc_fin_soft.entities.Expense;
 
-// Fix outputs and inputs
-
 @RestController
 @RequestMapping("/expense")
 @Tag(name = "Expense Controller", description = "This controller interacts with the expense table in various ways")

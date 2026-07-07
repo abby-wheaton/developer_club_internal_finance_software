@@ -11,11 +11,13 @@ public class NotificationController {
     @GetMapping("/notifications")
     @Operation(
         summary = "Checks all filters for any emails or notifications that need to be sent",
-        description = "Takes in no input, and returns all of the deadliens that are soon or past, a new request that was made, and allocation that was not spent"
+        description = "Takes in no input, and returns all of the deadlines that are soon or past, a new request that was made, and allocation that was not spent"
     )
     public Iterable<String> checkAllNotifications (){
         ArrayList<String> alertsNeeded = new ArrayList<>();
         alertsNeeded.add("alert");
+
+        // input is an array of strings
 
         // emails being sent
 
@@ -28,6 +30,7 @@ public class NotificationController {
     // - Deadline past (all deadlines)
     // - Allocation not spent
 
+        // don't return anything
         return alertsNeeded;
     }
 
@@ -41,6 +44,7 @@ public class NotificationController {
         alertsNeeded.add("alert");
 
         // non-urgent pop-ups in web page
+        // make an array of the alerts needed
 
     // - Reimbursement deadline soon
     // - Deliberation deadline soon

@@ -4,13 +4,13 @@ import org.springframework.web.bind.annotation.*;
 import com.devwmu.dc_fin_soft.repositories.SourceRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import com.devwmu.dc_fin_soft.entities.Source;
 
 import java.util.Optional;
-
-// Fix outputs and inputs
 
 @RestController
 @RequestMapping("/admin/sources")
@@ -21,11 +21,22 @@ public class SourceController {
     public SourceController(final SourceRepository sourceRepository) {
     this.sourceRepository = sourceRepository;
   }
+
+  /** 
+   * DESCRIPTION
+   * 
+   * @param parameter what the parameter is
+   * @return what it returns (errors and success)
+  */
     @GetMapping("/all")
     @Operation(
         summary = "Retrives all of the sources",
         description = "Takes in no input, and returns all of the rows in the Sources table"
     )
+    // @ApiResponses(value = {
+    //     @ApiResponse(responseCode = "201", description = "Book successfully created"),
+    //     @ApiResponse(responseCode = "400", description = "Invalid input supplied")
+    // })
     public Iterable<Source> getAllSources() {   
         //      OUTPUT: all of the sources
 
