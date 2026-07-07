@@ -7,6 +7,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.devwmu.dc_fin_soft.controllers.forms.AmountRequested;
 import com.devwmu.dc_fin_soft.entities.Event;
 import com.devwmu.dc_fin_soft.repositories.EventRepository;
 
@@ -22,6 +24,8 @@ import org.apache.commons.io.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.nio.file.Files;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
@@ -287,7 +291,7 @@ public class EventController {
     }
 
     @PostMapping("/event_allocation_form_id={id}")
-    public ResponseEntity<?> createEventAllocationForm(@PathVariable("id") Integer id){
+    public ResponseEntity<?> createEventAllocationForm(@PathVariable("id") Integer id, @RequestBody AmountRequested[] amountRequests){
         // CUSTOM
         // createEventAllocationForm(ExpenseID): bool
         //     Generates an Event request form
@@ -410,7 +414,16 @@ public class EventController {
                 // amount requesting
                 // for now, just total cost as placeholder
                 Cell cellRequesting = row.getCell(4);
-                cellRequesting.setCellValue(expense.getTotalPrice().doubleValue());
+                try{
+                    for (AmountRequested amtReq: amountRequests){
+                        if(expense.getId() == amtReq.getId()){
+                            cellRequesting.setCellValue(amtReq.getAmt().doubleValue());
+                            break;
+                        } 
+                    }
+                } catch (ClassCastException e){
+                    e.printStackTrace();
+                }
 
                 curRow += 1;
             }
@@ -435,7 +448,16 @@ public class EventController {
                 // amount requesting
                 // for now, just total cost as placeholder
                 Cell cellRequesting = row.getCell(9);
-                cellRequesting.setCellValue(expense.getTotalPrice().doubleValue());
+                try{
+                    for (AmountRequested amtReq: amountRequests){
+                        if(expense.getId() == amtReq.getId()){
+                            cellRequesting.setCellValue(amtReq.getAmt().doubleValue());
+                            break;
+                        } 
+                    }
+                } catch (ClassCastException e){
+                    e.printStackTrace();
+                }
 
                 curRow += 1;
             }
@@ -457,14 +479,20 @@ public class EventController {
         try{
             InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
             String contentType = "application/octet-stream";
-        String headerValue = "attachment; filename=\"" + file.getName() + "\"";
+            String headerValue = "attachment; filename=\"" + file.getName() + "\"";
         
 
-        return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType(contentType))
-            .header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
-            .contentLength(file.length())
-            .body(resource);
+            ResponseEntity<InputStreamResource> response =  ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
+                .contentLength(file.length())
+                .body(resource);
+
+            
+            file.delete();
+
+            return response;
+        
         } catch (Exception e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
