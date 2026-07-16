@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 
-// Fix outputs and inputs
 
 @RestController
 @RequestMapping("/requests")
@@ -29,6 +28,12 @@ public class RequestController {
         summary = "Retrives all of the requests",
         description = "Takes in no input, and returns all of the rows in the Requests table"
     )
+    /** 
+   * DESCRIPTION
+   * 
+   * 
+   * @return returns all of the rows of the events table
+  */
     public Iterable<Request> getAllRequests() {  
         //      INPUT: N/A 
         //      OUTPUT: all of the requests
@@ -40,6 +45,12 @@ public class RequestController {
         summary = "Filters through the requests based on specified values",
         description = "Takes in a JSON array, where each element is a Filter object consisting of the column to filter by, the operation to filter based on, and the desired value, and returns all of the rows in the Requests table which match the Filter objects"
     )
+    /** 
+   * DESCRIPTION
+   * 
+   * @param filters an array of filter objects, which represents the columns, operations, and values to filter by
+   * @return the rows of requests that match the filters. On error, the filter will not apply. If no filters are applied, returns all of the rows. 
+  */
     public Iterable<Request> filterRequests(@RequestBody Filter[] filters){
         // filterRequests(Filter[]) Iterable<Request>
         //     INPUT: filters: Filter[] -  an array of filters to apply to the table
@@ -125,6 +136,12 @@ public class RequestController {
         summary = "Adds a request to the Requests table",
         description = "Takes in a JSON object and adds that Request to the Requests table. Returns the object on success"
     )
+    /** 
+   * DESCRIPTION
+   * 
+   * @param request an request object to be added to the table
+   * @return will return the created event
+  */
     public Request createRequest(@RequestBody Request request){
         // createRequest(name, community, username, itemName, quantity, pricePerUnit, deadline, purpose): bool
         //     Creates a new entry in the club requests table
@@ -138,6 +155,13 @@ public class RequestController {
         summary = "Edits a request in the Requests table",
         description = "Takes in a JSON object and the id of the event to edit, and edits that Request in the Requests table with the new values provided. Returns the object on success"
     )
+    /** 
+   * DESCRIPTION
+   * 
+   * @param id the id of the request to edit
+   * @param request the updated request (what you want it to be)
+   * @return returns the updated request
+  */
     public Request editRequest(@PathVariable("id") Integer id, @RequestBody Request request){
         // editRequest(id, request): Request
         //     INPUT: id: Integer - The id of the request, request: Request - the updated request
@@ -187,6 +211,12 @@ public class RequestController {
         summary = "Deletes an event from the Requests table",
         description = "Modifies the deleted column of the request based on the id provided to be 1"
     )
+    /** 
+   * DESCRIPTION
+   * 
+   * @param id the id of the request you want to set the deleted flag for
+   * @return returns the updated request
+  */
     public Request deleteRequest(@PathVariable("id") Integer id){
         // deleteRequest(id): bool
         //     The id of the request to be deleted (will just set deleted to 1)
@@ -209,6 +239,13 @@ public class RequestController {
         summary = "Toggles the approved flag for an event",
         description = "Using the id provided, it will toggle the approved flag for an expense to either 1 or 0"
     )
+    /** 
+   * DESCRIPTION
+   * 
+   * @param id the id of the request you want to set the approve flag for
+   * @param value the value that you want the flag to be set to
+   * @return returns the updated request
+  */
     public Request approveRequest(@PathVariable("id") Integer id, @PathVariable("val") Integer value){
         // approveRequest(id, decision) bool: 
         //     will mark a request as approved/disapproved in the club requests table

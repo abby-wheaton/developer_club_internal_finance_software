@@ -21,11 +21,11 @@ public class SourceController {
     this.sourceRepository = sourceRepository;
   }
 
-  /** 
+/** 
    * DESCRIPTION
    * 
-   * @param parameter what the parameter is
-   * @return what it returns (errors and success)
+   * 
+   * @return returns all of the rows of the sources table
   */
     @GetMapping("/all")
     @Operation(
@@ -47,6 +47,12 @@ public class SourceController {
         summary = "Filters through the sources based on specified values",
         description = "Takes in a JSON array, where each element is a Filter object consisting of the column to filter by, the operation to filter based on, and the desired value, and returns all of the rows in the Sources table which match the Filter objects"
     )
+    /** 
+   * DESCRIPTION
+   * 
+   * @param filters an array of filter objects, which represents the columns, operations, and values to filter by
+   * @return the rows of sources that match the filters. On error, the filter will not apply. If no filters are applied, returns all of the rows. 
+  */
     public Iterable<Source> filterSources(@RequestBody Filter[] filters) {
         // custom
         // filterSources(filterArray[]) Iterable<Source>
@@ -117,6 +123,12 @@ public class SourceController {
         summary = "Adds a source to the Sources table",
         description = "Takes in a JSON object and adds that Request to the Sources table. Returns the object on success"
     )
+    /** 
+   * DESCRIPTION
+   * 
+   * @param source a source object to be added to the table
+   * @return will return the created source
+  */
     public Source createSource(@RequestBody Source source){
         return this.sourceRepository.save(source);
         // createSource(name, cap, type, internal): Source
@@ -125,11 +137,19 @@ public class SourceController {
         //     OUTPUT: created source
     }
 
+
     @PutMapping("/edit/id={id}")
     @Operation(
         summary = "Edits a source in the Sources table",
         description = "Takes in a JSON object and the id of the event to edit, and edits that Source in the Sources table with the new values provided. Returns the object on success"
     )
+    /** 
+   * DESCRIPTION
+   * 
+   * @param id the id of the source to edit
+   * @param source the updated source (what you want it to be)
+   * @return returns the updated source
+  */
     public Source editSource(@PathVariable("id") Integer id, @RequestBody Source source){
         // editSource((id, editArray[]): bool
         //     Edits columns of a source
@@ -175,6 +195,12 @@ public class SourceController {
         summary = "Deletes a source from the Sources table",
         description = "Modifies the deleted column of the source based on the id provided to be 1"
     )
+    /** 
+   * DESCRIPTION
+   * 
+   * @param id the id of the source you want to set the deleted flag for
+   * @return returns the updated source
+  */
     public Source deleteSource(@PathVariable("id") Integer id){
         // deleteSource(sourceID): Source
         //     Deletes a source from the database

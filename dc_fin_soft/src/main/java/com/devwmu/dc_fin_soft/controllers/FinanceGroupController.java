@@ -21,6 +21,10 @@ public class FinanceGroupController {
     this.financeGroupRepository = financeGroupRepository;
   }
     @GetMapping("/all")
+    /** 
+   * DESCRIPTION
+   * @return returns all of the rows in the finance group table
+  */
     @Operation(
         summary = "Retrives all of the finance groups",
         description = "Takes in no input, and returns all of the rows in the Finance Group table"
@@ -32,6 +36,12 @@ public class FinanceGroupController {
     }
     
     @PutMapping("/search")
+    /** 
+   * DESCRIPTION
+   * 
+   * @param filters an array of filter objects, which represents the columns, operations, and values to filter by
+   * @return the rows of finance groups that match the filters. On error, the filter will not apply. If no filters are applied, returns all of the rows. 
+  */
     @Operation(
         summary = "Filters through finance groups based on specified values",
         description = "Takes in a JSON array, where each element is a Filter object consisting of the column to filter by, the operation to filter based on, and the desired value, and returns all of the rows in the Finance Group table which match the Filter objects"
@@ -87,6 +97,12 @@ public class FinanceGroupController {
         summary = "Adds a user to a specific finance group",
         description = "Modifies the finance group attribute of a user, using the id provided and the group name. Returns the user on success"
     )
+    /** 
+   * DESCRIPTION
+   * 
+   * @param user the id of the user to be added to the finance group
+   * @return the user to be modified
+  */
     public FinanceGroup addUserToGroup(){
         // custom
         // addUserToGroup(user, group): bool
@@ -103,6 +119,12 @@ public class FinanceGroupController {
         summary = "Deletes a user from a specific finance group",
         description = "Modifies the finance group attribute of a user, using the id provided. Returns the user on success"
     )
+    /** 
+   * DESCRIPTION
+   * 
+   * @param user the id of the user to be added to a finance group
+   * @return returns the user to be modified
+  */
     public FinanceGroup removeUserFromGroup(){
         // custom
         // removeUserFromGroup(user, group): bool
@@ -119,6 +141,12 @@ public class FinanceGroupController {
         summary = "Adds a new finance group",
         description = "Takes in a JSON representation of a FinanceGroup object and adds it to the Finance Group table. Returns the FinanceGroup object on success"
     )
+    /** 
+   * DESCRIPTION
+   * 
+   * @param financeGroup a finance group object representing the group to be created
+   * @return the created group
+  */
     public FinanceGroup createGroup(@RequestBody FinanceGroup financeGroup){
         // createGroup(name): bool
         //     Creates a new finance group
@@ -133,6 +161,12 @@ public class FinanceGroupController {
         summary = "Removes a finance group",
         description = "Takes in the id of a Finance Group and sets the deleted column to 1. Returns the FinanceGroup object on success"
     )
+    /** 
+   * DESCRIPTION
+   * 
+   * @param id the id of the group to be removed
+   * @return the modifed group
+  */
     public FinanceGroup removeGroup(@PathVariable("id") Integer id){
         // removeGroup(name): bool
         //     INPUT: id: Integer - the id of the finance group to be removed

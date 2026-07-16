@@ -49,6 +49,12 @@ public class EventController {
         description = "Takes in a JSON array, where each element is a Filter object consisting of the column to filter by, the operation to filter based on, and the desired value, and returns all of the rows in the Events table which match the Filter objects"
     )
     @PutMapping("/search")
+    /** 
+   * DESCRIPTION
+   * 
+   * @param filters an array of filter objects, which represents the columns, operations, and values to filter by
+   * @return the rows of Events that match the filters. On error, the filter will not apply. If no filters are applied, returns all of the rows. 
+  */
     public Iterable<Event> filterEvents(@RequestBody Filter[] filters){
         // filterEvents(filterArray[]) Iterable<Event>
         //     INPUT: filters: Filter[] -  an array of filters to apply to the table
@@ -134,6 +140,12 @@ public class EventController {
         summary = "Retrives all of the events",
         description = "Takes in no input, and returns all of the rows in the Events table"
     )
+    /** 
+   * DESCRIPTION
+   * 
+   * 
+   * @return returns all of the rows of the events table
+  */
     @GetMapping("/all")
     public Iterable<Event> getAllEvents() {
         return this.eventRepository.findAll();
@@ -144,6 +156,12 @@ public class EventController {
         summary = "Adds an event to the Events table",
         description = "Takes in a JSON object and adds that Event to the Events table. Returns the object on success"
     )
+    /** 
+   * DESCRIPTION
+   * 
+   * @param event an event object to be added to the table
+   * @return will return the created event
+  */
     public Event createEvent(@RequestBody Event event){
         // createEvent(name, date, location, attendance, fee?, philanthropy?, conference?):
         //     INPUT: event: Event - the event to be saved to the database
@@ -158,6 +176,13 @@ public class EventController {
         summary = "Edits a calandar event in the Events table",
         description = "Takes in a JSON object and the id of the event to edit, and edits that Event in the Events table with the new values provided. Returns the object on success"
     )
+    /** 
+   * DESCRIPTION
+   * 
+   * @param id the id of the event to edit
+   * @param event the updated event (what you want the event to be)
+   * @return returns the updated event
+  */
     public Event editEvent(@PathVariable("id") Integer id, @RequestBody Event event){
         // editEvent(id, editArray[]): bool
         //     INPUT: id: int - The ID of the event, event: Event - the updated Event object
@@ -202,6 +227,13 @@ public class EventController {
         summary = "Toggles the feeFlag for an event",
         description = "Using the id provided, it will toggle the feeFlag for an event to either 1 or 0"
     )
+    /** 
+   * DESCRIPTION
+   * 
+   * @param id the id of the event you want to set the fee flag for
+   * @param val the value to set the flag to
+   * @return returns the updated event
+  */
     public Event feeFlagEvent(@PathVariable("id") Integer id, @PathVariable("val") Integer val){
         // feeFlagEvent(id, val): bool
         //     INPUT: id: Integer - The id of the item to change the fee flag (from database), val: Integer -  what to set the flag to
@@ -227,6 +259,13 @@ public class EventController {
         summary = "Toggles the philanthropyFlag for an event",
         description = "Using the id provided, it will toggle the philanthropyFlag for an event to either 1 or 0"
     )
+    /** 
+   * DESCRIPTION
+   * 
+   * @param id the id of the event you want to set the phil flag for
+   * @param val the value to set the flag to
+   * @return returns the updated event
+  */
     public Event philFlagEvent(@PathVariable("id") Integer id, @PathVariable("val") Integer val){
         // feeFlagEvent(id, val): bool
         //     INPUT: id: Integer - The id of the item to change the philanthropy flag (from database), val: Integer -  what to set the flag to
@@ -250,6 +289,13 @@ public class EventController {
         summary = "Toggles the conferenceFlag for an event",
         description = "Using the id provided, it will toggle the conferenceFlag for an event to either 1 or 0"
     )
+    /** 
+   * DESCRIPTION
+   * 
+   * @param id the id of the event you want to set the conference flag for
+   * @param val the value to set the flag to
+   * @return returns the updated event
+  */
     @PutMapping("/conf_flag/id={id}_val={val}")
     public Event confFlagEvent(@PathVariable("id") Integer id, @PathVariable("val") Integer val){
         // feeFlagEvent(id, val): bool
@@ -271,6 +317,12 @@ public class EventController {
     }
 
     @PutMapping("/delete/id={id}")
+    /** 
+   * DESCRIPTION
+   * 
+   * @param id the id of the event you want to set the deleted flag for
+   * @return returns the updated event
+  */
     @Operation(
         summary = "Deletes an event from the Events table",
         description = "Modifies the deleted column of the event based on the id provided to be 1"
@@ -289,6 +341,20 @@ public class EventController {
         return this.eventRepository.save(deleteEvent);
     }
 
+    @Operation(
+        summary = "Creates the event allocation form",
+        description = "Takes in the id of the event, an array of amount requested objects, and several strings to represent club information, and returns the filled in excel form"
+    )
+    /** 
+   * DESCRIPTION
+   * 
+   * @param id the id of the event
+   * @param amountRequests an array of amount requested objects (each item in the array is used to fill in the amount requested column of the form) there should be an object for every item that will be requested
+   * @param rsoName a string which is the name of the rso
+   * @param rsoRep a string which is the representative of the rso
+   * @param rsoEmail a string which is the email for the rso
+   * @return returns the form on success in an http response, and on failure returns empty http response body and an error code
+  */
     @PostMapping("/event_allocation_form/id={id}")
     public ResponseEntity<?> createEventAllocationForm(@PathVariable("id") Integer id, @RequestBody AmountRequested[] amountRequests, 
     @RequestParam("rsoName") String rsoName, @RequestParam("rsoRep") String rsoRep, @RequestParam("rsoEmail") String rsoEmail){
@@ -495,6 +561,22 @@ public class EventController {
         }
     } 
 
+    @Operation(
+        summary = "Creates the conference allocation form",
+        description = "Takes in the id of the event, an array of amount requested objects, and several strings to represent club information, and returns the filled in excel form"
+    )
+    /** 
+   * DESCRIPTION
+   * 
+   * @param id the id of the event
+   * @param amountRequests an array of amount requested objects (each item in the array is used to fill in the amount requested column of the form) there should be an object for every item that will be requested
+   * @param rsoName a string which is the name of the rso
+   * @param rsoRep a string which is the representative of the rso
+   * @param rsoEmail a string which is the email for the rso
+   * @param rsoMeetingTime a string which is the times that the rso meetins
+   * @param rsoMeetingLocation a string which is the location where the rso regularly meets
+   * @return returns the form on success in an http response, and on failure returns empty http response body and an error code
+  */
     @PostMapping("/conference_allocation_form/id={id}")
     public ResponseEntity<?> createConferenceAllocationForm(@PathVariable("id") Integer id, @RequestBody AmountRequested[] amountRequests, 
     @RequestParam("rsoName") String rsoName, @RequestParam("rsoRep") String rsoRep, @RequestParam("rsoEmail") String rsoEmail, 
