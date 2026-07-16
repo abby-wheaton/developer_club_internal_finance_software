@@ -1,23 +1,43 @@
 package com.devwmu.dc_fin_soft.controllers;
 import com.devwmu.dc_fin_soft.repositories.ExpenseRepository;
+import com.devwmu.dc_fin_soft.repositories.EventRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Optional;
+import org.springframework.http.MediaType;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.Optional;
+import java.io.File;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.commons.io.*;
+
+import org.springframework.http.HttpHeaders;
+
+import com.devwmu.dc_fin_soft.controllers.forms.AmountRequested;
 import com.devwmu.dc_fin_soft.entities.Expense;
+import com.devwmu.dc_fin_soft.entities.Event;
 
 @RestController
 @RequestMapping("/expense")
 @Tag(name = "Expense Controller", description = "This controller interacts with the expense table in various ways")
 public class ExpenseController {
+    private final EventRepository eventRepository;
     private final ExpenseRepository expenseRepository;
 
-    ExpenseController(ExpenseRepository expenseRepository) {
+    ExpenseController(ExpenseRepository expenseRepository, EventRepository eventRepository) {
         this.expenseRepository = expenseRepository;
+        this.eventRepository = eventRepository;
     }
 
     @GetMapping("/expenses")
@@ -375,13 +395,136 @@ public class ExpenseController {
         return this.expenseRepository.save(expense);    
     }
 
-    @PostMapping("/operational_allocation_form")
-    public Expense createOperationalAllocationForm(){
-        // createOperationalAllocationForm(ExpenseID): bool
-        //     Generate an operational allocation request form
+    @PostMapping("/operational_allocation_form/id={id}")
+    public ResponseEntity<?> createOperationalAllocationForm(@PathVariable("id") Integer id, @RequestBody AmountRequested[] amountRequests, 
+    @RequestParam("rsoName") String rsoName, @RequestParam("rsoRep") String rsoRep, @RequestParam("rsoEmail") String rsoEmail, 
+    @RequestParam("rsoMeetingTime") String rsoMeetingTime, @RequestParam("rsoMeetingLocation") String rsoMeetingLocation){
+        // custom
+        // createConferenceAllocationForm(ExpenseID): bool
+        //     Generate a conference request form
         //     OUTPUT: success or not
 
-        return new Expense();
+        // takes in the event id, extracts info for form, 
+        // make calls to excel api to edit the excel file, 
+        // then output the form
+
+        Optional<Event> eventOptional = this.eventRepository.findById(id);
+        if (!eventOptional.isPresent()){
+            return null;
+        }
+        Event event = eventOptional.get();
+        File sourceFile = new File("src/main/java/com/devwmu/dc_fin_soft/controllers/forms/(2026) WSAAC Operational Proposal - RSO Name.xlsx");
+        File outfile = new File("src/main/java/com/devwmu/dc_fin_soft/controllers/forms/(2026) WSAAC Operational Proposal - Developer Club.xlsx");
+        // copy the file, so that it can work on copy to preserve the source file
+        try{
+            FileUtils.copyFile(sourceFile, outfile);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        try(FileInputStream infile = new FileInputStream(outfile)){
+            // create workbook
+            Workbook workbook = WorkbookFactory.create(infile);
+
+            // get proposal sheet
+            Sheet sheet = workbook.getSheetAt(0);
+
+            // set rso name
+            Row r3 = sheet.getRow(2);
+            Cell cellr3cE = r3.getCell(4);
+            cellr3cE.setCellValue(rsoName);
+
+            // set rso rep
+            Row r4 = sheet.getRow(3);
+            Cell cellr4cE = r4.getCell(4);
+            cellr4cE.setCellValue(rsoRep);
+
+            // set email 
+            Row r5 = sheet.getRow(4);
+            Cell cellr5cE = r5.getCell(4);
+            cellr5cE.setCellValue(rsoEmail);
+
+            // set signiture
+            Row r8 = sheet.getRow(7);
+            Cell cellr8cE = r8.getCell(4);
+            cellr8cE.setCellValue(rsoRep);
+
+            // set rso meeting time
+            Row r11 = sheet.getRow(10);
+            Cell cellr11cE = r11.getCell(4);
+            cellr11cE.setCellValue(rsoMeetingTime);
+
+            // set rso meeting location
+            Row r12 = sheet.getRow(11);
+            Cell cellr12cE = r12.getCell(4);
+            cellr12cE.setCellValue(rsoMeetingLocation);
+
+            // need to get all of the expenses related to this event that is not food
+            Iterable<Expense> expensesNonFood = this.expenseRepository.findByEventIdAndFoodFlag(event.getId(), 0);
+            Integer curRow = 21;
+            for (Expense expense: expensesNonFood){
+                // name of item
+                Row row = sheet.getRow(curRow);
+                Cell cellName = row.getCell(1);
+                cellName.setCellValue(expense.getName());
+
+                // vendor name
+                Cell cellVendor = row.getCell(4);
+                cellVendor.setCellValue(expense.getVendor());
+
+                // cost
+                Cell cellCost = row.getCell(5);
+                cellCost.setCellValue(expense.getTotalPrice().doubleValue());
+
+                // amount requesting
+                Cell cellRequesting = row.getCell(7);
+                try{
+                    for (AmountRequested amtReq: amountRequests){
+                        if(expense.getId() == amtReq.getId()){
+                            cellRequesting.setCellValue(amtReq.getAmt().doubleValue());
+                            break;
+                        } 
+                    }
+                } catch (ClassCastException e){
+                    e.printStackTrace();
+                }
+
+                curRow += 1;
+            }            
+
+            // calculate formulas
+            workbook.getCreationHelper().createFormulaEvaluator().evaluateAll();
+            try(FileOutputStream outFile = new FileOutputStream(new File("src/main/java/com/devwmu/dc_fin_soft/controllers/forms/(2026) WSAAC Conference Proposal - Developer Club.xlsx"))){
+                workbook.write(outFile);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        // then output the form
+        File file = new File("src/main/java/com/devwmu/dc_fin_soft/controllers/forms/(2026) WSAAC Conference Proposal - Developer Club.xlsx");
+        try{
+            InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+            String contentType = "application/octet-stream";
+            String headerValue = "attachment; filename=\"" + file.getName() + "\"";
+        
+
+            ResponseEntity<InputStreamResource> response =  ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
+                .contentLength(file.length())
+                .body(resource);
+
+            
+            file.delete();
+
+            return response;
+        
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: file not found");
+        }
     }
 
     @GetMapping("/total_price")

@@ -120,7 +120,7 @@ public class RequestController {
         return this.requestRepository.findAll(spec);
     }
 
-    @PostMapping("/request/create")
+    @PostMapping("/create")
     @Operation(
         summary = "Adds a request to the Requests table",
         description = "Takes in a JSON object and adds that Request to the Requests table. Returns the object on success"
@@ -133,7 +133,7 @@ public class RequestController {
         return this.requestRepository.save(request);
     }
 
-    @PutMapping("/request/edit_id={id}")
+    @PutMapping("/edit/id={id}")
     @Operation(
         summary = "Edits a request in the Requests table",
         description = "Takes in a JSON object and the id of the event to edit, and edits that Request in the Requests table with the new values provided. Returns the object on success"
@@ -182,7 +182,7 @@ public class RequestController {
         return this.requestRepository.save(newRequest);
     }
 
-    @PutMapping("/request/delete_id={id}")
+    @PutMapping("/delete/id={id}")
     @Operation(
         summary = "Deletes an event from the Requests table",
         description = "Modifies the deleted column of the request based on the id provided to be 1"
@@ -204,7 +204,7 @@ public class RequestController {
     }
 
 
-    @PutMapping("/request/approve_id={id}_val={val}")
+    @PutMapping("/approve/id={id}_val={val}")
     @Operation(
         summary = "Toggles the approved flag for an event",
         description = "Using the id provided, it will toggle the approved flag for an expense to either 1 or 0"

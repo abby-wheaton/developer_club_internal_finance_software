@@ -139,7 +139,7 @@ public class EventController {
         return this.eventRepository.findAll();
     }
     
-    @PostMapping("/event/create")
+    @PostMapping("/create")
     @Operation(
         summary = "Adds an event to the Events table",
         description = "Takes in a JSON object and adds that Event to the Events table. Returns the object on success"
@@ -153,7 +153,7 @@ public class EventController {
         return this.eventRepository.save(event);
     }
 
-    @PutMapping("/event/edit_id={id}")
+    @PutMapping("/edit/id={id}")
     @Operation(
         summary = "Edits a calandar event in the Events table",
         description = "Takes in a JSON object and the id of the event to edit, and edits that Event in the Events table with the new values provided. Returns the object on success"
@@ -197,7 +197,7 @@ public class EventController {
         return this.eventRepository.save(newEvent);
     }
 
-    @PutMapping("/event/fee_flag_id={id}_val={val}")
+    @PutMapping("/fee_flag/id={id}_val={val}")
     @Operation(
         summary = "Toggles the feeFlag for an event",
         description = "Using the id provided, it will toggle the feeFlag for an event to either 1 or 0"
@@ -222,7 +222,7 @@ public class EventController {
         return this.eventRepository.save(updateEvent);
     }
 
-    @PutMapping("/event/phil_flag_id={id}_val=_{val}")
+    @PutMapping("/phil_flag/id={id}_val=_{val}")
     @Operation(
         summary = "Toggles the philanthropyFlag for an event",
         description = "Using the id provided, it will toggle the philanthropyFlag for an event to either 1 or 0"
@@ -250,7 +250,7 @@ public class EventController {
         summary = "Toggles the conferenceFlag for an event",
         description = "Using the id provided, it will toggle the conferenceFlag for an event to either 1 or 0"
     )
-    @PutMapping("/event/conf_flag_id={id}_val={val}")
+    @PutMapping("/conf_flag/id={id}_val={val}")
     public Event confFlagEvent(@PathVariable("id") Integer id, @PathVariable("val") Integer val){
         // feeFlagEvent(id, val): bool
         //     INPUT: id: Integer - The id of the item to change the conference flag (from database), val: Integer -  what to set the flag to
@@ -270,7 +270,7 @@ public class EventController {
         return this.eventRepository.save(updateEvent);
     }
 
-    @PutMapping("/event/delete_id={id}")
+    @PutMapping("/delete/id={id}")
     @Operation(
         summary = "Deletes an event from the Events table",
         description = "Modifies the deleted column of the event based on the id provided to be 1"
@@ -289,7 +289,7 @@ public class EventController {
         return this.eventRepository.save(deleteEvent);
     }
 
-    @PostMapping("/event_allocation_form_id={id}")
+    @PostMapping("/event_allocation_form/id={id}")
     public ResponseEntity<?> createEventAllocationForm(@PathVariable("id") Integer id, @RequestBody AmountRequested[] amountRequests, 
     @RequestParam("rsoName") String rsoName, @RequestParam("rsoRep") String rsoRep, @RequestParam("rsoEmail") String rsoEmail){
         // CUSTOM

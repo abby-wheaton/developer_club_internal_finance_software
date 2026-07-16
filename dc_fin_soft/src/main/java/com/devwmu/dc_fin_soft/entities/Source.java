@@ -26,8 +26,8 @@ public class Source {
     private Integer internal;
 
     @Schema(description = "What the cap on money spent is for this source", example = "8000", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Column(name ="money_cap")
-    private BigDecimal money_cap;
+    @Column(name ="moneyCap")
+    private BigDecimal moneyCap;
 
     @Schema(description = "How much money has already been spent for this source", example = "1000", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="spent")
@@ -60,7 +60,7 @@ public class Source {
     }
 
     public BigDecimal getMoneyCap() {
-        return this.money_cap;
+        return this.moneyCap;
     }
 
     public BigDecimal getSpent() {
@@ -93,8 +93,8 @@ public class Source {
         this.internal = internal;
     }
 
-    public void setMoneyCap(BigDecimal money_cap) {
-        this.money_cap = money_cap;
+    public void setMoneyCap(BigDecimal moneyCap) {
+        this.moneyCap = moneyCap;
     }
 
     public void setSpent(BigDecimal spent) {

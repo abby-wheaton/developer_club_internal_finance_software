@@ -4,8 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import com.devwmu.dc_fin_soft.repositories.SourceRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import com.devwmu.dc_fin_soft.entities.Source;
@@ -113,7 +112,7 @@ public class SourceController {
         return this.sourceRepository.findAll(spec);
     }
 
-    @PostMapping("/source/create")
+    @PostMapping("/create")
     @Operation(
         summary = "Adds a source to the Sources table",
         description = "Takes in a JSON object and adds that Request to the Sources table. Returns the object on success"
@@ -126,7 +125,7 @@ public class SourceController {
         //     OUTPUT: created source
     }
 
-    @PutMapping("/source/edit_id={id}")
+    @PutMapping("/edit/id={id}")
     @Operation(
         summary = "Edits a source in the Sources table",
         description = "Takes in a JSON object and the id of the event to edit, and edits that Source in the Sources table with the new values provided. Returns the object on success"
@@ -171,7 +170,7 @@ public class SourceController {
 
     }
 
-    @PutMapping("/source/delete_id={id}")
+    @PutMapping("/delete/id={id}")
     @Operation(
         summary = "Deletes a source from the Sources table",
         description = "Modifies the deleted column of the source based on the id provided to be 1"

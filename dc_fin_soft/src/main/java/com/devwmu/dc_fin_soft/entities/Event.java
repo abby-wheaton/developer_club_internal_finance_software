@@ -26,19 +26,19 @@ public class Event {
 
     @Schema(description = "The estimated number of people for the event", example = "25", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="est_attendance")
-    private Integer est_attendance;
+    private Integer estAttendance;
 
     @Schema(description = "A flag for if there is a fee for the event", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="fee_flag")
-    private Integer fee_flag;
+    private Integer feeFlag;
 
-    @Schema(description = "A flag for if this is a philanthropy event", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "A flag for if this is an event for philanthrophic or donation purposes", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="philanthropy_flag")
-    private Integer philanthropy_flag;
+    private Integer philanthropyFlag;
 
     @Schema(description = "A flag for if this event is a conference", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="conference_flag")
-    private Integer conference_flag;
+    private Integer conferenceFlag;
 
     @Schema(description = "A flag for if this event is deleted", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="deleted")
@@ -63,19 +63,19 @@ public class Event {
     }
 
     public Integer getEstAttendance() {
-        return this.est_attendance;
+        return this.estAttendance;
     }
 
     public Integer getFeeFlag() {
-        return this.fee_flag;
+        return this.feeFlag;
     }
 
     public Integer getPhilanthropyFlag() {
-        return this.philanthropy_flag;
+        return this.philanthropyFlag;
     }
 
     public Integer getConferenceFlag() {
-        return this.conference_flag;
+        return this.conferenceFlag;
     }
 
     public Integer getDeleted() {
@@ -97,19 +97,19 @@ public class Event {
     }
 
     public void setEstAttendance(Integer est_attendance) {
-        this.est_attendance = est_attendance;
+        this.estAttendance = est_attendance;
     }
 
     public void setFeeFlag(Integer fee_flag) {
-        this.fee_flag = fee_flag;
+        this.feeFlag = fee_flag;
     }
 
     public void setPhilanthropyFlag(Integer philanthropy_flag) {
-        this.philanthropy_flag = philanthropy_flag;
+        this.philanthropyFlag = philanthropy_flag;
     }
 
     public void setConferenceFlag(Integer conference_flag) {
-        this.conference_flag = conference_flag;
+        this.conferenceFlag = conference_flag;
     }
 
     public void setDeleted(Integer deleted) {

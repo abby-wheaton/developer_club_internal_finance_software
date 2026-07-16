@@ -16,16 +16,16 @@ public class Request {
     private Integer id;
 
     @Schema(description = "The community name for the requestee", example = "Web team", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Column(name ="community_name")
-    private Integer community_name;
+    @Column(name ="communityName")
+    private Integer communityName;
 
     @Schema(description = "The person who is submitting the request", example = "Khang", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Column(name ="requestee_user")
-    private String requestee_user;
+    @Column(name ="requesteeUser")
+    private String requesteeUser;
 
     @Schema(description = "The name of the item being requested", example = "Napkins", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Column(name ="item_name")
-    private String item_name;
+    @Column(name ="itemName")
+    private String itemName;
 
     @Schema(description = "Whether or not the request has been approved, denied, or neither", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     @Column(name ="approval")
@@ -36,8 +36,8 @@ public class Request {
     private Integer quantity;
 
     @Schema(description = "The price for one unit of the item being requested", example = "14.99", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Column(name ="price_per_unit")
-    private BigDecimal price_per_unit;
+    @Column(name ="pricePerUnit")
+    private BigDecimal pricePerUnit;
 
     @Schema(description = "When the item is needed by", example = "2026-05-23T05:00:00", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="deadline")
@@ -58,15 +58,15 @@ public class Request {
     }
 
     public Integer getCommunityName() {
-        return this.community_name;
+        return this.communityName;
     }
 
     public String getRequesteeUser() {
-        return this.requestee_user;
+        return this.requesteeUser;
     }
 
     public String getItemName() {
-        return this.item_name;
+        return this.itemName;
     }
 
     public Integer getApproval() {
@@ -78,7 +78,7 @@ public class Request {
     }
 
     public BigDecimal getPricePerUnit() {
-        return this.price_per_unit;
+        return this.pricePerUnit;
     }
 
     public LocalDateTime getDeadline() {
@@ -95,16 +95,16 @@ public class Request {
 
     // setters
 
-    public void setCommunityName(Integer community_name) {
-        this.community_name = community_name;
+    public void setCommunityName(Integer communityName) {
+        this.communityName = communityName;
     }
 
-    public void setRequesteeUser(String requestee_user) {
-        this.requestee_user = requestee_user;
+    public void setRequesteeUser(String requesteeUser) {
+        this.requesteeUser = requesteeUser;
     }
 
-    public void setItemName(String item_name) {
-        this.item_name = item_name;
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
     }
 
     public void setApproval(Integer approval) {
@@ -115,8 +115,8 @@ public class Request {
         this.quantity = quantity;
     }
 
-    public void setPricePerUnit(BigDecimal price_per_unit) {
-        this.price_per_unit = price_per_unit;
+    public void setPricePerUnit(BigDecimal pricePerUnit) {
+        this.pricePerUnit = pricePerUnit;
     }
 
     public void setDeadline(LocalDateTime deadline) {
