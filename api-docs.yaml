@@ -12,11 +12,10 @@ servers:
 tags:
 - name: Finance Groups
   description: Controls the various finance groups and who is all in them
-- name: Calendar Events
-  description: This controller interacts with the Calandar table to display calandar
-    events
 - name: Sources
   description: This controller interacts with the sources table in various ways
+- name: Requests
+  description: This controller interacts with the requests table in various ways
 - name: Expense Controller
   description: This controller interacts with the expense table in various ways
 - name: Event Controller
@@ -25,7 +24,7 @@ paths:
   /requests/search:
     put:
       tags:
-      - request-controller
+      - Requests
       summary: Filters through the requests based on specified values
       description: "Takes in a JSON array, where each element is a Filter object consisting\
         \ of the column to filter by, the operation to filter based on, and the desired\
@@ -47,10 +46,10 @@ paths:
             '*/*':
               schema:
                 type: object
-  /requests/request/edit_id={id}:
+  /requests/edit/id={id}:
     put:
       tags:
-      - request-controller
+      - Requests
       summary: Edits a request in the Requests table
       description: "Takes in a JSON object and the id of the event to edit, and edits\
         \ that Request in the Requests table with the new values provided. Returns\
@@ -76,10 +75,10 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Request"
-  /requests/request/delete_id={id}:
+  /requests/delete/id={id}:
     put:
       tags:
-      - request-controller
+      - Requests
       summary: Deletes an event from the Requests table
       description: Modifies the deleted column of the request based on the id provided
         to be 1
@@ -98,10 +97,10 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Request"
-  /requests/request/approve_id={id}_val={val}:
+  /requests/approve/id={id}_val={val}:
     put:
       tags:
-      - request-controller
+      - Requests
       summary: Toggles the approved flag for an event
       description: "Using the id provided, it will toggle the approved flag for an\
         \ expense to either 1 or 0"
@@ -395,7 +394,7 @@ paths:
             '*/*':
               schema:
                 type: object
-  /event/event/phil_flag_id={id}_val=_{val}:
+  /event/phil_flag/id={id}_val=_{val}:
     put:
       tags:
       - Event Controller
@@ -423,7 +422,7 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Event"
-  /event/event/fee_flag_id={id}_val={val}:
+  /event/fee_flag/id={id}_val={val}:
     put:
       tags:
       - Event Controller
@@ -451,7 +450,7 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Event"
-  /event/event/edit_id={id}:
+  /event/edit/id={id}:
     put:
       tags:
       - Event Controller
@@ -480,7 +479,7 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Event"
-  /event/event/delete_id={id}:
+  /event/delete/id={id}:
     put:
       tags:
       - Event Controller
@@ -502,7 +501,7 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Event"
-  /event/event/conf_flag_id={id}_val={val}:
+  /event/conf_flag/id={id}_val={val}:
     put:
       tags:
       - Event Controller
@@ -530,16 +529,16 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Event"
-  /calendar/calendar_events/search:
+  /admin/sources/search:
     put:
       tags:
-      - Calendar Events
-      summary: Filters through the calandar events based on specified values
+      - Sources
+      summary: Filters through the sources based on specified values
       description: "Takes in a JSON array, where each element is a Filter object consisting\
         \ of the column to filter by, the operation to filter based on, and the desired\
-        \ value, and returns all of the rows in the calandar table which match the\
+        \ value, and returns all of the rows in the Sources table which match the\
         \ Filter objects"
-      operationId: filterCalendarEvents
+      operationId: filterSources
       requestBody:
         content:
           application/json:
@@ -555,58 +554,7 @@ paths:
             '*/*':
               schema:
                 type: object
-  /calendar/calendar_event/edit_{id}:
-    put:
-      tags:
-      - Calendar Events
-      summary: Edits a calandar event in the Calandar table
-      description: "Takes in a JSON object and the id of the event to edit, and edits\
-        \ that CalandarEvent in the Calandar table with the new values provided. Returns\
-        \ the object on success"
-      operationId: editCalendarEvent
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int32
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CalendarEvent"
-        required: true
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/CalendarEvent"
-  /calendar/calendar_event/delete_{id}:
-    put:
-      tags:
-      - Calendar Events
-      summary: Deletes an event from the Calandar table
-      description: Modifies the deleted column of the calandar event based on the
-        id provided to be 1
-      operationId: deleteCalendarEvent
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int32
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/CalendarEvent"
-  /admin/sources/source/edit_id={id}:
+  /admin/sources/edit/id={id}:
     put:
       tags:
       - Sources
@@ -635,7 +583,7 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Source"
-  /admin/sources/source/delete_id={id}:
+  /admin/sources/delete/id={id}:
     put:
       tags:
       - Sources
@@ -657,32 +605,7 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Source"
-  /admin/sources/search:
-    put:
-      tags:
-      - Sources
-      summary: Filters through the sources based on specified values
-      description: "Takes in a JSON array, where each element is a Filter object consisting\
-        \ of the column to filter by, the operation to filter based on, and the desired\
-        \ value, and returns all of the rows in the Sources table which match the\
-        \ Filter objects"
-      operationId: filterSources
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: "#/components/schemas/Filter"
-        required: true
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
-  /admin/groups/finance_groups/search:
+  /admin/groups/search:
     put:
       tags:
       - Finance Groups
@@ -707,7 +630,7 @@ paths:
             '*/*':
               schema:
                 type: object
-  /admin/groups/finance_group_users/remove_user={user}:
+  /admin/groups/remove_user/user={user}:
     put:
       tags:
       - Finance Groups
@@ -722,22 +645,7 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/FinanceGroup"
-  /admin/groups/finance_group_users/add_user={user}:
-    put:
-      tags:
-      - Finance Groups
-      summary: Adds a user to a specific finance group
-      description: "Modifies the finance group attribute of a user, using the id provided\
-        \ and the group name. Returns the user on success"
-      operationId: addUserToGroup
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/FinanceGroup"
-  /admin/groups/finance_group/remove_id={id}:
+  /admin/groups/remove_group/id={id}:
     put:
       tags:
       - Finance Groups
@@ -759,32 +667,26 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/FinanceGroup"
-  /requests/request_status_updated:
-    post:
+  /admin/groups/add_user/user={user}:
+    put:
       tags:
-      - request-controller
-      operationId: requestStatusUpdatedNotify
+      - Finance Groups
+      summary: Adds a user to a specific finance group
+      description: "Modifies the finance group attribute of a user, using the id provided\
+        \ and the group name. Returns the user on success"
+      operationId: addUserToGroup
       responses:
         "200":
           description: OK
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Request"
-  /requests/request/create:
+                $ref: "#/components/schemas/FinanceGroup"
+  /requests/request_status_updated:
     post:
       tags:
-      - request-controller
-      summary: Adds a request to the Requests table
-      description: Takes in a JSON object and adds that Request to the Requests table.
-        Returns the object on success
-      operationId: createRequest
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Request"
-        required: true
+      - Requests
+      operationId: requestStatusUpdatedNotify
       responses:
         "200":
           description: OK
@@ -795,8 +697,29 @@ paths:
   /requests/new_request:
     post:
       tags:
-      - request-controller
+      - Requests
       operationId: newRequestNotify
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Request"
+  /requests/create:
+    post:
+      tags:
+      - Requests
+      summary: Adds a request to the Requests table
+      description: Takes in a JSON object and adds that Request to the Requests table.
+        Returns the object on success
+      operationId: createRequest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Request"
+        required: true
       responses:
         "200":
           description: OK
@@ -816,23 +739,63 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Expense"
-  /expense/operational_allocation_form:
+  /expense/operational_allocation_form/id={id}:
     post:
       tags:
       - Expense Controller
       operationId: createOperationalAllocationForm
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: rsoName
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: rsoRep
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: rsoEmail
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: rsoMeetingTime
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: rsoMeetingLocation
+        in: query
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/AmountRequested"
+        required: true
       responses:
         "200":
           description: OK
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Expense"
+                type: object
   /expense/item:
     post:
       tags:
       - Expense Controller
-      summary: Adds an event to the Expenses table
+      summary: Adds an expense to the Expenses table
       description: Takes in a JSON object and adds that Expense to the Expenses table.
         Returns the object on success
       operationId: budgetItem
@@ -849,67 +812,53 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Expense"
-  /expense/food_budget_too_high:
-    post:
-      tags:
-      - Expense Controller
-      operationId: foodBudgetTooHighAlert
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Expense"
-  /expense/deadline_past:
-    post:
-      tags:
-      - Expense Controller
-      operationId: deadlinePastAlert
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Expense"
-  /expense/allocation_too_big:
-    post:
-      tags:
-      - Expense Controller
-      operationId: allocationTooBigAlert
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Expense"
-  /expense/allocation_not_spent:
-    post:
-      tags:
-      - Expense Controller
-      operationId: allocationNotSpentAlert
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Expense"
-  /event/event_allocation_form:
+  /event/event_allocation_form/id={id}:
     post:
       tags:
       - Event Controller
+      summary: Creates the event allocation form
+      description: "Takes in the id of the event, an array of amount requested objects,\
+        \ and several strings to represent club information, and returns the filled\
+        \ in excel form"
       operationId: createEventAllocationForm
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: rsoName
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: rsoRep
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: rsoEmail
+        in: query
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/AmountRequested"
+        required: true
       responses:
         "200":
           description: OK
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Event"
-  /event/event/create:
+                type: object
+  /event/create:
     post:
       tags:
       - Event Controller
@@ -930,67 +879,54 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Event"
-  /event/conference_allocation_form:
+  /event/conference_allocation_form/id={id}:
     post:
       tags:
       - Event Controller
+      summary: Creates the conference allocation form
+      description: "Takes in the id of the event, an array of amount requested objects,\
+        \ and several strings to represent club information, and returns the filled\
+        \ in excel form"
       operationId: createConferenceAllocationForm
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Event"
-  /calendar/reimbursement_deadline_soon:
-    post:
-      tags:
-      - Calendar Events
-      operationId: reimbursementDeadlineSoonNotify
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/CalendarEvent"
-  /calendar/item_deadline_soon:
-    post:
-      tags:
-      - Calendar Events
-      operationId: itemDeadlineSoonNotify
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/CalendarEvent"
-  /calendar/deliberation_deadline_soon:
-    post:
-      tags:
-      - Calendar Events
-      operationId: deliberationDeadlineSoonNotify
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/CalendarEvent"
-  /calendar/calendar_event:
-    post:
-      tags:
-      - Calendar Events
-      summary: Adds a calandar event to the Calandar table
-      description: Takes in a JSON object and adds that CalandarEvent to the Calandar
-        table. Returns the object on success
-      operationId: createCalendarEvent
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: rsoName
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: rsoRep
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: rsoEmail
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: rsoMeetingTime
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: rsoMeetingLocation
+        in: query
+        required: true
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CalendarEvent"
+              type: array
+              items:
+                $ref: "#/components/schemas/AmountRequested"
         required: true
       responses:
         "200":
@@ -998,20 +934,8 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/CalendarEvent"
-  /calendar/allocate_deadline_soon:
-    post:
-      tags:
-      - Calendar Events
-      operationId: allocateDeadlineSoonNotify
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/CalendarEvent"
-  /admin/sources/source/create:
+                type: object
+  /admin/sources/create:
     post:
       tags:
       - Sources
@@ -1032,7 +956,7 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Source"
-  /admin/groups/finance_group/create:
+  /admin/groups/create_group:
     post:
       tags:
       - Finance Groups
@@ -1056,7 +980,7 @@ paths:
   /requests/all:
     get:
       tags:
-      - request-controller
+      - Requests
       summary: Retrives all of the requests
       description: "Takes in no input, and returns all of the rows in the Requests\
         \ table"
@@ -1121,21 +1045,6 @@ paths:
             '*/*':
               schema:
                 type: object
-  /calendar/calendar_events:
-    get:
-      tags:
-      - Calendar Events
-      summary: Retrives all of the calandar events
-      description: "Takes in no input, and returns all of the rows in the calandar\
-        \ table"
-      operationId: getAllCalendarEvents
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
   /admin/sources/all:
     get:
       tags:
@@ -1173,16 +1082,39 @@ components:
       properties:
         col:
           type: string
+          description: The column to filter by
+          example: feeFlag
         op:
           type: string
+          description: The operator to filter by
+          example: leq
         val:
           type: object
+          description: The value to filter by
+          example: 5
+      required:
+      - col
+      - op
+      - val
     Request:
       type: object
       properties:
         id:
           type: integer
           format: int32
+        communityName:
+          type: integer
+          format: int32
+          description: The community name for the requestee
+          example: Web team
+        requesteeUser:
+          type: string
+          description: The person who is submitting the request
+          example: Khang
+        itemName:
+          type: string
+          description: The name of the item being requested
+          example: Napkins
         approval:
           type: integer
           format: int32
@@ -1193,6 +1125,10 @@ components:
           format: int32
           description: The number of items that is being requested
           example: 12
+        pricePerUnit:
+          type: number
+          description: The price for one unit of the item being requested
+          example: 14.99
         deadline:
           type: string
           format: date-time
@@ -1207,20 +1143,15 @@ components:
           format: int32
           description: A flag for if the request has been deleted or not
           example: 0
-        itemName:
-          type: string
-        pricePerUnit:
-          type: number
-        communityName:
-          type: integer
-          format: int32
-        requesteeUser:
-          type: string
       required:
+      - communityName
       - deadline
       - deleted
+      - itemName
+      - pricePerUnit
       - purpose
       - quantity
+      - requesteeUser
     Expense:
       type: object
       properties:
@@ -1229,40 +1160,62 @@ components:
           format: int32
         name:
           type: string
+          description: The name of the expense
+          example: Pencils and Pens
         quantity:
           type: integer
           format: int32
+          description: The quantity requested for the expense
+          example: 3
         purpose:
           type: string
+          description: Why the expense is needed
+          example: Office supplies running low
         vendor:
           type: string
-        link:
-          type: string
-        community:
-          type: integer
-          format: int32
-        deleted:
-          type: integer
-          format: int32
+          description: Who sells the expense
+          example: Amazon
         eventId:
           type: integer
           format: int32
-          writeOnly: true
+          description: The id of the event associated if applicable
+          example: 12
+        link:
+          type: string
+          description: The link to the expense on a website
+          example: www.amazon.com
+        community:
+          type: integer
+          format: int32
+          description: What community will use this expense
+          example: Web Team
+        foodFlag:
+          type: integer
+          format: int32
+          description: If food is included in this expense
+          example: 0
+        deleted:
+          type: integer
+          format: int32
+          description: Will be deleted soon
+          example: 0
         totalPrice:
           type: number
         sourceId:
-          type: integer
-          format: int32
-        foodFlag:
           type: integer
           format: int32
         totalSpent:
           type: number
         paymentType:
           type: string
-        approvedFlag:
-          type: integer
-          format: int32
+        deliberationDeadline:
+          type: string
+          format: date-time
+        reimbursementDeadline:
+          type: string
+          format: date-time
+        moneyRemaining:
+          type: number
         pricePerUnit:
           type: number
         itemDeadline:
@@ -1271,12 +1224,9 @@ components:
         requestedFlag:
           type: integer
           format: int32
-        deliberationDeadline:
-          type: string
-          format: date-time
-        reimbursementDeadline:
-          type: string
-          format: date-time
+        approvedFlag:
+          type: integer
+          format: int32
         startedBuyingFlag:
           type: integer
           format: int32
@@ -1289,13 +1239,19 @@ components:
         reimbursedFlag:
           type: integer
           format: int32
-        moneyRemaining:
-          type: number
         pickupLocation:
           type: string
         allocationDeadline:
           type: string
           format: date-time
+      required:
+      - community
+      - deleted
+      - foodFlag
+      - name
+      - purpose
+      - quantity
+      - vendor
     Event:
       type: object
       properties:
@@ -1315,55 +1271,41 @@ components:
           type: string
           description: The location that the event takes place
           example: D204 Floyd Hall
+        estAttendance:
+          type: integer
+          format: int32
+          description: The estimated number of people for the event
+          example: 25
+        feeFlag:
+          type: integer
+          format: int32
+          description: A flag for if there is a fee for the event
+          example: 1
+        philanthropyFlag:
+          type: integer
+          format: int32
+          description: A flag for if this is an event for philanthrophic or donation
+            purposes
+          example: 1
+        conferenceFlag:
+          type: integer
+          format: int32
+          description: A flag for if this event is a conference
+          example: 1
         deleted:
           type: integer
           format: int32
           description: A flag for if this event is deleted
           example: 1
-        feeFlag:
-          type: integer
-          format: int32
-        estAttendance:
-          type: integer
-          format: int32
-        philanthropyFlag:
-          type: integer
-          format: int32
-        conferenceFlag:
-          type: integer
-          format: int32
       required:
+      - conferenceFlag
       - date
       - deleted
+      - estAttendance
+      - feeFlag
       - location
       - name
-    CalendarEvent:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        location:
-          type: string
-        creator:
-          type: string
-        category:
-          type: integer
-          format: int32
-        deleted:
-          type: integer
-          format: int32
-        eventName:
-          type: string
-        endDateTime:
-          type: string
-          format: date-time
-        groupId:
-          type: integer
-          format: int32
-        startDateTime:
-          type: string
-          format: date-time
+      - philanthropyFlag
     Source:
       type: object
       properties:
@@ -1380,6 +1322,10 @@ components:
           format: int32
           description: A flag for if the source is internal or external
           example: 0
+        moneyCap:
+          type: number
+          description: What the cap on money spent is for this source
+          example: 8000
         spent:
           type: number
           description: How much money has already been spent for this source
@@ -1397,13 +1343,12 @@ components:
           format: int32
           description: A flag for if this source is deleted or not
           example: 0
-        moneyCap:
-          type: number
       required:
       - available
       - budgeted
       - deleted
       - internal
+      - moneyCap
       - name
       - spent
     FinanceGroup:
@@ -1424,3 +1369,18 @@ components:
       required:
       - deleted
       - title
+    AmountRequested:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: The id of the expense
+          example: 8
+        amt:
+          type: number
+          description: The amount requested for this expense
+          example: 50.0
+      required:
+      - amt
+      - id
