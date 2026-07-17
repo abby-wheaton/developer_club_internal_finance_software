@@ -16,15 +16,15 @@ public class Request {
     private Integer id;
 
     @Schema(description = "The community name for the requestee", example = "Web team", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Column(name ="communityName")
+    @Column(name ="community_name")
     private Integer communityName;
 
     @Schema(description = "The person who is submitting the request", example = "Khang", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Column(name ="requesteeUser")
+    @Column(name ="requestee_user")
     private String requesteeUser;
 
     @Schema(description = "The name of the item being requested", example = "Napkins", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Column(name ="itemName")
+    @Column(name ="item_name")
     private String itemName;
 
     @Schema(description = "Whether or not the request has been approved, denied, or neither", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
@@ -36,7 +36,7 @@ public class Request {
     private Integer quantity;
 
     @Schema(description = "The price for one unit of the item being requested", example = "14.99", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Column(name ="pricePerUnit")
+    @Column(name ="price_per_unit")
     private BigDecimal pricePerUnit;
 
     @Schema(description = "When the item is needed by", example = "2026-05-23T05:00:00", requiredMode = Schema.RequiredMode.REQUIRED)

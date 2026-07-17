@@ -26,7 +26,7 @@ public class Source {
     private Integer internal;
 
     @Schema(description = "What the cap on money spent is for this source", example = "8000", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Column(name ="moneyCap")
+    @Column(name ="money_cap")
     private BigDecimal moneyCap;
 
     @Schema(description = "How much money has already been spent for this source", example = "1000", requiredMode = Schema.RequiredMode.REQUIRED)
