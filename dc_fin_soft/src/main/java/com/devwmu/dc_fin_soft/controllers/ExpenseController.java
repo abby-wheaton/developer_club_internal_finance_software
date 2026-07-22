@@ -413,8 +413,8 @@ public class ExpenseController {
             FileUtils.copyFile(sourceFile, outfile);
         } catch (Exception e){
             e.printStackTrace();
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error: failed to create new form");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: failed to create new form");
         }
         try(FileInputStream infile = new FileInputStream(outfile)){
             // create workbook
@@ -500,6 +500,7 @@ public class ExpenseController {
             }
         } catch (Exception e){
             e.printStackTrace();
+            outfile.delete();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body("Error: Output file could not be opened");
 
@@ -525,6 +526,7 @@ public class ExpenseController {
         
         } catch (Exception e){
             e.printStackTrace();
+            outfile.delete();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body("Error: file not found");
         }

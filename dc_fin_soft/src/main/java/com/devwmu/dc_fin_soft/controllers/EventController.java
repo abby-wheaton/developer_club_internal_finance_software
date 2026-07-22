@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.List;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.commons.io.*;
@@ -55,7 +56,7 @@ public class EventController {
    * @param filters an array of filter objects, which represents the columns, operations, and values to filter by
    * @return the rows of Events that match the filters. On error, the filter will not apply. If no filters are applied, returns all of the rows. 
   */
-    public Iterable<Event> filterEvents(@RequestBody Filter[] filters){
+    public ResponseEntity<?> filterEvents(@RequestBody Filter[] filters){
         // filterEvents(filterArray[]) Iterable<Event>
         //     INPUT: filters: Filter[] -  an array of filters to apply to the table
         //      ex) [{"col":"est_attendance", "op":"geq", "val":16}] - this will apply a filter for if the estimated attendance is >= 16
@@ -71,7 +72,8 @@ public class EventController {
             Object value = filter.getVal();
 
             if (value == null){
-                continue;
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Error: No value provided for filter on column: " + col + "\n");
             }
 
             Specification<Event> condition = null;
@@ -79,18 +81,30 @@ public class EventController {
             switch (op) {
                 case "like":
                     try{
+                        if (!(col.equalsIgnoreCase("name") | col.equalsIgnoreCase("location"))){
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Error: invalid column: " + col +  "passed with LIKE operator\n");
+                        }
+                        
                         String lower = "%" + value.toString().toLowerCase() + "%";
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.like(criteraBuilder.lower(root.get(col)), lower);
+
+                 
                         break;
                     }
                     catch (ClassCastException e){
-                        System.out.println(e + "\n\n\n");
-                        break;
+                        System.out.println(e);
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Error: non-string value passed with LIKE operator\n");
                     }
                 case "bw":
                     // between two dates
                     try {
+                        if (!col.equalsIgnoreCase("date")){
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Error: invalid column: " + col +  " passed with BETWEEN operator\n");
+                        }
                         ArrayList<String> value2 = (ArrayList<String>) value;
                         LocalDateTime date1 = LocalDateTime.parse(value2.get(0));
                         LocalDateTime date2 = LocalDateTime.parse(value2.get(1));
@@ -100,29 +114,48 @@ public class EventController {
                         break;
                     } catch (ClassCastException e){
                         System.out.println(e + "\n\n\n");
-                        break;
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Error: non-date value passed with BETWEEN operator\n");
                     }
                 case "leq": 
                     try{
+                        List<String> allowedOps = List.of("id", "estAttendance");
+                        if (!(allowedOps.contains(col))){
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Error: invalid column: " + col +  " passed with LESS THAN OR EQUAL operator\n");
+                        }
                         Integer val = (Integer) value;
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.lessThanOrEqualTo(root.get(col), val);
                         break;
                     } catch (ClassCastException e){
                         System.out.println(e + "\n\n\n");
-                        break;
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Error: non-number value passed with LESS THAN OR EQUAL TO operator\n");
                     }
                 case "geq":
                     try{
+                        List<String> allowedOps = List.of("id", "estAttendance");
+                        if (!(allowedOps.contains(col))){
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Error: invalid column: " + col +  " passed with GREATER THAN OR EQUAL operator\n");
+                        }
+
                         Integer val = (Integer) value;
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.greaterThanOrEqualTo(root.get(col), val);
                         break;
                     } catch (ClassCastException e){
                         System.out.println(e + "\n\n\n");
-                        break;
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Error: non-number value passed with GREATER THAN OR EQUAL TO operator\n");
                     }
                 case "eq":
+                    List<String> notAllowedOps = List.of("name", "location");
+                        if (notAllowedOps.contains(col)){
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Error: invalid column: " + col +  " passed with EQUAL operator. Pass this with LIKE operator\n");
+                        }
                     condition = (root, query, criteriaBuilder) -> 
                         criteriaBuilder.equal(root.get(col), value);
                     break;
@@ -133,7 +166,10 @@ public class EventController {
             }
 
         }
-        return this.eventRepository.findAll(spec);
+        Iterable<Event> events =  this.eventRepository.findAll(spec);
+        return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(events);
     }
 
     @Operation(
@@ -147,8 +183,16 @@ public class EventController {
    * @return returns all of the rows of the events table
   */
     @GetMapping("/all")
-    public Iterable<Event> getAllEvents() {
-        return this.eventRepository.findAll();
+    public ResponseEntity<?> getAllEvents() {
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.eventRepository.findAll());
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to retrieve all events");
+        }
     }
     
     @PostMapping("/create")
@@ -162,14 +206,22 @@ public class EventController {
    * @param event an event object to be added to the table
    * @return will return the created event
   */
-    public Event createEvent(@RequestBody Event event){
+    public ResponseEntity<?> createEvent(@RequestBody Event event){
         // createEvent(name, date, location, attendance, fee?, philanthropy?, conference?):
         //     INPUT: event: Event - the event to be saved to the database
         //     OUTPUT: created event
 
         // saves the passed Event object to the database
-        return this.eventRepository.save(event);
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.eventRepository.save(event));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to create event: " + event.toString() + "\n");
+        }
     }
+    
 
     @PutMapping("/edit/id={id}")
     @Operation(
@@ -183,7 +235,7 @@ public class EventController {
    * @param event the updated event (what you want the event to be)
    * @return returns the updated event
   */
-    public Event editEvent(@PathVariable("id") Integer id, @RequestBody Event event){
+    public ResponseEntity<?> editEvent(@PathVariable("id") Integer id, @RequestBody Event event){
         // editEvent(id, editArray[]): bool
         //     INPUT: id: int - The ID of the event, event: Event - the updated Event object
         //     OUTPUT: success or not
@@ -219,7 +271,14 @@ public class EventController {
             newEvent.setDeleted(event.getDeleted());
         }
 
-        return this.eventRepository.save(newEvent);
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.eventRepository.save(newEvent));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to update event\n");
+        }
     }
 
     @PutMapping("/fee_flag/id={id}_val={val}")
@@ -234,14 +293,15 @@ public class EventController {
    * @param val the value to set the flag to
    * @return returns the updated event
   */
-    public Event feeFlagEvent(@PathVariable("id") Integer id, @PathVariable("val") Integer val){
+    public ResponseEntity<?> feeFlagEvent(@PathVariable("id") Integer id, @PathVariable("val") Integer val){
         // feeFlagEvent(id, val): bool
         //     INPUT: id: Integer - The id of the item to change the fee flag (from database), val: Integer -  what to set the flag to
         //     OUTPUT: updated event
         // sets the feeFlag to be 1 or 0
         Optional<Event> eventToUpdateOptional = this.eventRepository.findById(id);
         if (!eventToUpdateOptional.isPresent()){
-            return null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: Invalid event id: " + id.toString() + "\n");
         }
 
         Event updateEvent = eventToUpdateOptional.get();
@@ -251,7 +311,14 @@ public class EventController {
         else{
             updateEvent.setFeeFlag(1);
         }
-        return this.eventRepository.save(updateEvent);
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.eventRepository.save(updateEvent));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to update event");
+        }
     }
 
     @PutMapping("/phil_flag/id={id}_val=_{val}")
@@ -266,14 +333,15 @@ public class EventController {
    * @param val the value to set the flag to
    * @return returns the updated event
   */
-    public Event philFlagEvent(@PathVariable("id") Integer id, @PathVariable("val") Integer val){
+    public ResponseEntity<?> philFlagEvent(@PathVariable("id") Integer id, @PathVariable("val") Integer val){
         // feeFlagEvent(id, val): bool
         //     INPUT: id: Integer - The id of the item to change the philanthropy flag (from database), val: Integer -  what to set the flag to
         //     OUTPUT: updated event
         // sets the philanthropyFlag to be 1 or 0
         Optional<Event> eventToUpdateOptional = this.eventRepository.findById(id);
         if (!eventToUpdateOptional.isPresent()){
-            return null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: invalid event id: " + id.toString() + "\n");
         }
         Event updateEvent = eventToUpdateOptional.get();
         if (val == 0){
@@ -282,7 +350,14 @@ public class EventController {
         else{
             updateEvent.setPhilanthropyFlag(1);
         }
-        return this.eventRepository.save(updateEvent);
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.eventRepository.save(updateEvent));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to update event");
+        }
     }
 
     @Operation(
@@ -297,14 +372,15 @@ public class EventController {
    * @return returns the updated event
   */
     @PutMapping("/conf_flag/id={id}_val={val}")
-    public Event confFlagEvent(@PathVariable("id") Integer id, @PathVariable("val") Integer val){
+    public ResponseEntity<?> confFlagEvent(@PathVariable("id") Integer id, @PathVariable("val") Integer val){
         // feeFlagEvent(id, val): bool
         //     INPUT: id: Integer - The id of the item to change the conference flag (from database), val: Integer -  what to set the flag to
         //     OUTPUT: updated event
         // sets the conferenceFlag to be 1 or 0
         Optional<Event> eventToUpdateOptional = this.eventRepository.findById(id);
         if (!eventToUpdateOptional.isPresent()){
-            return null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: event id invalid: " + id.toString() + "\n");
         }
         Event updateEvent = eventToUpdateOptional.get();
         if (val == 0){
@@ -313,10 +389,17 @@ public class EventController {
         else{
             updateEvent.setConferenceFlag(1);
         }
-        return this.eventRepository.save(updateEvent);
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.eventRepository.save(updateEvent));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to update event");
+        }
     }
 
-    @PutMapping("/delete/id={id}")
+    @PutMapping("/safe_delete/id={id}")
     /** 
    * DESCRIPTION
    * 
@@ -327,18 +410,27 @@ public class EventController {
         summary = "Deletes an event from the Events table",
         description = "Modifies the deleted column of the event based on the id provided to be 1"
     )
-    public Event deleteEvent(@PathVariable("id") Integer id){
+    public ResponseEntity<?> deleteEvent(@PathVariable("id") Integer id){
         // deleteEvent(id): bool
         //     INPUT: id: Integer - The id of the item to be deleted (from the database)
         //     OUTPUT: deleted event
         // sets the delete flag to be 1 
         Optional<Event> eventToDeleteOptional = this.eventRepository.findById(id);
         if (!eventToDeleteOptional.isPresent()){
-            return null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: invalid event id: " + id.toString() + "\n");
         }
         Event deleteEvent = eventToDeleteOptional.get();
         deleteEvent.setDeleted(1);
-        return this.eventRepository.save(deleteEvent);
+
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.eventRepository.save(deleteEvent));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to delete event");
+        }
     }
 
     @Operation(
@@ -367,7 +459,8 @@ public class EventController {
 
         Optional<Event> eventOptional = this.eventRepository.findById(id);
         if (!eventOptional.isPresent()){
-            return null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: invalid event id: " + id.toString() + "\n");
         }
         Event event = eventOptional.get();
         File sourceFile = new File("src/main/java/com/devwmu/dc_fin_soft/controllers/forms/(2026) WSAAC Event Proposal - RSO Name.xlsx");
@@ -377,6 +470,8 @@ public class EventController {
             FileUtils.copyFile(sourceFile, outfile);
         } catch (Exception e){
             e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to create new form\n");
         }
         try(FileInputStream infile = new FileInputStream(outfile)){
             // create workbook
@@ -485,6 +580,10 @@ public class EventController {
                     }
                 } catch (ClassCastException e){
                     e.printStackTrace();
+
+                    outfile.delete();
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error: Incorrect type passed to amount requested for amount requested\n"); 
                 }
 
                 curRow += 1;
@@ -518,6 +617,10 @@ public class EventController {
                     }
                 } catch (ClassCastException e){
                     e.printStackTrace();
+
+                    outfile.delete();
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error: Incorrect type passed to amount requested for amount requested\n"); 
                 }
 
                 curRow += 1;
@@ -530,9 +633,17 @@ public class EventController {
                 workbook.write(outFile);
             }catch (Exception e){
                 e.printStackTrace();
+                outfile.delete();
+
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error: failed to write to file\n");
+
             }
         } catch (Exception e){
             e.printStackTrace();
+            outfile.delete();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error: failed to open file\n");
         }
         // make calls to excel api to edit the excel file, 
         // then output the form
@@ -556,8 +667,9 @@ public class EventController {
         
         } catch (Exception e){
             e.printStackTrace();
+            outfile.delete();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Error: file not found");
+            .body("Error: file not found\n");
         }
     } 
 
@@ -592,7 +704,8 @@ public class EventController {
 
         Optional<Event> eventOptional = this.eventRepository.findById(id);
         if (!eventOptional.isPresent()){
-            return null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: invalid event id: " + id.toString() + "\n");
         }
         Event event = eventOptional.get();
         File sourceFile = new File("src/main/java/com/devwmu/dc_fin_soft/controllers/forms/(2026) WSAAC Conference Proposal - RSO Name.xlsx");
@@ -602,6 +715,8 @@ public class EventController {
             FileUtils.copyFile(sourceFile, outfile);
         } catch (Exception e){
             e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to create new form\n");
         }
         try(FileInputStream infile = new FileInputStream(outfile)){
             // create workbook
@@ -683,6 +798,10 @@ public class EventController {
                     }
                 } catch (ClassCastException e){
                     e.printStackTrace();
+
+                    outfile.delete();
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error: Incorrect type passed to amount requested for amount requested\n"); 
                 }
 
                 curRow += 1;
@@ -694,9 +813,16 @@ public class EventController {
                 workbook.write(outFile);
             }catch (Exception e){
                 e.printStackTrace();
+                outfile.delete();
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error: Output file could not be written to");
             }
         } catch (Exception e){
             e.printStackTrace();
+
+            outfile.delete();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: Output file could not be opened");
         }
         // then output the form
         File file = new File("src/main/java/com/devwmu/dc_fin_soft/controllers/forms/(2026) WSAAC Conference Proposal - Developer Club.xlsx");
@@ -719,6 +845,7 @@ public class EventController {
         
         } catch (Exception e){
             e.printStackTrace();
+            outfile.delete();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body("Error: file not found");
         }
