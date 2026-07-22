@@ -25,11 +25,11 @@ public class Expense {
 
     @Schema(description = "The price of the individual unit of the expense", example = "4.00", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="price_per_unit")
-    private BigDecimal price_per_unit;
+    private BigDecimal pricePerUnit;
 
     @Schema(description = "The total price of the expense", example = "12.00", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="total_price")
-    private BigDecimal total_price;
+    private BigDecimal totalPrice;
 
     @Schema(description = "Why the expense is needed", example = "Office supplies running low", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="purpose")
@@ -45,7 +45,7 @@ public class Expense {
 
     @Schema(description = "The source used to pay for the expense", example = "2", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="source_id")
-    private Integer source_id;
+    private Integer sourceId;
 
     @Schema(description = "The link to the expense on a website", example = "www.amazon.com", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     @Column(name ="link")
@@ -53,9 +53,9 @@ public class Expense {
 
     @Schema(description = "When the item is needed by", example = "2026-05-23T05:00:00", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="item_deadline")
-    private LocalDateTime item_deadline;
+    private LocalDateTime itemDeadline;
 
-    @Schema(description = "What community will use this expense", example = "Web Team", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "What community will use this expense", example = "0", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="community")
     private Integer community;
 
@@ -65,55 +65,55 @@ public class Expense {
 
     @Schema(description = "If the expense has been requested", example = "0", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="requested_flag")
-    private Integer requested_flag;
+    private Integer requestedFlag;
 
     @Schema(description = "If the expense has been approved", example = "0", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="approved_flag")
-    private Integer approved_flag;
+    private Integer approvedFlag;
 
     @Schema(description = "If the expense has begun being bought", example = "0", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="started_buying_flag")
-    private Integer started_buying_flag;
+    private Integer startedBuyingFlag;
 
     @Schema(description = "If the expense has finished being bought", example = "0", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="finished_buying_flag")
-    private Integer finished_buying_flag;
+    private Integer finishedBuyingFlag;
 
     @Schema(description = "If the expense has been picked up", example = "0", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="picked_up_flag")
-    private Integer picked_up_flag;
+    private Integer pickedUpFlag;
 
     @Schema(description = "If the expense has been reimbursed", example = "0", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     @Column(name ="reimbursed_flag")
-    private Integer reimbursed_flag;
+    private Integer reimbursedFlag;
 
     @Schema(description = "How much money is remaining to be spent on this expense", example = "20.00", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="money_remaining")
-    private BigDecimal money_remaining;
+    private BigDecimal moneyRemaining;
 
     @Schema(description = "How much money is spent on this expense", example = "40.00", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="total_spent")
-    private BigDecimal total_spent;
+    private BigDecimal totalSpent;
 
     @Schema(description = "Where to pick up this expense if applicable", example = "Student Center Admin Offices", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     @Column(name ="pickup_location")
-    private String pickup_location;
+    private String pickupLocation;
 
     @Schema(description = "When the expense's allocation is due", example = "2026-05-23T05:00:00", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="allocation_deadline")
-    private LocalDateTime allocation_deadline;
+    private LocalDateTime allocationDeadline;
 
     @Schema(description = "When the expense's deliberation is due", example = "2026-05-23T05:00:00", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     @Column(name ="deliberation_deadline")
-    private LocalDateTime deliberation_deadline;
+    private LocalDateTime deliberationDeadline;
 
     @Schema(description = "When the expense must be reimbursed by", example = "2026-05-23T05:00:00", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     @Column(name ="reimbursement_deadline")
-    private LocalDateTime reimbursement_deadline;
+    private LocalDateTime reimbursementDeadline;
 
     @Schema(description = "How the expense is paid for", example = "Club Credit Card", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="payment_type")
-    private String payment_type;
+    private String paymentType;
 
     @Schema(description = "Will be deleted soon", example = "0", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="deleted")
@@ -133,11 +133,11 @@ public class Expense {
     }
 
     public BigDecimal getPricePerUnit(){
-        return this.price_per_unit;
+        return this.pricePerUnit;
     }
 
     public BigDecimal getTotalPrice(){
-        return this.total_price;
+        return this.totalPrice;
     }
 
     public String getPurpose(){
@@ -149,7 +149,7 @@ public class Expense {
     }
 
     public Integer getSourceId(){
-        return this.source_id;
+        return this.sourceId;
     }
 
     public Integer getEventId(){
@@ -160,7 +160,7 @@ public class Expense {
     }
 
     public LocalDateTime getItemDeadline() {
-        return this.item_deadline;
+        return this.itemDeadline;
     }
 
     public Integer getCommunity() {
@@ -172,55 +172,55 @@ public class Expense {
     }
 
     public Integer getRequestedFlag() {
-        return this.requested_flag;
+        return this.requestedFlag;
     }
 
     public Integer getApprovedFlag() {
-        return this.approved_flag;
+        return this.approvedFlag;
     }
 
     public Integer getStartedBuyingFlag() {
-        return this.started_buying_flag;
+        return this.startedBuyingFlag;
     }
 
     public Integer getFinishedBuyingFlag() {
-        return this.finished_buying_flag;
+        return this.finishedBuyingFlag;
     }
 
     public Integer getPickedUpFlag() {
-        return this.picked_up_flag;
+        return this.pickedUpFlag;
     }
 
     public Integer getReimbursedFlag() {
-        return this.reimbursed_flag;
+        return this.reimbursedFlag;
     }
 
     public BigDecimal getMoneyRemaining() {
-        return this.money_remaining;
+        return this.moneyRemaining;
     }
 
     public BigDecimal getTotalSpent() {
-        return this.total_spent;
+        return this.totalSpent;
     }
 
     public String getPickupLocation() {
-        return this.pickup_location;
+        return this.pickupLocation;
     }
 
     public LocalDateTime getAllocationDeadline() {
-        return this.allocation_deadline;
+        return this.allocationDeadline;
     }
 
     public LocalDateTime getDeliberationDeadline() {
-        return this.deliberation_deadline;
+        return this.deliberationDeadline;
     }
 
     public LocalDateTime getReimbursementDeadline() {
-        return this.reimbursement_deadline;
+        return this.reimbursementDeadline;
     }
 
     public String getPaymentType() {
-        return this.payment_type;
+        return this.paymentType;
     }
 
     public Integer getDeleted() {
@@ -236,12 +236,12 @@ public class Expense {
         this.quantity = quantity;
     }
 
-    public void setPricePerUnit(BigDecimal price_per_unit){
-        this.price_per_unit = price_per_unit;
+    public void setPricePerUnit(BigDecimal pricePerUnit){
+        this.pricePerUnit = pricePerUnit;
     }
 
-    public void setTotalPrice(BigDecimal total_price) {
-        this.total_price = total_price;
+    public void setTotalPrice(BigDecimal totalPrice) {
+        this.totalPrice = totalPrice;
     }
 
     public void setPurpose(String purpose) {
@@ -252,80 +252,80 @@ public class Expense {
         this.vendor = vendor;
     }
 
-    public void setEventId(Integer event_id) {
-        this.eventId = event_id;
+    public void setEventId(Integer eventId) {
+        this.eventId = eventId;
     }
 
-    public void setSourceId(Integer source_id) {
-        this.source_id = source_id;
+    public void setSourceId(Integer sourceId) {
+        this.sourceId = sourceId;
     }
 
     public void setLink(String link) {
         this.link = link;
     }
 
-    public void setItemDeadline(LocalDateTime item_deadline) {
-        this.item_deadline = item_deadline;
+    public void setItemDeadline(LocalDateTime itemDeadline) {
+        this.itemDeadline = itemDeadline;
     }
 
     public void setCommunity(Integer community) {
         this.community = community;
     }
 
-    public void setFoodFlag(Integer food_flag) {
-        this.foodFlag = food_flag;
+    public void setFoodFlag(Integer foodFlag) {
+        this.foodFlag = foodFlag;
     }
 
-    public void setRequestedFlag(Integer requested_flag) {
-        this.requested_flag = requested_flag;
+    public void setRequestedFlag(Integer requestedFlag) {
+        this.requestedFlag = requestedFlag;
     }
 
-    public void setApprovedFlag(Integer approved_flag) {
-        this.approved_flag = approved_flag;
+    public void setApprovedFlag(Integer approvedFlag) {
+        this.approvedFlag = approvedFlag;
     }
 
-    public void setStartedBuyingFlag(Integer started_buying_flag) {
-        this.started_buying_flag = started_buying_flag;
+    public void setStartedBuyingFlag(Integer startedBuyingFlag) {
+        this.startedBuyingFlag = startedBuyingFlag;
     }
 
-    public void setFinishedBuyingFlag(Integer finished_buying_flag) {
-        this.finished_buying_flag = finished_buying_flag;
+    public void setFinishedBuyingFlag(Integer finishedBuyingFlag) {
+        this.finishedBuyingFlag = finishedBuyingFlag;
     }
 
-    public void setPickedUpFlag(Integer picked_up_flag) {
-        this.picked_up_flag = picked_up_flag;
+    public void setPickedUpFlag(Integer pickedUpFlag) {
+        this.pickedUpFlag = pickedUpFlag;
     }
 
-    public void setReimbursedFlag(Integer reimbursed_flag) {
-        this.reimbursed_flag = reimbursed_flag;
+    public void setReimbursedFlag(Integer reimbursedFlag) {
+        this.reimbursedFlag = reimbursedFlag;
     }
 
-    public void setMoneyRemaining(BigDecimal money_remaining) {
-        this.money_remaining = money_remaining;
+    public void setMoneyRemaining(BigDecimal moneyRemaining) {
+        this.moneyRemaining = moneyRemaining;
     }
 
-    public void setTotalSpent(BigDecimal total_spent) {
-        this.total_spent = total_spent;
+    public void setTotalSpent(BigDecimal totalSpent) {
+        this.totalSpent = totalSpent;
     }
 
-    public void setPickupLocation(String pickup_location) {
-        this.pickup_location = pickup_location;
+    public void setPickupLocation(String pickupLocation) {
+        this.pickupLocation = pickupLocation;
     }
 
-    public void setAllocationDeadline(LocalDateTime allocation_deadline) {
-        this.allocation_deadline = allocation_deadline;
+    public void setAllocationDeadline(LocalDateTime allocationDeadline) {
+        this.allocationDeadline = allocationDeadline;
     }
 
-    public void setDeliberationDeadline(LocalDateTime deliberation_deadline) {
-        this.deliberation_deadline = deliberation_deadline;
+    public void setDeliberationDeadline(LocalDateTime deliberationDeadline) {
+        this.deliberationDeadline = deliberationDeadline;
     }
 
-    public void setReimbursementDeadline(LocalDateTime reimbursement_deadline) {
-        this.reimbursement_deadline = reimbursement_deadline;
+    public void setReimbursementDeadline(LocalDateTime reimbursementDeadline) {
+        this.reimbursementDeadline = reimbursementDeadline;
     }
 
-    public void setPaymentType(String payment_type) {
-        this.payment_type = payment_type;
+    public void setPaymentType(String paymentType) {
+        this.paymentType = paymentType;
     }
 
     public void setDeleted(Integer deleted) {

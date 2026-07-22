@@ -1,6 +1,5 @@
 package com.devwmu.dc_fin_soft.controllers;
 import com.devwmu.dc_fin_soft.repositories.ExpenseRepository;
-import com.devwmu.dc_fin_soft.repositories.EventRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -8,14 +7,16 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.MediaType;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 import java.io.File;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.commons.io.*;
@@ -24,18 +25,15 @@ import org.springframework.http.HttpHeaders;
 
 import com.devwmu.dc_fin_soft.controllers.forms.AmountRequested;
 import com.devwmu.dc_fin_soft.entities.Expense;
-import com.devwmu.dc_fin_soft.entities.Event;
 
 @RestController
 @RequestMapping("/expense")
 @Tag(name = "Expense Controller", description = "This controller interacts with the expense table in various ways")
 public class ExpenseController {
-    private final EventRepository eventRepository;
     private final ExpenseRepository expenseRepository;
 
-    ExpenseController(ExpenseRepository expenseRepository, EventRepository eventRepository) {
+    ExpenseController(ExpenseRepository expenseRepository) {
         this.expenseRepository = expenseRepository;
-        this.eventRepository = eventRepository;
     }
 
     @GetMapping("/expenses")
@@ -43,10 +41,18 @@ public class ExpenseController {
         summary = "Retrieves all of the expenses",
         description = "Takes in no input, and returns all of the rows in the Expense table"
     )
-    public Iterable<Expense> getAllExpenses (){
+    public ResponseEntity<?> getAllExpenses (){
         //     OUTPUT: all expenses
 
-        return this.expenseRepository.findAll();
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.expenseRepository.findAll());
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to retrieve all expenses");
+        }
     }
 
     @PutMapping("/expenses/search")
@@ -54,7 +60,7 @@ public class ExpenseController {
         summary = "Filters through expenses based on specified values",
         description = "Takes in a JSON array, where each element is a Filter object consisting of the column to filter by, the operation to filter based on, and the desired value, and returns all of the rows in the Expenses table which match the Filter objects"
     )
-    public Iterable<Expense> filterExpenses(@RequestBody Filter[] filters){
+    public ResponseEntity<?> filterExpenses(@RequestBody Filter[] filters){
         // filterExpenses(filterArray[]) ?
         //     Take an array of column names and the desired value, and output the selected SQL rows
         //     OUTPUT: expenses
@@ -65,13 +71,19 @@ public class ExpenseController {
             Object value = filter.getVal();
 
             if (value == null){
-                continue;
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Error: No value provided for filter on column: " + col + "\n");
             }
 
             Specification<Expense> condition = null;
             switch (op) {
                 case "like":
                     try{
+                        List<String> allowedCols = List.of("name", "purpose", "vendor", "link", "pickuplocation", "paymenttype");
+                        if (!(allowedCols.contains(col.toLowerCase()))){
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Error: invalid column: " + col +  " passed with LIKE operator\n");
+                        }
                         String lower = "%" + value.toString().toLowerCase() + "%";
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.like(criteraBuilder.lower(root.get(col)), lower);
@@ -79,10 +91,36 @@ public class ExpenseController {
                     }
                     catch (ClassCastException e){
                         System.out.println(e + "\n\n\n");
-                        break;
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Error: non-string value passed with LIKE operator\n");
                     }
+                 case "bw":
+                    // between two dates
+                    try {
+                        List<String> allowedCols = List.of("itedeadline", "allocationdeadline", "deliberationdeadline", "reimbursementdeadline");
+                        if (!(allowedCols.contains(col.toLowerCase()))){
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Error: invalid column: " + col +  " passed with BETWEEN operator\n");
+                        }
+                        ArrayList<String> value2 = (ArrayList<String>) value;
+                        LocalDateTime date1 = LocalDateTime.parse(value2.get(0));
+                        LocalDateTime date2 = LocalDateTime.parse(value2.get(1));
+                        condition =  (root, query, criteraBuilder) ->
+                            criteraBuilder.between(root.get(col), date1, date2);
+
+                        break;
+                    } catch (ClassCastException e){
+                        System.out.println(e + "\n\n\n");
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Error: non-date value passed with BETWEEN operator\n");
+                }
                 case "leq": 
                     try{
+                        List<String> allowedOps = List.of("id", "quantity", "priceperunit", "totalprice", "eventid", "sourceid", "moneyremaining", "totalspent");
+                        if (!(allowedOps.contains(col.toLowerCase()))){
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Error: invalid column: " + col +  " passed with LESS THAN OR EQUAL operator\n");
+                        }
                         Integer val = (Integer) value;
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.lessThanOrEqualTo(root.get(col), val);
@@ -93,6 +131,11 @@ public class ExpenseController {
                     }
                 case "geq":
                     try{
+                        List<String> allowedOps = List.of("id", "quantity", "priceperunit", "totalprice", "eventid", "sourceid", "moneyremaining", "totalspent");
+                        if (!(allowedOps.contains(col.toLowerCase()))){
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Error: invalid column: " + col +  " passed with GREATER THAN OR EQUAL operator\n");
+                        }
                         Integer val = (Integer) value;
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.greaterThanOrEqualTo(root.get(col), val);
@@ -102,6 +145,11 @@ public class ExpenseController {
                         break;
                     }
                 case "eq":
+                    List<String> notAllowedCols = List.of("name", "purpose", "vendor", "link", "pickuplocation", "paymenttype");
+                        if (notAllowedCols.contains(col.toLowerCase())){
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Error: invalid column: " + col +  " passed with EQUAL operator. Pass this with LIKE operator\n");
+                        }
                     condition = (root, query, criteriaBuilder) -> 
                         criteriaBuilder.equal(root.get(col), value);
                     break;
@@ -112,7 +160,10 @@ public class ExpenseController {
             }
 
         }
-        return this.expenseRepository.findAll(spec);
+        Iterable<Expense> events =  this.expenseRepository.findAll(spec);
+        return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(events);
     }
 
     @PostMapping("/item")
@@ -120,12 +171,19 @@ public class ExpenseController {
         summary = "Adds an expense to the Expenses table",
         description = "Takes in a JSON object and adds that Expense to the Expenses table. Returns the object on success"
     )
-    public Expense budgetItem(@RequestBody Expense expense){
+    public ResponseEntity<?> budgetItem(@RequestBody Expense expense){
         // budgetItem(name, qty, pricePerUnit, totalPrice, purpose, vendor, foodFlag, eventID, source, link, deadline, community, payment_type, pickup_location) bool
         //     Takes in info to create an entry in the Expenses table and outputs if successful
         //     OUTPUT: success or not
 
-        return this.expenseRepository.save(expense);
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.expenseRepository.save(expense));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to create event: " + expense.toString() + "\n");
+        }
     }
 
     @PutMapping("/item/edit_{id}")
@@ -133,14 +191,15 @@ public class ExpenseController {
         summary = "Edits an expense in the Expenses table",
         description = "Takes in a JSON object and the id of the expense to edit, and edits that expense in the Expenses table with the new values provided. Returns the object on success"
     )
-    public Expense editItem(@PathVariable("id") Integer id, @RequestBody Expense expense){
+    public ResponseEntity<?> editItem(@PathVariable("id") Integer id, @RequestBody Expense expense){
         // editItem(id, editArray[]): bool
         //     The ID of the item and the array of columns to be changed
         //     OUTPUT: success or not
 
         Optional<Expense> expenseToUpdateOptional = this.expenseRepository.findById(id);
         if (!expenseToUpdateOptional.isPresent()){
-            return null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: Invalid expense id: " + id.toString() + "\n");
         }
 
         Expense expenseToUpdate = expenseToUpdateOptional.get();
@@ -220,7 +279,14 @@ public class ExpenseController {
             expenseToUpdate.setDeleted(expense.getDeleted());
         }
         
-        return this.expenseRepository.save(expenseToUpdate);
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.expenseRepository.save(expenseToUpdate));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to update expense");
+        }
     }
 
     @PutMapping("/item/food_flag_id={id}_num={num}")
@@ -228,14 +294,15 @@ public class ExpenseController {
         summary = "Toggles the feeFlag for an expense",
         description = "Using the id provided, it will toggle the foodFlag for an expense to either 1 or 0"
     )
-    public Expense FoodFlagItem(@PathVariable("id") Integer id, @PathVariable("num") Integer num) {
+    public ResponseEntity<?> FoodFlagItem(@PathVariable("id") Integer id, @PathVariable("num") Integer num) {
         // deleteItem(id): bool
         //     The id of the item to be updates (from display, not database)
         //     OUTPUT: updated expense
 
         Optional<Expense> expenseToUpdateOptional = this.expenseRepository.findById(id);
         if (!expenseToUpdateOptional.isPresent()){
-            return null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: invalid expense id: " + id.toString() + "\n");
         }
         Expense expense = expenseToUpdateOptional.get();
         if (num == 0){
@@ -245,7 +312,14 @@ public class ExpenseController {
             expense.setFoodFlag(1);
         }
         
-        return this.expenseRepository.save(expense);    
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.expenseRepository.save(expense));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to update expense");
+        }   
     }
 
     @PutMapping("/item/requested_flag_id={id}_num={num}")
@@ -253,14 +327,15 @@ public class ExpenseController {
         summary = "Toggles the requestedFlag for an expense",
         description = "Using the id provided, it will toggle the requestedFlag for an expense to either 1 or 0"
     )
-    public Expense requestedFlagItem(@PathVariable("id") Integer id, @PathVariable("num") Integer num) {
+    public ResponseEntity<?> requestedFlagItem(@PathVariable("id") Integer id, @PathVariable("num") Integer num) {
         // deleteItem(id): bool
         //     The id of the item to be updates (from display, not database)
         //     OUTPUT: updated expense
 
         Optional<Expense> expenseToUpdateOptional = this.expenseRepository.findById(id);
         if (!expenseToUpdateOptional.isPresent()){
-            return null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: invalid expense id: " + id.toString() + "\n");
         }
         Expense expense = expenseToUpdateOptional.get();
         if (num == 0){
@@ -270,7 +345,15 @@ public class ExpenseController {
             expense.setRequestedFlag(1);
         }
         
-        return this.expenseRepository.save(expense);    
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.expenseRepository.save(expense));
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to update event");
+        }   
     }
 
     @PutMapping("/item/s_buying_flag_id={id}_num={num}")
@@ -278,14 +361,15 @@ public class ExpenseController {
         summary = "Toggles the startedBuyingFlag for an expense",
         description = "Using the id provided, it will toggle the startedBuyingFlag for an expense to either 1 or 0"
     )
-    public Expense sBuyingFlagItem(@PathVariable("id") Integer id, @PathVariable("num") Integer num) {
+    public ResponseEntity<?> sBuyingFlagItem(@PathVariable("id") Integer id, @PathVariable("num") Integer num) {
         // deleteItem(id): bool
         //     The id of the item to be updates (from display, not database)
         //     OUTPUT: updated expense
 
         Optional<Expense> expenseToUpdateOptional = this.expenseRepository.findById(id);
         if (!expenseToUpdateOptional.isPresent()){
-            return null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: invalid expense id: " + id.toString() + "\n");
         }
         Expense expense = expenseToUpdateOptional.get();
         if (num == 0){
@@ -295,7 +379,15 @@ public class ExpenseController {
             expense.setStartedBuyingFlag(1);
         }
         
-        return this.expenseRepository.save(expense);    
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.expenseRepository.save(expense));
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to update event");
+        }      
     }
 
     @PutMapping("/item/f_buying_flag_id={id}_num={num}")
@@ -303,14 +395,15 @@ public class ExpenseController {
         summary = "Toggles the finishedBuyingFlag for an expense",
         description = "Using the id provided, it will toggle the finishedBuyingFlag for an expense to either 1 or 0"
     )
-    public Expense fBuyingFlagItem(@PathVariable("id") Integer id, @PathVariable("num") Integer num) {
+    public ResponseEntity<?> fBuyingFlagItem(@PathVariable("id") Integer id, @PathVariable("num") Integer num) {
         // deleteItem(id): bool
         //     The id of the item to be updates (from display, not database)
         //     OUTPUT: updated expense
 
         Optional<Expense> expenseToUpdateOptional = this.expenseRepository.findById(id);
         if (!expenseToUpdateOptional.isPresent()){
-            return null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: invalid expense id: " + id.toString() + "\n");
         }
         Expense expense = expenseToUpdateOptional.get();
         if (num == 0){
@@ -320,7 +413,15 @@ public class ExpenseController {
             expense.setFinishedBuyingFlag(1);
         }
         
-        return this.expenseRepository.save(expense);    
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.expenseRepository.save(expense));
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to update event");
+        }      
     }
 
     @PutMapping("/item/picked_up_flag_id={id}_num={num}")
@@ -328,14 +429,15 @@ public class ExpenseController {
         summary = "Toggles the pickedUpFlag for an expense",
         description = "Using the id provided, it will toggle the pickedUpFlag for an expense to either 1 or 0"
     )
-    public Expense pickedUpFlagItem(@PathVariable("id") Integer id, @PathVariable("num") Integer num) {
+    public ResponseEntity<?> pickedUpFlagItem(@PathVariable("id") Integer id, @PathVariable("num") Integer num) {
         // deleteItem(id): bool
         //     The id of the item to be updates (from display, not database)
         //     OUTPUT: updated expense
 
         Optional<Expense> expenseToUpdateOptional = this.expenseRepository.findById(id);
         if (!expenseToUpdateOptional.isPresent()){
-            return null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: invalid expense id: " + id.toString() + "\n");
         }
         Expense expense = expenseToUpdateOptional.get();
         if (num == 0){
@@ -345,7 +447,15 @@ public class ExpenseController {
             expense.setPickedUpFlag(1);
         }
         
-        return this.expenseRepository.save(expense);    
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.expenseRepository.save(expense));
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to update event");
+        }    
     }
 
     @PutMapping("/item/reimbursed_flag_id={id}_num={num}")
@@ -353,14 +463,15 @@ public class ExpenseController {
         summary = "Toggles the reimbursedFlag for an expense",
         description = "Using the id provided, it will toggle the reimbursedFlag for an expense to either 1 or 0"
     )
-    public Expense reimbursedFlagItem(@PathVariable("id") Integer id, @PathVariable("num") Integer num) {
+    public ResponseEntity<?> reimbursedFlagItem(@PathVariable("id") Integer id, @PathVariable("num") Integer num) {
         // deleteItem(id): bool
         //     The id of the item to be updates (from display, not database)
         //     OUTPUT: updated expense
 
         Optional<Expense> expenseToUpdateOptional = this.expenseRepository.findById(id);
         if (!expenseToUpdateOptional.isPresent()){
-            return null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: invalid expense id: " + id.toString() + "\n");
         }
         Expense expense = expenseToUpdateOptional.get();
         if (num == 0){
@@ -370,7 +481,15 @@ public class ExpenseController {
             expense.setReimbursedFlag(1);
         }
         
-        return this.expenseRepository.save(expense);    
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.expenseRepository.save(expense));
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to update event");
+        }     
     }
 
     @PutMapping("/item/delete_{id}")
@@ -378,19 +497,28 @@ public class ExpenseController {
         summary = "Deletes an expense from the Expenses table",
         description = "Modifies the deleted column of the expense based on the id provided to be 1"
     )
-    public Expense deleteItem(@PathVariable("id") Integer id) {
+    public ResponseEntity<?> deleteItem(@PathVariable("id") Integer id) {
         // deleteItem(id): bool
         //     The id of the item to be deleted (from display, not database)
         //     OUTPUT: success or not
 
         Optional<Expense> expenseToDeleteOptional = this.expenseRepository.findById(id);
         if (!expenseToDeleteOptional.isPresent()){
-            return null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: invalid event id: " + id.toString() + "\n");
         }
         Expense expense = expenseToDeleteOptional.get();
         expense.setDeleted(1);
         
-        return this.expenseRepository.save(expense);    
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.expenseRepository.save(expense));
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to update event");
+        }    
     }
 
     @PostMapping("/operational_allocation_form")

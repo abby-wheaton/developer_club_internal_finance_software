@@ -119,8 +119,8 @@ public class EventController {
                     }
                 case "leq": 
                     try{
-                        List<String> allowedOps = List.of("id", "estAttendance");
-                        if (!(allowedOps.contains(col))){
+                        List<String> allowedOps = List.of("id", "estattendance");
+                        if (!(allowedOps.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                             .body("Error: invalid column: " + col +  " passed with LESS THAN OR EQUAL operator\n");
                         }
@@ -135,8 +135,8 @@ public class EventController {
                     }
                 case "geq":
                     try{
-                        List<String> allowedOps = List.of("id", "estAttendance");
-                        if (!(allowedOps.contains(col))){
+                        List<String> allowedOps = List.of("id", "estattendance");
+                        if (!(allowedOps.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                             .body("Error: invalid column: " + col +  " passed with GREATER THAN OR EQUAL operator\n");
                         }
@@ -152,7 +152,7 @@ public class EventController {
                     }
                 case "eq":
                     List<String> notAllowedOps = List.of("name", "location");
-                        if (notAllowedOps.contains(col)){
+                        if (notAllowedOps.contains(col.toLowerCase())){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                             .body("Error: invalid column: " + col +  " passed with EQUAL operator. Pass this with LIKE operator\n");
                         }
@@ -241,7 +241,8 @@ public class EventController {
         //     OUTPUT: success or not
         Optional<Event> eventToUpdateOptional = this.eventRepository.findById(id);
         if (!eventToUpdateOptional.isPresent()){
-            return null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: Invalid event id: " + id.toString() + "\n");
         }
         Event newEvent = eventToUpdateOptional.get();
         // looks through the attributes of the event and if it is set in the object passed, will 

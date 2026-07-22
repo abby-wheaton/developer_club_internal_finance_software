@@ -1,10 +1,11 @@
 openapi: 3.1.0
 info:
   title: WMU Developer Club's Financial API
-  description: What this api is
+  description: An API to interact with the backend of WMU Developer Club's database
+    to manage finances and budgeting.
   contact:
-    name: API support
-    email: devclubidk@email.com
+    name: API Support Technician
+    email: bluewheatthin@gmail.com
   version: v1.0
 servers:
 - url: http://localhost:8080
@@ -152,7 +153,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Expense"
+                type: object
   /expense/item/requested_flag_id={id}_num={num}:
     put:
       tags:
@@ -180,7 +181,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Expense"
+                type: object
   /expense/item/reimbursed_flag_id={id}_num={num}:
     put:
       tags:
@@ -208,7 +209,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Expense"
+                type: object
   /expense/item/picked_up_flag_id={id}_num={num}:
     put:
       tags:
@@ -236,7 +237,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Expense"
+                type: object
   /expense/item/food_flag_id={id}_num={num}:
     put:
       tags:
@@ -264,7 +265,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Expense"
+                type: object
   /expense/item/f_buying_flag_id={id}_num={num}:
     put:
       tags:
@@ -292,7 +293,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Expense"
+                type: object
   /expense/item/edit_{id}:
     put:
       tags:
@@ -321,7 +322,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Expense"
+                type: object
   /expense/item/delete_{id}:
     put:
       tags:
@@ -343,7 +344,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Expense"
+                type: object
   /expense/expenses/search:
     put:
       tags:
@@ -394,6 +395,28 @@ paths:
             '*/*':
               schema:
                 type: object
+  /event/safe_delete/id={id}:
+    put:
+      tags:
+      - Event Controller
+      summary: Deletes an event from the Events table
+      description: Modifies the deleted column of the event based on the id provided
+        to be 1
+      operationId: deleteEvent
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
   /event/phil_flag/id={id}_val=_{val}:
     put:
       tags:
@@ -421,7 +444,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Event"
+                type: object
   /event/fee_flag/id={id}_val={val}:
     put:
       tags:
@@ -449,7 +472,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Event"
+                type: object
   /event/edit/id={id}:
     put:
       tags:
@@ -478,29 +501,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Event"
-  /event/delete/id={id}:
-    put:
-      tags:
-      - Event Controller
-      summary: Deletes an event from the Events table
-      description: Modifies the deleted column of the event based on the id provided
-        to be 1
-      operationId: deleteEvent
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int32
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Event"
+                type: object
   /event/conf_flag/id={id}_val={val}:
     put:
       tags:
@@ -528,7 +529,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Event"
+                type: object
   /admin/sources/search:
     put:
       tags:
@@ -739,18 +740,12 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Expense"
-  /expense/operational_allocation_form/id={id}:
+  /expense/operational_allocation_form:
     post:
       tags:
       - Expense Controller
       operationId: createOperationalAllocationForm
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int32
       - name: rsoName
         in: query
         required: true
@@ -811,7 +806,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Expense"
+                type: object
   /event/event_allocation_form/id={id}:
     post:
       tags:
@@ -878,7 +873,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Event"
+                type: object
   /event/conference_allocation_form/id={id}:
     post:
       tags:
@@ -1167,6 +1162,14 @@ components:
           format: int32
           description: The quantity requested for the expense
           example: 3
+        pricePerUnit:
+          type: number
+          description: The price of the individual unit of the expense
+          example: 4.0
+        totalPrice:
+          type: number
+          description: The total price of the expense
+          example: 12.0
         purpose:
           type: string
           description: Why the expense is needed
@@ -1180,77 +1183,116 @@ components:
           format: int32
           description: The id of the event associated if applicable
           example: 12
+        sourceId:
+          type: integer
+          format: int32
+          description: The source used to pay for the expense
+          example: 2
         link:
           type: string
           description: The link to the expense on a website
           example: www.amazon.com
+        itemDeadline:
+          type: string
+          format: date-time
+          description: When the item is needed by
+          example: 2026-05-23T05:00:00
         community:
           type: integer
           format: int32
           description: What community will use this expense
-          example: Web Team
+          example: 0
         foodFlag:
           type: integer
           format: int32
           description: If food is included in this expense
           example: 0
+        requestedFlag:
+          type: integer
+          format: int32
+          description: If the expense has been requested
+          example: 0
+        approvedFlag:
+          type: integer
+          format: int32
+          description: If the expense has been approved
+          example: 0
+        startedBuyingFlag:
+          type: integer
+          format: int32
+          description: If the expense has begun being bought
+          example: 0
+        finishedBuyingFlag:
+          type: integer
+          format: int32
+          description: If the expense has finished being bought
+          example: 0
+        pickedUpFlag:
+          type: integer
+          format: int32
+          description: If the expense has been picked up
+          example: 0
+        reimbursedFlag:
+          type: integer
+          format: int32
+          description: If the expense has been reimbursed
+          example: 0
+        moneyRemaining:
+          type: number
+          description: How much money is remaining to be spent on this expense
+          example: 20.0
+        totalSpent:
+          type: number
+          description: How much money is spent on this expense
+          example: 40.0
+        pickupLocation:
+          type: string
+          description: Where to pick up this expense if applicable
+          example: Student Center Admin Offices
+        allocationDeadline:
+          type: string
+          format: date-time
+          description: When the expense's allocation is due
+          example: 2026-05-23T05:00:00
+        deliberationDeadline:
+          type: string
+          format: date-time
+          description: When the expense's deliberation is due
+          example: 2026-05-23T05:00:00
+        reimbursementDeadline:
+          type: string
+          format: date-time
+          description: When the expense must be reimbursed by
+          example: 2026-05-23T05:00:00
+        paymentType:
+          type: string
+          description: How the expense is paid for
+          example: Club Credit Card
         deleted:
           type: integer
           format: int32
           description: Will be deleted soon
           example: 0
-        totalPrice:
-          type: number
-        sourceId:
-          type: integer
-          format: int32
-        totalSpent:
-          type: number
-        paymentType:
-          type: string
-        deliberationDeadline:
-          type: string
-          format: date-time
-        reimbursementDeadline:
-          type: string
-          format: date-time
-        moneyRemaining:
-          type: number
-        pricePerUnit:
-          type: number
-        itemDeadline:
-          type: string
-          format: date-time
-        requestedFlag:
-          type: integer
-          format: int32
-        approvedFlag:
-          type: integer
-          format: int32
-        startedBuyingFlag:
-          type: integer
-          format: int32
-        finishedBuyingFlag:
-          type: integer
-          format: int32
-        pickedUpFlag:
-          type: integer
-          format: int32
-        reimbursedFlag:
-          type: integer
-          format: int32
-        pickupLocation:
-          type: string
-        allocationDeadline:
-          type: string
-          format: date-time
       required:
+      - allocationDeadline
+      - approvedFlag
       - community
       - deleted
+      - finishedBuyingFlag
       - foodFlag
+      - itemDeadline
+      - moneyRemaining
       - name
+      - paymentType
+      - pickedUpFlag
+      - pricePerUnit
       - purpose
       - quantity
+      - requestedFlag
+      - sourceId
+      - startedBuyingFlag
+      - totalPrice
+      - totalSpent
       - vendor
     Event:
       type: object
