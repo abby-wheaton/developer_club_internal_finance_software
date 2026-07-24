@@ -77,7 +77,7 @@ public class SourceController {
 
             if (value == null){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Error: No value provided for filter on column: " + col + "\n");
+                .body("Error: No value provided for filter on column: " + col );
             }
 
             Specification<Source> condition = null;
@@ -87,7 +87,7 @@ public class SourceController {
                         List<String> allowedCols = List.of("name", "type");
                         if (!(allowedCols.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with LIKE operator\n");
+                            .body("Error: invalid column: " + col +  " passed with LIKE operator");
                         }
                         String lower = "%" + value.toString().toLowerCase() + "%";
                         condition =  (root, query, criteraBuilder) ->
@@ -95,23 +95,23 @@ public class SourceController {
                         break;
                     }
                     catch (ClassCastException e){
-                        System.out.println(e + "\n\n\n");
+                        System.out.println(e );
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Error: non-string value passed with LIKE operator\n");
+                        .body("Error: non-string value passed with LIKE operator");
                     }
                 case "leq": 
                     try{
                         List<String> allowedOps = List.of("id", "quantity", "moneycap", "spent", "budgeted", "available");
                         if (!(allowedOps.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with LESS THAN OR EQUAL operator\n");
+                            .body("Error: invalid column: " + col +  " passed with LESS THAN OR EQUAL operator");
                         }
                         Integer val = (Integer) value;
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.lessThanOrEqualTo(root.get(col), val);
                         break;
                     } catch (ClassCastException e){
-                        System.out.println(e + "\n\n\n");
+                        System.out.println(e );
                         break;
                     }
                 case "geq":
@@ -119,21 +119,21 @@ public class SourceController {
                         List<String> allowedOps = List.of("id", "quantity", "moneycap", "spent", "budgeted", "available");
                         if (!(allowedOps.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with LESS THAN OR EQUAL operator\n");
+                            .body("Error: invalid column: " + col +  " passed with LESS THAN OR EQUAL operator");
                         }
                         Integer val = (Integer) value;
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.greaterThanOrEqualTo(root.get(col), val);
                         break;
                     } catch (ClassCastException e){
-                        System.out.println(e + "\n\n\n");
+                        System.out.println(e );
                         break;
                     }
                 case "eq":
                     List<String> notAllowedCols = List.of("name", "type");
                         if (notAllowedCols.contains(col.toLowerCase())){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with EQUAL operator. Pass this with LIKE operator\n");
+                            .body("Error: invalid column: " + col +  " passed with EQUAL operator. Pass this with LIKE operator");
                         }
                     condition = (root, query, criteriaBuilder) -> 
                         criteriaBuilder.equal(root.get(col), value);
@@ -169,7 +169,7 @@ public class SourceController {
             .body(this.sourceRepository.save(source));
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Error: unable to create source: " + source.toString() + "\n");
+            .body("Error: unable to create source: " + source.toString() );
         }
     }
 
@@ -190,7 +190,7 @@ public class SourceController {
         Optional<Source> sourceToUpdateOptional = this.sourceRepository.findById(id);
         if (!sourceToUpdateOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body("Error: Invalid source id: " + id.toString() + "\n");
+            .body("Error: Invalid source id: " + id.toString() );
         }
 
         Source sourceToUpdate = sourceToUpdateOptional.get();
@@ -245,7 +245,7 @@ public class SourceController {
         Optional<Source> sourceToDeleteOptional = this.sourceRepository.findById(id);
         if (!sourceToDeleteOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body("Error: invalid source id: " + id.toString() + "\n");
+            .body("Error: invalid source id: " + id.toString() );
         }
         Source source = sourceToDeleteOptional.get();
         source.setDeleted(1);

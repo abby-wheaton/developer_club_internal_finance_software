@@ -82,7 +82,7 @@ public class RequestController {
 
             if (value == null){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Error: No value provided for filter on column: " + col + "\n");
+                .body("Error: No value provided for filter on column: " + col );
             }
 
             Specification<Request> condition = null;
@@ -93,7 +93,7 @@ public class RequestController {
                         List<String> allowedCols = List.of("communityname","requesteeuser", "itemname", "purpose");
                         if (!(allowedCols.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with LIKE operator\n");
+                            .body("Error: invalid column: " + col +  " passed with LIKE operator");
                         }
                         String lower = "%" + value.toString().toLowerCase() + "%";
                         condition =  (root, query, criteraBuilder) ->
@@ -101,16 +101,16 @@ public class RequestController {
                         break;
                     }
                     catch (ClassCastException e){
-                        System.out.println(e + "\n\n\n");
+                        System.out.println(e );
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Error: non-string value passed with LIKE operator\n");
+                        .body("Error: non-string value passed with LIKE operator");
                     }
                 case "bw":
                     try {
                         List<String> allowedCols = List.of("deadline");
                         if (!(allowedCols.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with BETWEEN operator\n");
+                            .body("Error: invalid column: " + col +  " passed with BETWEEN operator");
                         }
                         ArrayList<String> value2 = (ArrayList<String>) value;
                         LocalDateTime date1 = LocalDateTime.parse(value2.get(0));
@@ -120,7 +120,7 @@ public class RequestController {
 
                         break;
                     } catch (ClassCastException e){
-                        System.out.println(e + "\n\n\n");
+                        System.out.println(e );
                         break;
                     }
                 case "leq": 
@@ -128,14 +128,14 @@ public class RequestController {
                         List<String> allowedOps = List.of("id", "quantity", "priceperunit");
                         if (!(allowedOps.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with LESS THAN OR EQUAL operator\n");
+                            .body("Error: invalid column: " + col +  " passed with LESS THAN OR EQUAL operator");
                         }
                         Integer val = (Integer) value;
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.lessThanOrEqualTo(root.get(col), val);
                         break;
                     } catch (ClassCastException e){
-                        System.out.println(e + "\n\n\n");
+                        System.out.println(e );
                         break;
                     }
                 case "geq":
@@ -143,21 +143,21 @@ public class RequestController {
                         List<String> allowedOps = List.of("id", "quantity", "priceperunit");
                         if (!(allowedOps.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with GREATER THAN OR EQUAL operator\n");
+                            .body("Error: invalid column: " + col +  " passed with GREATER THAN OR EQUAL operator");
                         }
                         Integer val = (Integer) value;
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.greaterThanOrEqualTo(root.get(col), val);
                         break;
                     } catch (ClassCastException e){
-                        System.out.println(e + "\n\n\n");
+                        System.out.println(e );
                         break;
                     }
                 case "eq":
                     List<String> notAllowedCols = List.of("communityname","requesteeuser", "itemname", "purpose");
                         if (notAllowedCols.contains(col.toLowerCase())){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with EQUAL operator. Pass this with LIKE operator\n");
+                            .body("Error: invalid column: " + col +  " passed with EQUAL operator. Pass this with LIKE operator");
                         }
                     condition = (root, query, criteriaBuilder) -> 
                         criteriaBuilder.equal(root.get(col), value);
@@ -197,7 +197,7 @@ public class RequestController {
             .body(this.requestRepository.save(request));
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Error: unable to create request: " + request.toString() + "\n");
+            .body("Error: unable to create request: " + request.toString() );
         }
     }
 
@@ -223,7 +223,7 @@ public class RequestController {
         Optional<Request> requestToUpdateOptional = this.requestRepository.findById(id);
         if (!requestToUpdateOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body("Error: Invalid request id: " + id.toString() + "\n");
+            .body("Error: Invalid request id: " + id.toString() );
         }
         Request newRequest = requestToUpdateOptional.get();
 
@@ -282,7 +282,7 @@ public class RequestController {
         Optional<Request> requestToUpdateOptional = this.requestRepository.findById(id);
         if (!requestToUpdateOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body("Error: invalid request id: " + id.toString() + "\n");
+            .body("Error: invalid request id: " + id.toString() );
         }
         Request deleteRequest = requestToUpdateOptional.get();
         deleteRequest.setDeleted(1);
@@ -314,7 +314,7 @@ public class RequestController {
         Optional<Request> requestToUpdateOptional = this.requestRepository.findById(id);
         if (!requestToUpdateOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body("Error: invalid request id: " + id.toString() + "\n");
+            .body("Error: invalid request id: " + id.toString() );
         }
         Request approveRequest = requestToUpdateOptional.get();
         if (value == 1){

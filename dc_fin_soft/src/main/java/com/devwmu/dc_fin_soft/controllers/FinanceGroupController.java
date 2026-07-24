@@ -74,7 +74,7 @@ public class FinanceGroupController {
 
             if (value == null){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Error: No value provided for filter on column: " + col + "\n");
+                .body("Error: No value provided for filter on column: " + col );
             }
 
             Specification<FinanceGroup> condition = null;
@@ -85,22 +85,22 @@ public class FinanceGroupController {
                         List<String> allowedCols = List.of("title");
                         if (!(allowedCols.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with LIKE operator\n");
+                            .body("Error: invalid column: " + col +  " passed with LIKE operator");
                         }
                         String lower = "%" + value.toString().toLowerCase() + "%";
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.like(criteraBuilder.lower(root.get(col)), lower);
                         break;
                     } catch (ClassCastException e){
-                        System.out.println(e + "\n\n\n");
+                        System.out.println(e );
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Error: non-string value passed with LIKE operator\n");
+                        .body("Error: non-string value passed with LIKE operator");
                     }
                 case "eq":
                     List<String> notAllowedCols = List.of("title");
                         if (notAllowedCols.contains(col.toLowerCase())){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with EQUAL operator. Pass this with LIKE operator\n");
+                            .body("Error: invalid column: " + col +  " passed with EQUAL operator. Pass this with LIKE operator");
                         }
                     condition = (root, query, criteriaBuilder) -> 
                         criteriaBuilder.equal(root.get(col), value);
@@ -185,7 +185,7 @@ public class FinanceGroupController {
             .body(this.financeGroupRepository.save(financeGroup));
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Error: unable to create finance group: " + financeGroup.toString() + "\n");
+            .body("Error: unable to create finance group: " + financeGroup.toString() );
         }
 
     }
@@ -209,7 +209,7 @@ public class FinanceGroupController {
         Optional<FinanceGroup> finGroupToDeleteOptional = this.financeGroupRepository.findById(id);
         if (!finGroupToDeleteOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body("Error: invalid finance group id: " + id.toString() + "\n");
+            .body("Error: invalid finance group id: " + id.toString() );
         }
         FinanceGroup deleteFinGroup = finGroupToDeleteOptional.get();
         deleteFinGroup.setDeleted(1);

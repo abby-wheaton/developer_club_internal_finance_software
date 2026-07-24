@@ -82,7 +82,7 @@ public class EventController {
 
             if (value == null){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Error: No value provided for filter on column: " + col + "\n");
+                .body("Error: No value provided for filter on column: " + col  );
             }
 
             Specification<Event> condition = null;
@@ -92,7 +92,7 @@ public class EventController {
                     try{
                         if (!(col.equalsIgnoreCase("name") | col.equalsIgnoreCase("location"))){
                             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                            .body("Error: invalid column: " + col +  "passed with LIKE operator\n");
+                            .body("Error: invalid column: " + col +  "passed with LIKE operator");
                         }
                         
                         String lower = "%" + value.toString().toLowerCase() + "%";
@@ -105,14 +105,14 @@ public class EventController {
                     catch (ClassCastException e){
                         System.out.println(e);
                         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body("Error: non-string value passed with LIKE operator\n");
+                        .body("Error: non-string value passed with LIKE operator");
                     }
                 case "bw":
                     // between two dates
                     try {
                         if (!col.equalsIgnoreCase("date")){
                             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                            .body("Error: invalid column: " + col +  " passed with BETWEEN operator\n");
+                            .body("Error: invalid column: " + col +  " passed with BETWEEN operator");
                         }
                         ArrayList<String> value2 = (ArrayList<String>) value;
                         LocalDateTime date1 = LocalDateTime.parse(value2.get(0));
@@ -122,32 +122,32 @@ public class EventController {
 
                         break;
                     } catch (ClassCastException e){
-                        System.out.println(e + "\n\n\n");
+                        System.out.println(e );
                         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body("Error: non-date value passed with BETWEEN operator\n");
+                        .body("Error: non-date value passed with BETWEEN operator");
                     }
                 case "leq": 
                     try{
                         List<String> allowedOps = List.of("id", "estattendance");
                         if (!(allowedOps.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                            .body("Error: invalid column: " + col +  " passed with LESS THAN OR EQUAL operator\n");
+                            .body("Error: invalid column: " + col +  " passed with LESS THAN OR EQUAL operator");
                         }
                         Integer val = (Integer) value;
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.lessThanOrEqualTo(root.get(col), val);
                         break;
                     } catch (ClassCastException e){
-                        System.out.println(e + "\n\n\n");
+                        System.out.println(e );
                         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body("Error: non-number value passed with LESS THAN OR EQUAL TO operator\n");
+                        .body("Error: non-number value passed with LESS THAN OR EQUAL TO operator");
                     }
                 case "geq":
                     try{
                         List<String> allowedOps = List.of("id", "estattendance");
                         if (!(allowedOps.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                            .body("Error: invalid column: " + col +  " passed with GREATER THAN OR EQUAL operator\n");
+                            .body("Error: invalid column: " + col +  " passed with GREATER THAN OR EQUAL operator");
                         }
 
                         Integer val = (Integer) value;
@@ -155,15 +155,15 @@ public class EventController {
                             criteraBuilder.greaterThanOrEqualTo(root.get(col), val);
                         break;
                     } catch (ClassCastException e){
-                        System.out.println(e + "\n\n\n");
+                        System.out.println(e );
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Error: non-number value passed with GREATER THAN OR EQUAL TO operator\n");
+                        .body("Error: non-number value passed with GREATER THAN OR EQUAL TO operator");
                     }
                 case "eq":
                     List<String> notAllowedOps = List.of("name", "location");
                         if (notAllowedOps.contains(col.toLowerCase())){
                             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                            .body("Error: invalid column: " + col +  " passed with EQUAL operator. Pass this with LIKE operator\n");
+                            .body("Error: invalid column: " + col +  " passed with EQUAL operator. Pass this with LIKE operator");
                         }
                     condition = (root, query, criteriaBuilder) -> 
                         criteriaBuilder.equal(root.get(col), value);
@@ -235,7 +235,7 @@ public class EventController {
             .body(this.eventRepository.save(event));
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Error: unable to create event: " + event.toString() + "\n");
+            .body("Error: unable to create event: " + event.toString()  );
         }
     }
     
@@ -263,7 +263,7 @@ public class EventController {
         Optional<Event> eventToUpdateOptional = this.eventRepository.findById(id);
         if (!eventToUpdateOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body("Error: Invalid event id: " + id.toString() + "\n");
+            .body("Error: Invalid event id: " + id.toString()  );
         }
         Event newEvent = eventToUpdateOptional.get();
         // looks through the attributes of the event and if it is set in the object passed, will 
@@ -299,7 +299,7 @@ public class EventController {
             .body(this.eventRepository.save(newEvent));
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Error: unable to update event\n");
+            .body("Error: unable to update event");
         }
     }
 
@@ -327,7 +327,7 @@ public class EventController {
         Optional<Event> eventToUpdateOptional = this.eventRepository.findById(id);
         if (!eventToUpdateOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body("Error: Invalid event id: " + id.toString() + "\n");
+            .body("Error: Invalid event id: " + id.toString()  );
         }
 
         Event updateEvent = eventToUpdateOptional.get();
@@ -371,7 +371,7 @@ public class EventController {
         Optional<Event> eventToUpdateOptional = this.eventRepository.findById(id);
         if (!eventToUpdateOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body("Error: invalid event id: " + id.toString() + "\n");
+            .body("Error: invalid event id: " + id.toString()  );
         }
         Event updateEvent = eventToUpdateOptional.get();
         if (val == 0){
@@ -414,7 +414,7 @@ public class EventController {
         Optional<Event> eventToUpdateOptional = this.eventRepository.findById(id);
         if (!eventToUpdateOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body("Error: event id invalid: " + id.toString() + "\n");
+            .body("Error: event id invalid: " + id.toString()  );
         }
         Event updateEvent = eventToUpdateOptional.get();
         if (val == 0){
@@ -456,7 +456,7 @@ public class EventController {
         Optional<Event> eventToDeleteOptional = this.eventRepository.findById(id);
         if (!eventToDeleteOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body("Error: invalid event id: " + id.toString() + "\n");
+            .body("Error: invalid event id: " + id.toString()  );
         }
         Event deleteEvent = eventToDeleteOptional.get();
         deleteEvent.setDeleted(1);
@@ -481,7 +481,7 @@ public class EventController {
          @ApiResponse(responseCode = "400", description = "Incorrect type provided to amount requested",
             content = {@Content(mediaType = "text/plain",
             schema = @io.swagger.v3.oas.annotations.media.Schema(type = "string"),
-            examples = @ExampleObject(value = "Error: Incorrect type passed to amount requested for amount requested\n"))}
+            examples = @ExampleObject(value = "Error: Incorrect type passed to amount requested for amount requested"))}
          ),
          @ApiResponse(responseCode = "404", description = "Invalid event id provided | file not found"),
          @ApiResponse(responseCode = "500", description = "Failure to open/delete/write to file")
@@ -509,7 +509,7 @@ public class EventController {
         Optional<Event> eventOptional = this.eventRepository.findById(id);
         if (!eventOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body("Error: invalid event id: " + id.toString() + "\n");
+            .body("Error: invalid event id: " + id.toString()  );
         }
         Event event = eventOptional.get();
         File sourceFile = new File("src/main/java/com/devwmu/dc_fin_soft/controllers/forms/(2026) WSAAC Event Proposal - RSO Name.xlsx");
@@ -520,7 +520,7 @@ public class EventController {
         } catch (Exception e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Error: unable to create new form\n");
+            .body("Error: unable to create new form");
         }
         try(FileInputStream infile = new FileInputStream(outfile)){
             // create workbook
@@ -632,7 +632,7 @@ public class EventController {
 
                     outfile.delete();
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Error: Incorrect type passed to amount requested for amount requested\n"); 
+                    .body("Error: Incorrect type passed to amount requested for amount requested"); 
                 }
 
                 curRow += 1;
@@ -669,7 +669,7 @@ public class EventController {
 
                     outfile.delete();
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Error: Incorrect type passed to amount requested for amount requested\n"); 
+                    .body("Error: Incorrect type passed to amount requested for amount requested"); 
                 }
 
                 curRow += 1;
@@ -685,14 +685,14 @@ public class EventController {
                 outfile.delete();
 
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error: failed to write to file\n");
+                .body("Error: failed to write to file");
 
             }
         } catch (Exception e){
             e.printStackTrace();
             outfile.delete();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error: failed to open file\n");
+                .body("Error: failed to open file");
         }
         // make calls to excel api to edit the excel file, 
         // then output the form
@@ -718,7 +718,7 @@ public class EventController {
             e.printStackTrace();
             outfile.delete();
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body("Error: file not found\n");
+            .body("Error: file not found");
         }
     } 
 
@@ -760,7 +760,7 @@ public class EventController {
         Optional<Event> eventOptional = this.eventRepository.findById(id);
         if (!eventOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body("Error: invalid event id: " + id.toString() + "\n");
+            .body("Error: invalid event id: " + id.toString());
         }
         Event event = eventOptional.get();
         File sourceFile = new File("src/main/java/com/devwmu/dc_fin_soft/controllers/forms/(2026) WSAAC Conference Proposal - RSO Name.xlsx");
@@ -771,7 +771,7 @@ public class EventController {
         } catch (Exception e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Error: unable to create new form\n");
+            .body("Error: unable to create new form");
         }
         try(FileInputStream infile = new FileInputStream(outfile)){
             // create workbook
@@ -856,7 +856,7 @@ public class EventController {
 
                     outfile.delete();
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Error: Incorrect type passed to amount requested for amount requested\n"); 
+                    .body("Error: Incorrect type passed to amount requested for amount requested"); 
                 }
 
                 curRow += 1;

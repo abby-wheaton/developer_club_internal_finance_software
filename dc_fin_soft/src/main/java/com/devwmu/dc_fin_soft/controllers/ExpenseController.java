@@ -74,7 +74,7 @@ public class ExpenseController {
 
             if (value == null){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Error: No value provided for filter on column: " + col + "\n");
+                .body("Error: No value provided for filter on column: " + col );
             }
 
             Specification<Expense> condition = null;
@@ -84,7 +84,7 @@ public class ExpenseController {
                         List<String> allowedCols = List.of("name", "purpose", "vendor", "link", "pickuplocation", "paymenttype");
                         if (!(allowedCols.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with LIKE operator\n");
+                            .body("Error: invalid column: " + col +  " passed with LIKE operator");
                         }
                         String lower = "%" + value.toString().toLowerCase() + "%";
                         condition =  (root, query, criteraBuilder) ->
@@ -92,9 +92,9 @@ public class ExpenseController {
                         break;
                     }
                     catch (ClassCastException e){
-                        System.out.println(e + "\n\n\n");
+                        System.out.println(e );
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Error: non-string value passed with LIKE operator\n");
+                        .body("Error: non-string value passed with LIKE operator");
                     }
                  case "bw":
                     // between two dates
@@ -102,7 +102,7 @@ public class ExpenseController {
                         List<String> allowedCols = List.of("itemdeadline", "allocationdeadline", "deliberationdeadline", "reimbursementdeadline");
                         if (!(allowedCols.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with BETWEEN operator\n");
+                            .body("Error: invalid column: " + col +  " passed with BETWEEN operator");
                         }
                         ArrayList<String> value2 = (ArrayList<String>) value;
                         LocalDateTime date1 = LocalDateTime.parse(value2.get(0));
@@ -112,23 +112,23 @@ public class ExpenseController {
 
                         break;
                     } catch (ClassCastException e){
-                        System.out.println(e + "\n\n\n");
+                        System.out.println(e );
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Error: non-date value passed with BETWEEN operator\n");
+                        .body("Error: non-date value passed with BETWEEN operator");
                 }
                 case "leq": 
                     try{
                         List<String> allowedOps = List.of("id", "quantity", "priceperunit", "totalprice", "eventid", "sourceid", "moneyremaining", "totalspent");
                         if (!(allowedOps.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with LESS THAN OR EQUAL operator\n");
+                            .body("Error: invalid column: " + col +  " passed with LESS THAN OR EQUAL operator");
                         }
                         Integer val = (Integer) value;
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.lessThanOrEqualTo(root.get(col), val);
                         break;
                     } catch (ClassCastException e){
-                        System.out.println(e + "\n\n\n");
+                        System.out.println(e );
                         break;
                     }
                 case "geq":
@@ -136,21 +136,21 @@ public class ExpenseController {
                         List<String> allowedOps = List.of("id", "quantity", "priceperunit", "totalprice", "eventid", "sourceid", "moneyremaining", "totalspent");
                         if (!(allowedOps.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with GREATER THAN OR EQUAL operator\n");
+                            .body("Error: invalid column: " + col +  " passed with GREATER THAN OR EQUAL operator");
                         }
                         Integer val = (Integer) value;
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.greaterThanOrEqualTo(root.get(col), val);
                         break;
                     } catch (ClassCastException e){
-                        System.out.println(e + "\n\n\n");
+                        System.out.println(e );
                         break;
                     }
                 case "eq":
                     List<String> notAllowedCols = List.of("name", "purpose", "vendor", "link", "pickuplocation", "paymenttype");
                         if (notAllowedCols.contains(col.toLowerCase())){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with EQUAL operator. Pass this with LIKE operator\n");
+                            .body("Error: invalid column: " + col +  " passed with EQUAL operator. Pass this with LIKE operator");
                         }
                     condition = (root, query, criteriaBuilder) -> 
                         criteriaBuilder.equal(root.get(col), value);
@@ -184,7 +184,7 @@ public class ExpenseController {
             .body(this.expenseRepository.save(expense));
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Error: unable to create expense: " + expense.toString() + "\n");
+            .body("Error: unable to create expense: " + expense.toString() );
         }
     }
 
@@ -201,7 +201,7 @@ public class ExpenseController {
         Optional<Expense> expenseToUpdateOptional = this.expenseRepository.findById(id);
         if (!expenseToUpdateOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body("Error: Invalid expense id: " + id.toString() + "\n");
+            .body("Error: Invalid expense id: " + id.toString() );
         }
 
         Expense expenseToUpdate = expenseToUpdateOptional.get();
@@ -304,7 +304,7 @@ public class ExpenseController {
         Optional<Expense> expenseToUpdateOptional = this.expenseRepository.findById(id);
         if (!expenseToUpdateOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body("Error: invalid expense id: " + id.toString() + "\n");
+            .body("Error: invalid expense id: " + id.toString() );
         }
         Expense expense = expenseToUpdateOptional.get();
         if (num == 0){
@@ -337,7 +337,7 @@ public class ExpenseController {
         Optional<Expense> expenseToUpdateOptional = this.expenseRepository.findById(id);
         if (!expenseToUpdateOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body("Error: invalid expense id: " + id.toString() + "\n");
+            .body("Error: invalid expense id: " + id.toString() );
         }
         Expense expense = expenseToUpdateOptional.get();
         if (num == 0){
@@ -371,7 +371,7 @@ public class ExpenseController {
         Optional<Expense> expenseToUpdateOptional = this.expenseRepository.findById(id);
         if (!expenseToUpdateOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body("Error: invalid expense id: " + id.toString() + "\n");
+            .body("Error: invalid expense id: " + id.toString() );
         }
         Expense expense = expenseToUpdateOptional.get();
         if (num == 0){
@@ -405,7 +405,7 @@ public class ExpenseController {
         Optional<Expense> expenseToUpdateOptional = this.expenseRepository.findById(id);
         if (!expenseToUpdateOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body("Error: invalid expense id: " + id.toString() + "\n");
+            .body("Error: invalid expense id: " + id.toString() );
         }
         Expense expense = expenseToUpdateOptional.get();
         if (num == 0){
@@ -439,7 +439,7 @@ public class ExpenseController {
         Optional<Expense> expenseToUpdateOptional = this.expenseRepository.findById(id);
         if (!expenseToUpdateOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body("Error: invalid expense id: " + id.toString() + "\n");
+            .body("Error: invalid expense id: " + id.toString() );
         }
         Expense expense = expenseToUpdateOptional.get();
         if (num == 0){
@@ -473,7 +473,7 @@ public class ExpenseController {
         Optional<Expense> expenseToUpdateOptional = this.expenseRepository.findById(id);
         if (!expenseToUpdateOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body("Error: invalid expense id: " + id.toString() + "\n");
+            .body("Error: invalid expense id: " + id.toString() );
         }
         Expense expense = expenseToUpdateOptional.get();
         if (num == 0){
@@ -507,7 +507,7 @@ public class ExpenseController {
         Optional<Expense> expenseToDeleteOptional = this.expenseRepository.findById(id);
         if (!expenseToDeleteOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body("Error: invalid expense id: " + id.toString() + "\n");
+            .body("Error: invalid expense id: " + id.toString() );
         }
         Expense expense = expenseToDeleteOptional.get();
         expense.setDeleted(1);
@@ -529,7 +529,7 @@ public class ExpenseController {
          @ApiResponse(responseCode = "404", description = "Invalid event id provided | file not found"),
          @ApiResponse(responseCode = "500", description = "Failure to open/delete/write to file")
     })
-    
+
     @PostMapping("/operational_allocation_form")
     public ResponseEntity<?> createOperationalAllocationForm(@RequestBody AmountRequested[] amountRequests, 
     @RequestParam("rsoName") String rsoName, @RequestParam("rsoRep") String rsoRep, @RequestParam("rsoEmail") String rsoEmail, 
