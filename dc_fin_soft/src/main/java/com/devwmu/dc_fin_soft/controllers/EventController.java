@@ -13,6 +13,8 @@ import com.devwmu.dc_fin_soft.entities.Event;
 import com.devwmu.dc_fin_soft.repositories.EventRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -474,7 +476,11 @@ public class EventController {
         description = "Takes in the id of the event, an array of amount requested objects, and several strings to represent club information, and returns the filled in excel form on success with a 200 response code. On error, returns an error response code and text explaining the error"
     )
     @ApiResponses(value = {
-         @ApiResponse(responseCode = "200", description = "Form was successfully created and returned"),
+         @ApiResponse(responseCode = "200",
+          description = "Form was successfully created and returned",
+          content = @Content(mediaType = "text/plain",
+            examples = @ExampleObject(value = "Error: Incorrect type passed to amount requested for amount requested\n"))
+        ),
          @ApiResponse(responseCode = "400", description = "Incorrect type provided to amount requested"),
          @ApiResponse(responseCode = "404", description = "Invalid event id provided | file not found"),
          @ApiResponse(responseCode = "500", description = "Failure to open/delete/write to file")
