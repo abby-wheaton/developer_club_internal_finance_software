@@ -1,7 +1,12 @@
 package com.devwmu.dc_fin_soft.controllers;
 
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+
 import com.devwmu.dc_fin_soft.entities.Request;
 import com.devwmu.dc_fin_soft.repositories.RequestRepository;
 
@@ -11,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.List;
 
 
 @RestController
@@ -32,13 +38,21 @@ public class RequestController {
    * DESCRIPTION
    * 
    * 
-   * @return returns all of the rows of the events table
+   * @return returns all of the rows of the requests table with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
-    public Iterable<Request> getAllRequests() {  
+    public ResponseEntity<?> getAllRequests() {  
         //      INPUT: N/A 
         //      OUTPUT: all of the requests
         // returns all of the rows in the requests table
-        return this.requestRepository.findAll();
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.requestRepository.findAll());
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to retrieve all requests");
+        }
     }
     @PutMapping("/search")
     @Operation(
@@ -49,15 +63,15 @@ public class RequestController {
    * DESCRIPTION
    * 
    * @param filters an array of filter objects, which represents the columns, operations, and values to filter by
-   * @return the rows of requests that match the filters. On error, the filter will not apply. If no filters are applied, returns all of the rows. 
+   * @return the rows of requests that match the filters with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error. If no filters are applied, returns all of the rows. 
   */
-    public Iterable<Request> filterRequests(@RequestBody Filter[] filters){
+    public ResponseEntity<?> filterRequests(@RequestBody Filter[] filters){
         // filterRequests(Filter[]) Iterable<Request>
         //     INPUT: filters: Filter[] -  an array of filters to apply to the table
         //      ex) [{"col":"est_attendance", "op":"geq", "val":16}] - this will apply a filter for if the estimated attendance is >= 16
         //     OUTPUT: the selected rows of the requests table
 
-        // returns the events that match
+        // returns the requests that match
 
         Specification<Request> spec = Specification.unrestricted();
         for (Filter filter: filters){
@@ -67,7 +81,8 @@ public class RequestController {
             Object value = filter.getVal();
 
             if (value == null){
-                continue;
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Error: No value provided for filter on column: " + col + "\n");
             }
 
             Specification<Request> condition = null;
@@ -75,6 +90,11 @@ public class RequestController {
             switch (op) {
                 case "like":
                     try{
+                        List<String> allowedCols = List.of("communityname","requesteeuser", "itemname", "purpose");
+                        if (!(allowedCols.contains(col.toLowerCase()))){
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Error: invalid column: " + col +  " passed with LIKE operator\n");
+                        }
                         String lower = "%" + value.toString().toLowerCase() + "%";
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.like(criteraBuilder.lower(root.get(col)), lower);
@@ -82,10 +102,16 @@ public class RequestController {
                     }
                     catch (ClassCastException e){
                         System.out.println(e + "\n\n\n");
-                        break;
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Error: non-string value passed with LIKE operator\n");
                     }
                 case "bw":
                     try {
+                        List<String> allowedCols = List.of("deadline");
+                        if (!(allowedCols.contains(col.toLowerCase()))){
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Error: invalid column: " + col +  " passed with BETWEEN operator\n");
+                        }
                         ArrayList<String> value2 = (ArrayList<String>) value;
                         LocalDateTime date1 = LocalDateTime.parse(value2.get(0));
                         LocalDateTime date2 = LocalDateTime.parse(value2.get(1));
@@ -99,6 +125,11 @@ public class RequestController {
                     }
                 case "leq": 
                     try{
+                        List<String> allowedOps = List.of("id", "quantity", "priceperunit");
+                        if (!(allowedOps.contains(col.toLowerCase()))){
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Error: invalid column: " + col +  " passed with LESS THAN OR EQUAL operator\n");
+                        }
                         Integer val = (Integer) value;
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.lessThanOrEqualTo(root.get(col), val);
@@ -109,6 +140,11 @@ public class RequestController {
                     }
                 case "geq":
                     try{
+                        List<String> allowedOps = List.of("id", "quantity", "priceperunit");
+                        if (!(allowedOps.contains(col.toLowerCase()))){
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Error: invalid column: " + col +  " passed with GREATER THAN OR EQUAL operator\n");
+                        }
                         Integer val = (Integer) value;
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.greaterThanOrEqualTo(root.get(col), val);
@@ -118,6 +154,11 @@ public class RequestController {
                         break;
                     }
                 case "eq":
+                    List<String> notAllowedCols = List.of("communityname","requesteeuser", "itemname", "purpose");
+                        if (notAllowedCols.contains(col.toLowerCase())){
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Error: invalid column: " + col +  " passed with EQUAL operator. Pass this with LIKE operator\n");
+                        }
                     condition = (root, query, criteriaBuilder) -> 
                         criteriaBuilder.equal(root.get(col), value);
                     break;
@@ -128,7 +169,10 @@ public class RequestController {
             }
 
         }
-        return this.requestRepository.findAll(spec);
+        Iterable<Request> requests =  this.requestRepository.findAll(spec);
+        return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(requests);
     }
 
     @PostMapping("/create")
@@ -140,29 +184,36 @@ public class RequestController {
    * DESCRIPTION
    * 
    * @param request an request object to be added to the table
-   * @return will return the created event
+   * @return will return the created request with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
-    public Request createRequest(@RequestBody Request request){
+    public ResponseEntity<?> createRequest(@RequestBody Request request){
         // createRequest(name, community, username, itemName, quantity, pricePerUnit, deadline, purpose): bool
         //     Creates a new entry in the club requests table
         //     OUTPUT: created request
         // saves the new request to the database
-        return this.requestRepository.save(request);
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.requestRepository.save(request));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to create request: " + request.toString() + "\n");
+        }
     }
 
     @PutMapping("/edit/id={id}")
     @Operation(
         summary = "Edits a request in the Requests table",
-        description = "Takes in a JSON object and the id of the event to edit, and edits that Request in the Requests table with the new values provided. Returns the object on success"
+        description = "Takes in a JSON object and the id of the request to edit, and edits that Request in the Requests table with the new values provided. Returns the object on success"
     )
     /** 
    * DESCRIPTION
    * 
    * @param id the id of the request to edit
    * @param request the updated request (what you want it to be)
-   * @return returns the updated request
+   * @return returns the updated request with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
-    public Request editRequest(@PathVariable("id") Integer id, @RequestBody Request request){
+    public ResponseEntity<?> editRequest(@PathVariable("id") Integer id, @RequestBody Request request){
         // editRequest(id, request): Request
         //     INPUT: id: Integer - The id of the request, request: Request - the updated request
         //     OUTPUT: the updated request
@@ -171,7 +222,8 @@ public class RequestController {
         // looks to see if the given request object has its columns set, and it it is set, then updates the new request with those values
         Optional<Request> requestToUpdateOptional = this.requestRepository.findById(id);
         if (!requestToUpdateOptional.isPresent()){
-            return null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: Invalid request id: " + id.toString() + "\n");
         }
         Request newRequest = requestToUpdateOptional.get();
 
@@ -203,58 +255,66 @@ public class RequestController {
             newRequest.setDeleted(request.getDeleted());
         }
 
-        return this.requestRepository.save(newRequest);
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.requestRepository.save(newRequest));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to update request");
+        }
     }
 
     @PutMapping("/delete/id={id}")
     @Operation(
-        summary = "Deletes an event from the Requests table",
+        summary = "Deletes an request from the Requests table",
         description = "Modifies the deleted column of the request based on the id provided to be 1"
     )
     /** 
    * DESCRIPTION
    * 
    * @param id the id of the request you want to set the deleted flag for
-   * @return returns the updated request
+   * @return returns the updated request with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
-    public Request deleteRequest(@PathVariable("id") Integer id){
-        // deleteRequest(id): bool
-        //     The id of the request to be deleted (will just set deleted to 1)
-        //      INPUT: id: Integer - the id of the request to be deleted
-        //     OUTPUT: the deleted request
+    public ResponseEntity<?> deleteRequest(@PathVariable("id") Integer id){
 
         // sets the deleted flag to be 1
         Optional<Request> requestToUpdateOptional = this.requestRepository.findById(id);
         if (!requestToUpdateOptional.isPresent()){
-            return null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: invalid request id: " + id.toString() + "\n");
         }
         Request deleteRequest = requestToUpdateOptional.get();
         deleteRequest.setDeleted(1);
-        return this.requestRepository.save(deleteRequest);
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.requestRepository.save(deleteRequest));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to update request");
+        } 
     }
 
 
     @PutMapping("/approve/id={id}_val={val}")
     @Operation(
-        summary = "Toggles the approved flag for an event",
-        description = "Using the id provided, it will toggle the approved flag for an expense to either 1 or 0"
+        summary = "Toggles the approved flag for an request",
+        description = "Using the id provided, it will toggle the approved flag for an request to either 1 or 0"
     )
     /** 
    * DESCRIPTION
    * 
    * @param id the id of the request you want to set the approve flag for
    * @param value the value that you want the flag to be set to
-   * @return returns the updated request
+   * @return returns the updated request with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
-    public Request approveRequest(@PathVariable("id") Integer id, @PathVariable("val") Integer value){
-        // approveRequest(id, decision) bool: 
-        //     will mark a request as approved/disapproved in the club requests table
-        //     INPUT: id: Integer - The id of the item to change the conference flag (from database), val: Integer -  what to set the flag to
-        //     OUTPUT: the updated Request
+    public ResponseEntity<?> approveRequest(@PathVariable("id") Integer id, @PathVariable("val") Integer value){
         // approves a request by setting it to 1 or 0 based on the value provided
         Optional<Request> requestToUpdateOptional = this.requestRepository.findById(id);
         if (!requestToUpdateOptional.isPresent()){
-            return null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: invalid request id: " + id.toString() + "\n");
         }
         Request approveRequest = requestToUpdateOptional.get();
         if (value == 1){
@@ -263,7 +323,15 @@ public class RequestController {
         else{
             approveRequest.setApproval(0);
         }
-        return this.requestRepository.save(approveRequest);
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.requestRepository.save(approveRequest));
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to update request");
+        } 
     }
 
     @PostMapping("/new_request")

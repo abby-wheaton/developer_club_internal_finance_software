@@ -2,6 +2,8 @@ package com.devwmu.dc_fin_soft.controllers;
 import com.devwmu.dc_fin_soft.repositories.ExpenseRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.core.io.InputStreamResource;
@@ -97,7 +99,7 @@ public class ExpenseController {
                  case "bw":
                     // between two dates
                     try {
-                        List<String> allowedCols = List.of("itedeadline", "allocationdeadline", "deliberationdeadline", "reimbursementdeadline");
+                        List<String> allowedCols = List.of("itemdeadline", "allocationdeadline", "deliberationdeadline", "reimbursementdeadline");
                         if (!(allowedCols.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                             .body("Error: invalid column: " + col +  " passed with BETWEEN operator\n");
@@ -160,10 +162,10 @@ public class ExpenseController {
             }
 
         }
-        Iterable<Expense> events =  this.expenseRepository.findAll(spec);
+        Iterable<Expense> expenses =  this.expenseRepository.findAll(spec);
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(events);
+                .body(expenses);
     }
 
     @PostMapping("/item")
@@ -182,7 +184,7 @@ public class ExpenseController {
             .body(this.expenseRepository.save(expense));
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Error: unable to create event: " + expense.toString() + "\n");
+            .body("Error: unable to create expense: " + expense.toString() + "\n");
         }
     }
 
@@ -352,7 +354,7 @@ public class ExpenseController {
         } catch (Exception e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Error: unable to update event");
+            .body("Error: unable to update expense");
         }   
     }
 
@@ -386,7 +388,7 @@ public class ExpenseController {
         } catch (Exception e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Error: unable to update event");
+            .body("Error: unable to update expense");
         }      
     }
 
@@ -420,7 +422,7 @@ public class ExpenseController {
         } catch (Exception e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Error: unable to update event");
+            .body("Error: unable to update expense");
         }      
     }
 
@@ -454,7 +456,7 @@ public class ExpenseController {
         } catch (Exception e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Error: unable to update event");
+            .body("Error: unable to update expense");
         }    
     }
 
@@ -488,7 +490,7 @@ public class ExpenseController {
         } catch (Exception e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Error: unable to update event");
+            .body("Error: unable to update expense");
         }     
     }
 
@@ -505,7 +507,7 @@ public class ExpenseController {
         Optional<Expense> expenseToDeleteOptional = this.expenseRepository.findById(id);
         if (!expenseToDeleteOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body("Error: invalid event id: " + id.toString() + "\n");
+            .body("Error: invalid expense id: " + id.toString() + "\n");
         }
         Expense expense = expenseToDeleteOptional.get();
         expense.setDeleted(1);
@@ -517,10 +519,17 @@ public class ExpenseController {
         } catch (Exception e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Error: unable to update event");
+            .body("Error: unable to update expense");
         }    
     }
 
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200", description = "Form was successfully created and returned"),
+         @ApiResponse(responseCode = "400", description = "Incorrect type provided to amount requested"),
+         @ApiResponse(responseCode = "404", description = "Invalid event id provided | file not found"),
+         @ApiResponse(responseCode = "500", description = "Failure to open/delete/write to file")
+    })
+    
     @PostMapping("/operational_allocation_form")
     public ResponseEntity<?> createOperationalAllocationForm(@RequestBody AmountRequested[] amountRequests, 
     @RequestParam("rsoName") String rsoName, @RequestParam("rsoRep") String rsoRep, @RequestParam("rsoEmail") String rsoEmail, 
@@ -586,7 +595,7 @@ public class ExpenseController {
 
                 Optional<Expense> expenseOpt = this.expenseRepository.findById(amountRequested.getId());
                 if (!expenseOpt.isPresent()){
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Error: Expense id: " + amountRequested.getId().toString() + " was invalid");
                 }
 
@@ -655,7 +664,7 @@ public class ExpenseController {
         } catch (Exception e){
             e.printStackTrace();
             outfile.delete();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body("Error: file not found");
         }
     }

@@ -52,8 +52,8 @@ paths:
       tags:
       - Requests
       summary: Edits a request in the Requests table
-      description: "Takes in a JSON object and the id of the event to edit, and edits\
-        \ that Request in the Requests table with the new values provided. Returns\
+      description: "Takes in a JSON object and the id of the request to edit, and\
+        \ edits that Request in the Requests table with the new values provided. Returns\
         \ the object on success"
       operationId: editRequest
       parameters:
@@ -75,12 +75,12 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Request"
+                type: object
   /requests/delete/id={id}:
     put:
       tags:
       - Requests
-      summary: Deletes an event from the Requests table
+      summary: Deletes an request from the Requests table
       description: Modifies the deleted column of the request based on the id provided
         to be 1
       operationId: deleteRequest
@@ -97,14 +97,14 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Request"
+                type: object
   /requests/approve/id={id}_val={val}:
     put:
       tags:
       - Requests
-      summary: Toggles the approved flag for an event
+      summary: Toggles the approved flag for an request
       description: "Using the id provided, it will toggle the approved flag for an\
-        \ expense to either 1 or 0"
+        \ request to either 1 or 0"
       operationId: approveRequest
       parameters:
       - name: id
@@ -125,7 +125,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Request"
+                type: object
   /expense/item/s_buying_flag_id={id}_num={num}:
     put:
       tags:
@@ -378,7 +378,8 @@ paths:
       description: "Takes in a JSON array, where each element is a Filter object consisting\
         \ of the column to filter by, the operation to filter based on, and the desired\
         \ value, and returns all of the rows in the Events table which match the Filter\
-        \ objects"
+        \ objects on success with a 200 response code. On error, returns an error\
+        \ response code and text explaining the error"
       operationId: filterEvents
       requestBody:
         content:
@@ -390,7 +391,20 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: All filters successfully applied and returned the filtered
+            rows
+          content:
+            '*/*':
+              schema:
+                type: object
+        "400":
+          description: No/wrong type of value provided for a column
+          content:
+            '*/*':
+              schema:
+                type: object
+        "403":
+          description: Not allowed to use that operator with that column
           content:
             '*/*':
               schema:
@@ -400,8 +414,9 @@ paths:
       tags:
       - Event Controller
       summary: Deletes an event from the Events table
-      description: Modifies the deleted column of the event based on the id provided
-        to be 1
+      description: "Modifies the deleted column of the event based on the id provided\
+        \ to be 1 on success with a 200 response code. On error, returns an error\
+        \ response code and text explaining the error"
       operationId: deleteEvent
       parameters:
       - name: id
@@ -412,7 +427,13 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
+          description: All rows were successfully returned
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: Unable to modify row
           content:
             '*/*':
               schema:
@@ -423,7 +444,8 @@ paths:
       - Event Controller
       summary: Toggles the philanthropyFlag for an event
       description: "Using the id provided, it will toggle the philanthropyFlag for\
-        \ an event to either 1 or 0"
+        \ an event to either 1 or 0 on success with a 200 response code. On error,\
+        \ returns an error response code and text explaining the error"
       operationId: philFlagEvent
       parameters:
       - name: id
@@ -440,7 +462,13 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
+          description: All rows were successfully returned
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: Unable to modify row
           content:
             '*/*':
               schema:
@@ -451,7 +479,8 @@ paths:
       - Event Controller
       summary: Toggles the feeFlag for an event
       description: "Using the id provided, it will toggle the feeFlag for an event\
-        \ to either 1 or 0"
+        \ to either 1 or 0 on success with a 200 response code. On error, returns\
+        \ an error response code and text explaining the error"
       operationId: feeFlagEvent
       parameters:
       - name: id
@@ -468,7 +497,13 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
+          description: All rows were successfully returned
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: Unable to modify row
           content:
             '*/*':
               schema:
@@ -480,7 +515,8 @@ paths:
       summary: Edits a calandar event in the Events table
       description: "Takes in a JSON object and the id of the event to edit, and edits\
         \ that Event in the Events table with the new values provided. Returns the\
-        \ object on success"
+        \ object on success with a 200 response code. On error, returns an error response\
+        \ code and text explaining the error"
       operationId: editEvent
       parameters:
       - name: id
@@ -497,7 +533,13 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: All rows were successfully returned
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: Unable to modify row
           content:
             '*/*':
               schema:
@@ -508,7 +550,8 @@ paths:
       - Event Controller
       summary: Toggles the conferenceFlag for an event
       description: "Using the id provided, it will toggle the conferenceFlag for an\
-        \ event to either 1 or 0"
+        \ event to either 1 or 0 on success with a 200 response code. On error, returns\
+        \ an error response code and text explaining the error"
       operationId: confFlagEvent
       parameters:
       - name: id
@@ -525,7 +568,13 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
+          description: All rows were successfully returned
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: Unable to modify row
           content:
             '*/*':
               schema:
@@ -560,7 +609,7 @@ paths:
       tags:
       - Sources
       summary: Edits a source in the Sources table
-      description: "Takes in a JSON object and the id of the event to edit, and edits\
+      description: "Takes in a JSON object and the id of the source to edit, and edits\
         \ that Source in the Sources table with the new values provided. Returns the\
         \ object on success"
       operationId: editSource
@@ -583,7 +632,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Source"
+                type: object
   /admin/sources/delete/id={id}:
     put:
       tags:
@@ -605,7 +654,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Source"
+                type: object
   /admin/groups/search:
     put:
       tags:
@@ -667,7 +716,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/FinanceGroup"
+                type: object
   /admin/groups/add_user/user={user}:
     put:
       tags:
@@ -727,7 +776,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Request"
+                type: object
   /expense/receipt:
     post:
       tags:
@@ -781,7 +830,25 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: Form was successfully created and returned
+          content:
+            '*/*':
+              schema:
+                type: object
+        "400":
+          description: Incorrect type provided to amount requested
+          content:
+            '*/*':
+              schema:
+                type: object
+        "404":
+          description: Invalid event id provided | file not found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: Failure to open/delete/write to file
           content:
             '*/*':
               schema:
@@ -814,7 +881,8 @@ paths:
       summary: Creates the event allocation form
       description: "Takes in the id of the event, an array of amount requested objects,\
         \ and several strings to represent club information, and returns the filled\
-        \ in excel form"
+        \ in excel form on success with a 200 response code. On error, returns an\
+        \ error response code and text explaining the error"
       operationId: createEventAllocationForm
       parameters:
       - name: id
@@ -848,7 +916,25 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: Form was successfully created and returned
+          content:
+            '*/*':
+              schema:
+                type: object
+        "400":
+          description: Incorrect type provided to amount requested
+          content:
+            '*/*':
+              schema:
+                type: object
+        "404":
+          description: Invalid event id provided | file not found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: Failure to open/delete/write to file
           content:
             '*/*':
               schema:
@@ -858,8 +944,9 @@ paths:
       tags:
       - Event Controller
       summary: Adds an event to the Events table
-      description: Takes in a JSON object and adds that Event to the Events table.
-        Returns the object on success
+      description: "Takes in a JSON object and adds that Event to the Events table.\
+        \ Returns the object on success with a 200 response code. On error, returns\
+        \ an error response code and text explaining the error"
       operationId: createEvent
       requestBody:
         content:
@@ -869,7 +956,13 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: All rows were successfully returned
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: Unable to create row
           content:
             '*/*':
               schema:
@@ -881,7 +974,8 @@ paths:
       summary: Creates the conference allocation form
       description: "Takes in the id of the event, an array of amount requested objects,\
         \ and several strings to represent club information, and returns the filled\
-        \ in excel form"
+        \ in excel form on success with a 200 response code. On error, returns an\
+        \ error response code and text explaining the error"
       operationId: createConferenceAllocationForm
       parameters:
       - name: id
@@ -925,7 +1019,25 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: Form was successfully created and returned
+          content:
+            '*/*':
+              schema:
+                type: object
+        "400":
+          description: Incorrect type provided to amount requested
+          content:
+            '*/*':
+              schema:
+                type: object
+        "404":
+          description: Invalid event id provided | file not found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: Failure to open/delete/write to file
           content:
             '*/*':
               schema:
@@ -935,7 +1047,7 @@ paths:
       tags:
       - Sources
       summary: Adds a source to the Sources table
-      description: Takes in a JSON object and adds that Request to the Sources table.
+      description: Takes in a JSON object and adds that source to the Sources table.
         Returns the object on success
       operationId: createSource
       requestBody:
@@ -950,7 +1062,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Source"
+                type: object
   /admin/groups/create_group:
     post:
       tags:
@@ -971,7 +1083,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/FinanceGroup"
+                type: object
   /requests/all:
     get:
       tags:
@@ -1031,11 +1143,19 @@ paths:
       tags:
       - Event Controller
       summary: Retrives all of the events
-      description: "Takes in no input, and returns all of the rows in the Events table"
+      description: "Takes in no input, and returns all of the rows in the Events table\
+        \ on success with a 200 response code. On error, returns an error response\
+        \ code and text explaining the error"
       operationId: getAllEvents
       responses:
         "200":
-          description: OK
+          description: All rows were successfully returned
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: Unable to retrieve rows
           content:
             '*/*':
               schema:
@@ -1049,8 +1169,14 @@ paths:
         \ table"
       operationId: getAllSources
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Book successfully created
+          content:
+            '*/*':
+              schema:
+                type: object
+        "400":
+          description: Invalid input supplied
           content:
             '*/*':
               schema:

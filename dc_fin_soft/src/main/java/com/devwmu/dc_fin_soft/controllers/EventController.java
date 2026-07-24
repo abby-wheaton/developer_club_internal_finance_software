@@ -13,6 +13,8 @@ import com.devwmu.dc_fin_soft.entities.Event;
 import com.devwmu.dc_fin_soft.repositories.EventRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.time.LocalDateTime;
@@ -47,14 +49,19 @@ public class EventController {
     
     @Operation(
         summary = "Filters through events based on specified values",
-        description = "Takes in a JSON array, where each element is a Filter object consisting of the column to filter by, the operation to filter based on, and the desired value, and returns all of the rows in the Events table which match the Filter objects"
+        description = "Takes in a JSON array, where each element is a Filter object consisting of the column to filter by, the operation to filter based on, and the desired value, and returns all of the rows in the Events table which match the Filter objects on success with a 200 response code. On error, returns an error response code and text explaining the error"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200", description = "All filters successfully applied and returned the filtered rows"),
+         @ApiResponse(responseCode = "400", description = "No/wrong type of value provided for a column"),
+         @ApiResponse(responseCode = "403", description = "Not allowed to use that operator with that column")
+    })
     @PutMapping("/search")
     /** 
    * DESCRIPTION
    * 
    * @param filters an array of filter objects, which represents the columns, operations, and values to filter by
-   * @return the rows of Events that match the filters. On error, the filter will not apply. If no filters are applied, returns all of the rows. 
+   * @return the rows of Events that match the filters with a 200 response code. On error, the appropriate error code will be set with text body explaining the error. If no filters are applied, returns all of the rows. 
   */
     public ResponseEntity<?> filterEvents(@RequestBody Filter[] filters){
         // filterEvents(filterArray[]) Iterable<Event>
@@ -82,7 +89,7 @@ public class EventController {
                 case "like":
                     try{
                         if (!(col.equalsIgnoreCase("name") | col.equalsIgnoreCase("location"))){
-                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            return ResponseEntity.status(HttpStatus.FORBIDDEN)
                             .body("Error: invalid column: " + col +  "passed with LIKE operator\n");
                         }
                         
@@ -95,14 +102,14 @@ public class EventController {
                     }
                     catch (ClassCastException e){
                         System.out.println(e);
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body("Error: non-string value passed with LIKE operator\n");
                     }
                 case "bw":
                     // between two dates
                     try {
                         if (!col.equalsIgnoreCase("date")){
-                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            return ResponseEntity.status(HttpStatus.FORBIDDEN)
                             .body("Error: invalid column: " + col +  " passed with BETWEEN operator\n");
                         }
                         ArrayList<String> value2 = (ArrayList<String>) value;
@@ -114,14 +121,14 @@ public class EventController {
                         break;
                     } catch (ClassCastException e){
                         System.out.println(e + "\n\n\n");
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body("Error: non-date value passed with BETWEEN operator\n");
                     }
                 case "leq": 
                     try{
                         List<String> allowedOps = List.of("id", "estattendance");
                         if (!(allowedOps.contains(col.toLowerCase()))){
-                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            return ResponseEntity.status(HttpStatus.FORBIDDEN)
                             .body("Error: invalid column: " + col +  " passed with LESS THAN OR EQUAL operator\n");
                         }
                         Integer val = (Integer) value;
@@ -130,14 +137,14 @@ public class EventController {
                         break;
                     } catch (ClassCastException e){
                         System.out.println(e + "\n\n\n");
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body("Error: non-number value passed with LESS THAN OR EQUAL TO operator\n");
                     }
                 case "geq":
                     try{
                         List<String> allowedOps = List.of("id", "estattendance");
                         if (!(allowedOps.contains(col.toLowerCase()))){
-                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            return ResponseEntity.status(HttpStatus.FORBIDDEN)
                             .body("Error: invalid column: " + col +  " passed with GREATER THAN OR EQUAL operator\n");
                         }
 
@@ -153,7 +160,7 @@ public class EventController {
                 case "eq":
                     List<String> notAllowedOps = List.of("name", "location");
                         if (notAllowedOps.contains(col.toLowerCase())){
-                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            return ResponseEntity.status(HttpStatus.FORBIDDEN)
                             .body("Error: invalid column: " + col +  " passed with EQUAL operator. Pass this with LIKE operator\n");
                         }
                     condition = (root, query, criteriaBuilder) -> 
@@ -174,13 +181,17 @@ public class EventController {
 
     @Operation(
         summary = "Retrives all of the events",
-        description = "Takes in no input, and returns all of the rows in the Events table"
+        description = "Takes in no input, and returns all of the rows in the Events table on success with a 200 response code. On error, returns an error response code and text explaining the error"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200", description = "All rows were successfully returned"),
+         @ApiResponse(responseCode = "500", description = "Unable to retrieve rows")
+    })
     /** 
    * DESCRIPTION
    * 
    * 
-   * @return returns all of the rows of the events table
+   * @return returns all of the rows of the events table with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
     @GetMapping("/all")
     public ResponseEntity<?> getAllEvents() {
@@ -198,13 +209,17 @@ public class EventController {
     @PostMapping("/create")
     @Operation(
         summary = "Adds an event to the Events table",
-        description = "Takes in a JSON object and adds that Event to the Events table. Returns the object on success"
+        description = "Takes in a JSON object and adds that Event to the Events table. Returns the object on success with a 200 response code. On error, returns an error response code and text explaining the error"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200", description = "All rows were successfully returned"),
+         @ApiResponse(responseCode = "500", description = "Unable to create row")
+    })
     /** 
    * DESCRIPTION
    * 
    * @param event an event object to be added to the table
-   * @return will return the created event
+   * @return will return the created event with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
     public ResponseEntity<?> createEvent(@RequestBody Event event){
         // createEvent(name, date, location, attendance, fee?, philanthropy?, conference?):
@@ -226,14 +241,18 @@ public class EventController {
     @PutMapping("/edit/id={id}")
     @Operation(
         summary = "Edits a calandar event in the Events table",
-        description = "Takes in a JSON object and the id of the event to edit, and edits that Event in the Events table with the new values provided. Returns the object on success"
+        description = "Takes in a JSON object and the id of the event to edit, and edits that Event in the Events table with the new values provided. Returns the object on success with a 200 response code. On error, returns an error response code and text explaining the error"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200", description = "All rows were successfully returned"),
+         @ApiResponse(responseCode = "500", description = "Unable to modify row")
+    })
     /** 
    * DESCRIPTION
    * 
    * @param id the id of the event to edit
    * @param event the updated event (what you want the event to be)
-   * @return returns the updated event
+   * @return returns the updated event with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
     public ResponseEntity<?> editEvent(@PathVariable("id") Integer id, @RequestBody Event event){
         // editEvent(id, editArray[]): bool
@@ -285,14 +304,18 @@ public class EventController {
     @PutMapping("/fee_flag/id={id}_val={val}")
     @Operation(
         summary = "Toggles the feeFlag for an event",
-        description = "Using the id provided, it will toggle the feeFlag for an event to either 1 or 0"
+        description = "Using the id provided, it will toggle the feeFlag for an event to either 1 or 0 on success with a 200 response code. On error, returns an error response code and text explaining the error"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200", description = "All rows were successfully returned"),
+         @ApiResponse(responseCode = "500", description = "Unable to modify row")
+    })
     /** 
    * DESCRIPTION
    * 
    * @param id the id of the event you want to set the fee flag for
    * @param val the value to set the flag to
-   * @return returns the updated event
+   * @return returns the updated event with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
     public ResponseEntity<?> feeFlagEvent(@PathVariable("id") Integer id, @PathVariable("val") Integer val){
         // feeFlagEvent(id, val): bool
@@ -325,14 +348,18 @@ public class EventController {
     @PutMapping("/phil_flag/id={id}_val=_{val}")
     @Operation(
         summary = "Toggles the philanthropyFlag for an event",
-        description = "Using the id provided, it will toggle the philanthropyFlag for an event to either 1 or 0"
+        description = "Using the id provided, it will toggle the philanthropyFlag for an event to either 1 or 0 on success with a 200 response code. On error, returns an error response code and text explaining the error"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200", description = "All rows were successfully returned"),
+         @ApiResponse(responseCode = "500", description = "Unable to modify row")
+    })
     /** 
    * DESCRIPTION
    * 
    * @param id the id of the event you want to set the phil flag for
    * @param val the value to set the flag to
-   * @return returns the updated event
+   * @return returns the updated event with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
     public ResponseEntity<?> philFlagEvent(@PathVariable("id") Integer id, @PathVariable("val") Integer val){
         // feeFlagEvent(id, val): bool
@@ -363,14 +390,18 @@ public class EventController {
 
     @Operation(
         summary = "Toggles the conferenceFlag for an event",
-        description = "Using the id provided, it will toggle the conferenceFlag for an event to either 1 or 0"
+        description = "Using the id provided, it will toggle the conferenceFlag for an event to either 1 or 0 on success with a 200 response code. On error, returns an error response code and text explaining the error"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200", description = "All rows were successfully returned"),
+         @ApiResponse(responseCode = "500", description = "Unable to modify row")
+    })
     /** 
    * DESCRIPTION
    * 
    * @param id the id of the event you want to set the conference flag for
    * @param val the value to set the flag to
-   * @return returns the updated event
+   * @return returns the updated event with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
     @PutMapping("/conf_flag/id={id}_val={val}")
     public ResponseEntity<?> confFlagEvent(@PathVariable("id") Integer id, @PathVariable("val") Integer val){
@@ -405,12 +436,16 @@ public class EventController {
    * DESCRIPTION
    * 
    * @param id the id of the event you want to set the deleted flag for
-   * @return returns the updated event
+   * @return returns the updated event with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
     @Operation(
         summary = "Deletes an event from the Events table",
-        description = "Modifies the deleted column of the event based on the id provided to be 1"
+        description = "Modifies the deleted column of the event based on the id provided to be 1 on success with a 200 response code. On error, returns an error response code and text explaining the error"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200", description = "All rows were successfully returned"),
+         @ApiResponse(responseCode = "500", description = "Unable to modify row")
+    })
     public ResponseEntity<?> deleteEvent(@PathVariable("id") Integer id){
         // deleteEvent(id): bool
         //     INPUT: id: Integer - The id of the item to be deleted (from the database)
@@ -436,8 +471,14 @@ public class EventController {
 
     @Operation(
         summary = "Creates the event allocation form",
-        description = "Takes in the id of the event, an array of amount requested objects, and several strings to represent club information, and returns the filled in excel form"
+        description = "Takes in the id of the event, an array of amount requested objects, and several strings to represent club information, and returns the filled in excel form on success with a 200 response code. On error, returns an error response code and text explaining the error"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200", description = "Form was successfully created and returned"),
+         @ApiResponse(responseCode = "400", description = "Incorrect type provided to amount requested"),
+         @ApiResponse(responseCode = "404", description = "Invalid event id provided | file not found"),
+         @ApiResponse(responseCode = "500", description = "Failure to open/delete/write to file")
+    })
     /** 
    * DESCRIPTION
    * 
@@ -446,7 +487,7 @@ public class EventController {
    * @param rsoName a string which is the name of the rso
    * @param rsoRep a string which is the representative of the rso
    * @param rsoEmail a string which is the email for the rso
-   * @return returns the form on success in an http response, and on failure returns empty http response body and an error code
+   * @return returns the form on success in an http response with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
     @PostMapping("/event_allocation_form/id={id}")
     public ResponseEntity<?> createEventAllocationForm(@PathVariable("id") Integer id, @RequestBody AmountRequested[] amountRequests, 
@@ -460,7 +501,7 @@ public class EventController {
 
         Optional<Event> eventOptional = this.eventRepository.findById(id);
         if (!eventOptional.isPresent()){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body("Error: invalid event id: " + id.toString() + "\n");
         }
         Event event = eventOptional.get();
@@ -669,15 +710,21 @@ public class EventController {
         } catch (Exception e){
             e.printStackTrace();
             outfile.delete();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body("Error: file not found\n");
         }
     } 
 
     @Operation(
         summary = "Creates the conference allocation form",
-        description = "Takes in the id of the event, an array of amount requested objects, and several strings to represent club information, and returns the filled in excel form"
+        description = "Takes in the id of the event, an array of amount requested objects, and several strings to represent club information, and returns the filled in excel form on success with a 200 response code. On error, returns an error response code and text explaining the error"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200", description = "Form was successfully created and returned"),
+         @ApiResponse(responseCode = "400", description = "Incorrect type provided to amount requested"),
+         @ApiResponse(responseCode = "404", description = "Invalid event id provided | file not found"),
+         @ApiResponse(responseCode = "500", description = "Failure to open/delete/write to file")
+    })
     /** 
    * DESCRIPTION
    * 
@@ -688,7 +735,7 @@ public class EventController {
    * @param rsoEmail a string which is the email for the rso
    * @param rsoMeetingTime a string which is the times that the rso meetins
    * @param rsoMeetingLocation a string which is the location where the rso regularly meets
-   * @return returns the form on success in an http response, and on failure returns empty http response body and an error code
+   * @return returns the form on success in an http response with a 200 response code. On error, the appropriate error code will be set with text body explaining the error
   */
     @PostMapping("/conference_allocation_form/id={id}")
     public ResponseEntity<?> createConferenceAllocationForm(@PathVariable("id") Integer id, @RequestBody AmountRequested[] amountRequests, 
@@ -705,7 +752,7 @@ public class EventController {
 
         Optional<Event> eventOptional = this.eventRepository.findById(id);
         if (!eventOptional.isPresent()){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body("Error: invalid event id: " + id.toString() + "\n");
         }
         Event event = eventOptional.get();
@@ -847,7 +894,7 @@ public class EventController {
         } catch (Exception e){
             e.printStackTrace();
             outfile.delete();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body("Error: file not found");
         }
     }

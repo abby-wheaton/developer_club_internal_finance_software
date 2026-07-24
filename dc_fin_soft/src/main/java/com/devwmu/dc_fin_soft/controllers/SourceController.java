@@ -1,15 +1,21 @@
 package com.devwmu.dc_fin_soft.controllers;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import com.devwmu.dc_fin_soft.repositories.SourceRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 import com.devwmu.dc_fin_soft.entities.Source;
 
 import java.util.Optional;
+import java.util.List;
 
 @RestController
 @RequestMapping("/admin/sources")
@@ -25,21 +31,29 @@ public class SourceController {
    * DESCRIPTION
    * 
    * 
-   * @return returns all of the rows of the sources table
+   * @return returns all of the rows of the sources table with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
     @GetMapping("/all")
     @Operation(
         summary = "Retrives all of the sources",
         description = "Takes in no input, and returns all of the rows in the Sources table"
     )
-    // @ApiResponses(value = {
-    //     @ApiResponse(responseCode = "201", description = "Book successfully created"),
-    //     @ApiResponse(responseCode = "400", description = "Invalid input supplied")
-    // })
-    public Iterable<Source> getAllSources() {   
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "201", description = "Book successfully created"),
+         @ApiResponse(responseCode = "400", description = "Invalid input supplied")
+    })
+    public ResponseEntity<?> getAllSources() {   
         //      OUTPUT: all of the sources
 
-        return this.sourceRepository.findAll();
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.sourceRepository.findAll());
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to retrieve all sources");
+        }
     }
 
     @PutMapping("/search")
@@ -51,16 +65,10 @@ public class SourceController {
    * DESCRIPTION
    * 
    * @param filters an array of filter objects, which represents the columns, operations, and values to filter by
-   * @return the rows of sources that match the filters. On error, the filter will not apply. If no filters are applied, returns all of the rows. 
+   * @return the rows of sources that match the filters with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error. If no filters are applied, returns all of the rows. 
   */
-    public Iterable<Source> filterSources(@RequestBody Filter[] filters) {
-        // custom
-        // filterSources(filterArray[]) Iterable<Source>
-        //      INPUT: filters: Filter[] -  an array of filters to apply to the table
-        //      ex) [{"col":"est_attendance", "op":"geq", "val":16}] - this will apply a filter for if the estimated attendance is >= 16
-        //     OUTPUT: the selected rows of the sources table
-
-        // returns the events that match
+    public ResponseEntity<?> filterSources(@RequestBody Filter[] filters) {
+        // returns the sources that match
         Specification<Source> spec = Specification.unrestricted();
         for (Filter filter: filters){
             String col = filter.getCol();
@@ -68,13 +76,19 @@ public class SourceController {
             Object value = filter.getVal();
 
             if (value == null){
-                continue;
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Error: No value provided for filter on column: " + col + "\n");
             }
 
             Specification<Source> condition = null;
             switch (op) {
                 case "like":
                     try{
+                        List<String> allowedCols = List.of("name", "type");
+                        if (!(allowedCols.contains(col.toLowerCase()))){
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Error: invalid column: " + col +  " passed with LIKE operator\n");
+                        }
                         String lower = "%" + value.toString().toLowerCase() + "%";
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.like(criteraBuilder.lower(root.get(col)), lower);
@@ -82,10 +96,16 @@ public class SourceController {
                     }
                     catch (ClassCastException e){
                         System.out.println(e + "\n\n\n");
-                        break;
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Error: non-string value passed with LIKE operator\n");
                     }
                 case "leq": 
                     try{
+                        List<String> allowedOps = List.of("id", "quantity", "moneycap", "spent", "budgeted", "available");
+                        if (!(allowedOps.contains(col.toLowerCase()))){
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Error: invalid column: " + col +  " passed with LESS THAN OR EQUAL operator\n");
+                        }
                         Integer val = (Integer) value;
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.lessThanOrEqualTo(root.get(col), val);
@@ -96,6 +116,11 @@ public class SourceController {
                     }
                 case "geq":
                     try{
+                        List<String> allowedOps = List.of("id", "quantity", "moneycap", "spent", "budgeted", "available");
+                        if (!(allowedOps.contains(col.toLowerCase()))){
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Error: invalid column: " + col +  " passed with LESS THAN OR EQUAL operator\n");
+                        }
                         Integer val = (Integer) value;
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.greaterThanOrEqualTo(root.get(col), val);
@@ -105,6 +130,11 @@ public class SourceController {
                         break;
                     }
                 case "eq":
+                    List<String> notAllowedCols = List.of("name", "type");
+                        if (notAllowedCols.contains(col.toLowerCase())){
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Error: invalid column: " + col +  " passed with EQUAL operator. Pass this with LIKE operator\n");
+                        }
                     condition = (root, query, criteriaBuilder) -> 
                         criteriaBuilder.equal(root.get(col), value);
                     break;
@@ -115,49 +145,52 @@ public class SourceController {
             }
 
         }
-        return this.sourceRepository.findAll(spec);
+        Iterable<Source> sources =  this.sourceRepository.findAll(spec);
+        return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(sources);
     }
 
     @PostMapping("/create")
     @Operation(
         summary = "Adds a source to the Sources table",
-        description = "Takes in a JSON object and adds that Request to the Sources table. Returns the object on success"
+        description = "Takes in a JSON object and adds that source to the Sources table. Returns the object on success"
     )
     /** 
    * DESCRIPTION
    * 
    * @param source a source object to be added to the table
-   * @return will return the created source
+   * @return will return the created source with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
-    public Source createSource(@RequestBody Source source){
-        return this.sourceRepository.save(source);
-        // createSource(name, cap, type, internal): Source
-        //      Adds a source to the source database
-        //     INPUT: source: Source - the source to be added to the source database
-        //     OUTPUT: created source
+    public ResponseEntity<?> createSource(@RequestBody Source source){
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.sourceRepository.save(source));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to create source: " + source.toString() + "\n");
+        }
     }
 
 
     @PutMapping("/edit/id={id}")
     @Operation(
         summary = "Edits a source in the Sources table",
-        description = "Takes in a JSON object and the id of the event to edit, and edits that Source in the Sources table with the new values provided. Returns the object on success"
+        description = "Takes in a JSON object and the id of the source to edit, and edits that Source in the Sources table with the new values provided. Returns the object on success"
     )
     /** 
    * DESCRIPTION
    * 
    * @param id the id of the source to edit
    * @param source the updated source (what you want it to be)
-   * @return returns the updated source
+   * @return returns the updated source with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
-    public Source editSource(@PathVariable("id") Integer id, @RequestBody Source source){
-        // editSource((id, editArray[]): bool
-        //     Edits columns of a source
-        //      INPUT: id: Integer - the id of the souce to be updated, source: Source - the souce to be updated
-        //     OUTPUT: edited source
+    public ResponseEntity<?> editSource(@PathVariable("id") Integer id, @RequestBody Source source){
         Optional<Source> sourceToUpdateOptional = this.sourceRepository.findById(id);
         if (!sourceToUpdateOptional.isPresent()){
-            return null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: Invalid source id: " + id.toString() + "\n");
         }
 
         Source sourceToUpdate = sourceToUpdateOptional.get();
@@ -186,7 +219,14 @@ public class SourceController {
             sourceToUpdate.setDeleted(source.getDeleted());
         }
         
-        return this.sourceRepository.save(sourceToUpdate);
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.sourceRepository.save(sourceToUpdate));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to update source");
+        }
 
     }
 
@@ -199,22 +239,26 @@ public class SourceController {
    * DESCRIPTION
    * 
    * @param id the id of the source you want to set the deleted flag for
-   * @return returns the updated source
+   * @return returns the updated source with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
-    public Source deleteSource(@PathVariable("id") Integer id){
-        // deleteSource(sourceID): Source
-        //     Deletes a source from the database
-        //     INPUT: id: Integer - the id of the source to be deleted
-        //     OUTPUT: deleted source
-
+    public ResponseEntity<?> deleteSource(@PathVariable("id") Integer id){
         Optional<Source> sourceToDeleteOptional = this.sourceRepository.findById(id);
         if (!sourceToDeleteOptional.isPresent()){
-            return null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: invalid source id: " + id.toString() + "\n");
         }
         Source source = sourceToDeleteOptional.get();
         source.setDeleted(1);
 
         
-        return this.sourceRepository.save(source);
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.sourceRepository.save(source));
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to update source");
+        } 
     }
 }
