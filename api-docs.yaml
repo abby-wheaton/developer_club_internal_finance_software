@@ -918,9 +918,9 @@ paths:
         "200":
           description: Form was successfully created and returned
           content:
-            '*/*':
-              schema:
-                type: object
+            text/plain:
+              example: |
+                Error: Incorrect type passed to amount requested for amount requested
         "400":
           description: Incorrect type provided to amount requested
           content:
