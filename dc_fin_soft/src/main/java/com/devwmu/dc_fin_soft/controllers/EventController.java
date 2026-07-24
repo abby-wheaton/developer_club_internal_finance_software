@@ -480,6 +480,7 @@ public class EventController {
           description = "Form was successfully created and returned"),
          @ApiResponse(responseCode = "400", description = "Incorrect type provided to amount requested",
             content = {@Content(mediaType = "text/plain",
+            schema = @io.swagger.v3.oas.annotations.media.Schema(type = "string"),
             examples = @ExampleObject(value = "Error: Incorrect type passed to amount requested for amount requested\n"))}
          ),
          @ApiResponse(responseCode = "404", description = "Invalid event id provided | file not found"),

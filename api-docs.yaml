@@ -925,6 +925,8 @@ paths:
           description: Incorrect type provided to amount requested
           content:
             text/plain:
+              schema:
+                type: string
               example: |
                 Error: Incorrect type passed to amount requested for amount requested
         "404":
