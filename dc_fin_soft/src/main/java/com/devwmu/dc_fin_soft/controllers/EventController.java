@@ -477,11 +477,11 @@ public class EventController {
     )
     @ApiResponses(value = {
          @ApiResponse(responseCode = "200",
-          description = "Form was successfully created and returned",
-          content = @Content(mediaType = "text/plain",
-            examples = @ExampleObject(value = "Error: Incorrect type passed to amount requested for amount requested\n"))
-        ),
-         @ApiResponse(responseCode = "400", description = "Incorrect type provided to amount requested"),
+          description = "Form was successfully created and returned"),
+         @ApiResponse(responseCode = "400", description = "Incorrect type provided to amount requested",
+            content = {@Content(mediaType = "text/plain",
+            examples = @ExampleObject(value = "Error: Incorrect type passed to amount requested for amount requested\n"))}
+         ),
          @ApiResponse(responseCode = "404", description = "Invalid event id provided | file not found"),
          @ApiResponse(responseCode = "500", description = "Failure to open/delete/write to file")
     })
