@@ -18,7 +18,7 @@ import java.util.Optional;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/sources")
+@RequestMapping("/sources")
 @Tag(name = "Sources", description = "This controller interacts with the sources table in various ways")
 public class SourceController {
     private final SourceRepository sourceRepository;

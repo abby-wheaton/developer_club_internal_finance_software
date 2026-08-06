@@ -5,7 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import com.devwmu.dc_fin_soft.entities.FinUser;
 import com.devwmu.dc_fin_soft.entities.FinanceGroup;
+import com.devwmu.dc_fin_soft.repositories.FinUserRepository;
 import com.devwmu.dc_fin_soft.repositories.FinanceGroupRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,13 +19,15 @@ import java.util.List;
 // Fix outputs and inputs
 
 @RestController
-@RequestMapping("/admin/groups")
+@RequestMapping("groups")
 @Tag(name = "Finance Groups", description = "Controls the various finance groups and who is all in them")
 public class FinanceGroupController {
+    private final FinUserRepository finUserRepository;
     private final FinanceGroupRepository financeGroupRepository;
 
-    public FinanceGroupController(final FinanceGroupRepository financeGroupRepository) {
+    public FinanceGroupController(final FinanceGroupRepository financeGroupRepository, final FinUserRepository finaFinUserRepository, FinUserRepository finUserRepository) {
     this.financeGroupRepository = financeGroupRepository;
+    this.finUserRepository = finUserRepository;
   }
     @GetMapping("/all")
     /** 
@@ -118,18 +122,19 @@ public class FinanceGroupController {
                 .body(financeGroups);
     }
 
-    @PutMapping("/add_user/user={user}")
+    @PutMapping("/edit_user/user={user}/id={id}")
     @Operation(
-        summary = "Adds a user to a specific finance group",
+        summary = "Edits a user's finance group",
         description = "Modifies the finance group attribute of a user, using the id provided and the group name. Returns the user on success"
     )
     /** 
    * DESCRIPTION
    * 
    * @param user the id of the user to be added to the finance group
+   * @param id the id of the finance group that the user is being added to
    * @return the user to be modified with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
-    public FinanceGroup addUserToGroup(){
+    public ResponseEntity<?> editUserGroup(@PathVariable("user") Integer user, @PathVariable("id") Integer id){
         // custom
         // addUserToGroup(user, group): bool
         //     INPUT: Adds a specific user to a group
@@ -137,30 +142,35 @@ public class FinanceGroupController {
 
         // modify finGroup column of users table - will have to add finGroup col to do this
         // return updated user
-        return new FinanceGroup();
+        Optional<FinanceGroup> financeGroupOptional = this.financeGroupRepository.findById(id);
+        if (!financeGroupOptional.isPresent()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: Invalid FinanceGroup id: " + id.toString() );
+        }
+
+        FinanceGroup financeGroup = financeGroupOptional.get();
+
+        // get the user
+        Optional<FinUser> finUserToUpdateOptional = this.finUserRepository.findById(user);
+        if (!finUserToUpdateOptional.isPresent()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: Invalid user id: " + user.toString() );
+        }
+
+        FinUser finUserToUpdate = finUserToUpdateOptional.get();
+
+        finUserToUpdate.setFinGroup(financeGroup.getTitle());
+        
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.finUserRepository.save(finUserToUpdate));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to update financeUser");
+        }
     }
 
-    @PutMapping("/remove_user/user={user}")
-    @Operation(
-        summary = "Deletes a user from a specific finance group",
-        description = "Modifies the finance group attribute of a user, using the id provided. Returns the user on success"
-    )
-    /** 
-   * DESCRIPTION
-   * 
-   * @param user the id of the user to be added to a finance group
-   * @return returns the user to be modified with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
-  */
-    public FinanceGroup removeUserFromGroup(){
-        // custom
-        // removeUserFromGroup(user, group): bool
-        //     Removes a specific user from a group
-        //     OUTPUT: The updated User
-
-        // modify finGroup column of users table - will have to add finGroup col to do this
-        // return updated user
-        return new FinanceGroup();
-    }
 
     @PostMapping("/create_group")
     @Operation(
@@ -188,6 +198,62 @@ public class FinanceGroupController {
             .body("Error: unable to create finance group: " + financeGroup.toString() );
         }
 
+    }
+
+    @PutMapping("/edit_group")
+    @Operation(
+        summary = "Edits an existing finance group",
+        description = "Modifies the finance group specified using the id provided. Returns the updated finance group on success"
+    )
+    /** 
+   * DESCRIPTION
+   * 
+   * @param id the id of the finance group that the user is being added to
+   * @param financeGroup a financeGroup object that is used to update a finance group
+   * @return the user to be modified with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
+  */
+    public ResponseEntity<?> editFinGroup(@PathVariable("id") Integer id, @RequestBody FinanceGroup financeGroup){
+        // custom
+        // addUserToGroup(user, group): bool
+        //     INPUT: Adds a specific user to a group
+        //     OUTPUT: The updated User
+
+        // modify finGroup column of users table - will have to add finGroup col to do this
+        // return updated user
+        Optional<FinanceGroup> financeGroupToUpdateOptional = this.financeGroupRepository.findById(id);
+        if (!financeGroupToUpdateOptional.isPresent()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: Invalid FinanceGroup id: " + id.toString() );
+        }
+
+        FinanceGroup financeGroupToUpdate = financeGroupToUpdateOptional.get();
+        if (financeGroup.getTitle() != null){
+            financeGroupToUpdate.setTitle(financeGroup.getTitle());
+        }
+        if (financeGroup.getDeleted() != null){
+            financeGroupToUpdate.setDeleted(financeGroup.getDeleted());
+        }
+        if (financeGroup.getRead() != null){
+            financeGroupToUpdate.setRead(financeGroup.getRead());
+        }
+        if (financeGroup.getWrite() != null){
+            financeGroupToUpdate.setWrite(financeGroup.getWrite());
+        }
+        if (financeGroup.getDelete() != null){
+            financeGroupToUpdate.setDelete(financeGroup.getDelete());
+        }
+        if (financeGroup.getRequests() != null){
+            financeGroupToUpdate.setRequests(financeGroup.getRequests());
+        }
+        
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(this.financeGroupRepository.save(financeGroupToUpdate));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to update financeGroup");
+        }
     }
 
     @PutMapping("/remove_group/id={id}")
