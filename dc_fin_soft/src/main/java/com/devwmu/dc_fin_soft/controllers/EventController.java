@@ -433,6 +433,44 @@ public class EventController {
         }
     }
 
+    @DeleteMapping("/delete/id={id}")
+    /** 
+   * DESCRIPTION
+   * 
+   * @param id the id of the event you want to delete
+   * @return returns the deleted event with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
+  */
+    @Operation(
+        summary = "Deletes an event from the Events table",
+        description = "Deletes an event based on the id provided on success with a 200 response code and the deleted event. On error, returns an error response code and text explaining the error"
+    )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200", description = "Event was successfully deleted"),
+         @ApiResponse(responseCode = "500", description = "Unable to delete row")
+    })
+    public ResponseEntity<?> deleteEvent(@PathVariable("id") Integer id){
+        // deleteEvent(id): bool
+        //     INPUT: id: Integer - The id of the item to be deleted (from the database)
+        //     OUTPUT: deleted event
+        // sets the delete flag to be 1 
+        Optional<Event> eventToDeleteOptional = this.eventRepository.findById(id);
+        if (!eventToDeleteOptional.isPresent()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: invalid event id: " + id.toString()  );
+        }
+        Event deleteEvent = eventToDeleteOptional.get();
+        this.eventRepository.delete(deleteEvent);
+        
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(deleteEvent);
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to delete event");
+        }
+    }
+
     @PutMapping("/safe_delete/id={id}")
     /** 
    * DESCRIPTION
@@ -448,7 +486,7 @@ public class EventController {
          @ApiResponse(responseCode = "200", description = "All rows were successfully returned"),
          @ApiResponse(responseCode = "500", description = "Unable to modify row")
     })
-    public ResponseEntity<?> deleteEvent(@PathVariable("id") Integer id){
+    public ResponseEntity<?> safeDeleteEvent(@PathVariable("id") Integer id){
         // deleteEvent(id): bool
         //     INPUT: id: Integer - The id of the item to be deleted (from the database)
         //     OUTPUT: deleted event

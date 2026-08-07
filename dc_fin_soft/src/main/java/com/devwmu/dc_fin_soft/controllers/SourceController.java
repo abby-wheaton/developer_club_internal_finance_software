@@ -230,7 +230,7 @@ public class SourceController {
 
     }
 
-    @PutMapping("/delete/id={id}")
+    @PutMapping("/safe_delete/id={id}")
     @Operation(
         summary = "Deletes a source from the Sources table",
         description = "Modifies the deleted column of the source based on the id provided to be 1"
@@ -241,7 +241,7 @@ public class SourceController {
    * @param id the id of the source you want to set the deleted flag for
    * @return returns the updated source with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
-    public ResponseEntity<?> deleteSource(@PathVariable("id") Integer id){
+    public ResponseEntity<?> safeDeleteSource(@PathVariable("id") Integer id){
         Optional<Source> sourceToDeleteOptional = this.sourceRepository.findById(id);
         if (!sourceToDeleteOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -260,5 +260,43 @@ public class SourceController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body("Error: unable to update source");
         } 
+    }
+
+    @DeleteMapping("/delete/id={id}")
+    /** 
+   * DESCRIPTION
+   * 
+   * @param id the id of the source you want to delete
+   * @return returns the deleted source with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
+  */
+    @Operation(
+        summary = "Deletes an source from the Sources table",
+        description = "Deletes an source based on the id provided on success with a 200 response code and the deleted source. On error, returns an error response code and text explaining the error"
+    )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200", description = "Source was successfully deleted"),
+         @ApiResponse(responseCode = "500", description = "Unable to delete row")
+    })
+    public ResponseEntity<?> deleteSource(@PathVariable("id") Integer id){
+        // deleteSource(id): bool
+        //     INPUT: id: Integer - The id of the item to be deleted (from the database)
+        //     OUTPUT: deleted source
+        // sets the delete flag to be 1 
+        Optional<Source> sourceToDeleteOptional = this.sourceRepository.findById(id);
+        if (!sourceToDeleteOptional.isPresent()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: invalid source id: " + id.toString()  );
+        }
+        Source deleteSource = sourceToDeleteOptional.get();
+        this.sourceRepository.delete(deleteSource);
+        
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(deleteSource);
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to delete source");
+        }
     }
 }

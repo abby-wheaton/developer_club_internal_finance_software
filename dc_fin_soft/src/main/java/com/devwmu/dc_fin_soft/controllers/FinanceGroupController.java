@@ -11,6 +11,8 @@ import com.devwmu.dc_fin_soft.repositories.FinUserRepository;
 import com.devwmu.dc_fin_soft.repositories.FinanceGroupRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Optional;
@@ -256,7 +258,7 @@ public class FinanceGroupController {
         }
     }
 
-    @PutMapping("/remove_group/id={id}")
+    @PutMapping("/safe_delete_group/id={id}")
     @Operation(
         summary = "Removes a finance group",
         description = "Takes in the id of a Finance Group and sets the deleted column to 1. Returns the FinanceGroup object on success"
@@ -289,5 +291,45 @@ public class FinanceGroupController {
             .body("Error: unable to update finance group");
         } 
     }
+
+    @DeleteMapping("/delete_group/id={id}")
+    /** 
+   * DESCRIPTION
+   * 
+   * @param id the id of the financeGroup you want to delete
+   * @return returns the deleted financeGroup with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
+  */
+    @Operation(
+        summary = "Deletes an financeGroup from the FinanceGroups table",
+        description = "Deletes an financeGroup based on the id provided on success with a 200 response code and the deleted financeGroup. On error, returns an error response code and text explaining the error"
+    )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200", description = "FinanceGroup was successfully deleted"),
+         @ApiResponse(responseCode = "500", description = "Unable to delete row")
+    })
+    public ResponseEntity<?> deleteFinanceGroup(@PathVariable("id") Integer id){
+        // deleteFinanceGroup(id): bool
+        //     INPUT: id: Integer - The id of the item to be deleted (from the database)
+        //     OUTPUT: deleted financeGroup
+        // sets the delete flag to be 1 
+        Optional<FinanceGroup> financeGroupToDeleteOptional = this.financeGroupRepository.findById(id);
+        if (!financeGroupToDeleteOptional.isPresent()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: invalid financeGroup id: " + id.toString()  );
+        }
+        FinanceGroup deleteFinanceGroup = financeGroupToDeleteOptional.get();
+        this.financeGroupRepository.delete(deleteFinanceGroup);
+        
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(deleteFinanceGroup);
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to delete financeGroup");
+        }
+    }
+
+
 
 }

@@ -22,6 +22,82 @@ tags:
 - name: Event Controller
   description: This controller interacts with the Event table in various ways
 paths:
+  /sources/search:
+    put:
+      tags:
+      - Sources
+      summary: Filters through the sources based on specified values
+      description: "Takes in a JSON array, where each element is a Filter object consisting\
+        \ of the column to filter by, the operation to filter based on, and the desired\
+        \ value, and returns all of the rows in the Sources table which match the\
+        \ Filter objects"
+      operationId: filterSources
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/Filter"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /sources/safe_delete/id={id}:
+    put:
+      tags:
+      - Sources
+      summary: Deletes a source from the Sources table
+      description: Modifies the deleted column of the source based on the id provided
+        to be 1
+      operationId: safeDeleteSource
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /sources/edit/id={id}:
+    put:
+      tags:
+      - Sources
+      summary: Edits a source in the Sources table
+      description: "Takes in a JSON object and the id of the source to edit, and edits\
+        \ that Source in the Sources table with the new values provided. Returns the\
+        \ object on success"
+      operationId: editSource
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Source"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
   /requests/search:
     put:
       tags:
@@ -40,6 +116,28 @@ paths:
               items:
                 $ref: "#/components/schemas/Filter"
         required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /requests/safe_delete/id={id}:
+    put:
+      tags:
+      - Requests
+      summary: Deletes an request from the Requests table
+      description: Modifies the deleted column of the request based on the id provided
+        to be 1
+      operationId: safeDeleteRequest
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
       responses:
         "200":
           description: OK
@@ -76,28 +174,6 @@ paths:
             '*/*':
               schema:
                 type: object
-  /requests/delete/id={id}:
-    put:
-      tags:
-      - Requests
-      summary: Deletes an request from the Requests table
-      description: Modifies the deleted column of the request based on the id provided
-        to be 1
-      operationId: deleteRequest
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int32
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
   /requests/approve/id={id}_val={val}:
     put:
       tags:
@@ -114,6 +190,125 @@ paths:
           type: integer
           format: int32
       - name: val
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /groups/search:
+    put:
+      tags:
+      - Finance Groups
+      summary: Filters through finance groups based on specified values
+      description: "Takes in a JSON array, where each element is a Filter object consisting\
+        \ of the column to filter by, the operation to filter based on, and the desired\
+        \ value, and returns all of the rows in the Finance Group table which match\
+        \ the Filter objects"
+      operationId: filterFinanceGroups
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/Filter"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /groups/safe_delete_group/id={id}:
+    put:
+      tags:
+      - Finance Groups
+      summary: Removes a finance group
+      description: Takes in the id of a Finance Group and sets the deleted column
+        to 1. Returns the FinanceGroup object on success
+      operationId: removeGroup
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /groups/edit_user/user={user}/id={id}:
+    put:
+      tags:
+      - Finance Groups
+      summary: Edits a user's finance group
+      description: "Modifies the finance group attribute of a user, using the id provided\
+        \ and the group name. Returns the user on success"
+      operationId: editUserGroup
+      parameters:
+      - name: user
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /groups/edit_group:
+    put:
+      tags:
+      - Finance Groups
+      summary: Edits an existing finance group
+      description: Modifies the finance group specified using the id provided. Returns
+        the updated finance group on success
+      operationId: editFinGroup
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FinanceGroup"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /expense/safe_delete_{id}:
+    put:
+      tags:
+      - Expense Controller
+      summary: Deletes an expense from the Expenses table
+      description: Modifies the deleted column of the expense based on the id provided
+        to be 1
+      operationId: deleteItem
+      parameters:
+      - name: id
         in: path
         required: true
         schema:
@@ -323,28 +518,6 @@ paths:
             '*/*':
               schema:
                 type: object
-  /expense/item/delete_{id}:
-    put:
-      tags:
-      - Expense Controller
-      summary: Deletes an expense from the Expenses table
-      description: Modifies the deleted column of the expense based on the id provided
-        to be 1
-      operationId: deleteItem
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int32
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
   /expense/expenses/search:
     put:
       tags:
@@ -417,7 +590,7 @@ paths:
       description: "Modifies the deleted column of the event based on the id provided\
         \ to be 1 on success with a 200 response code. On error, returns an error\
         \ response code and text explaining the error"
-      operationId: deleteEvent
+      operationId: safeDeleteEvent
       parameters:
       - name: id
         in: path
@@ -579,47 +752,14 @@ paths:
             '*/*':
               schema:
                 type: object
-  /admin/sources/search:
-    put:
+  /sources/create:
+    post:
       tags:
       - Sources
-      summary: Filters through the sources based on specified values
-      description: "Takes in a JSON array, where each element is a Filter object consisting\
-        \ of the column to filter by, the operation to filter based on, and the desired\
-        \ value, and returns all of the rows in the Sources table which match the\
-        \ Filter objects"
-      operationId: filterSources
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: "#/components/schemas/Filter"
-        required: true
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
-  /admin/sources/edit/id={id}:
-    put:
-      tags:
-      - Sources
-      summary: Edits a source in the Sources table
-      description: "Takes in a JSON object and the id of the source to edit, and edits\
-        \ that Source in the Sources table with the new values provided. Returns the\
-        \ object on success"
-      operationId: editSource
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int32
+      summary: Adds a source to the Sources table
+      description: Takes in a JSON object and adds that source to the Sources table.
+        Returns the object on success
+      operationId: createSource
       requestBody:
         content:
           application/json:
@@ -633,105 +773,6 @@ paths:
             '*/*':
               schema:
                 type: object
-  /admin/sources/delete/id={id}:
-    put:
-      tags:
-      - Sources
-      summary: Deletes a source from the Sources table
-      description: Modifies the deleted column of the source based on the id provided
-        to be 1
-      operationId: deleteSource
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int32
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
-  /admin/groups/search:
-    put:
-      tags:
-      - Finance Groups
-      summary: Filters through finance groups based on specified values
-      description: "Takes in a JSON array, where each element is a Filter object consisting\
-        \ of the column to filter by, the operation to filter based on, and the desired\
-        \ value, and returns all of the rows in the Finance Group table which match\
-        \ the Filter objects"
-      operationId: filterFinanceGroups
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: "#/components/schemas/Filter"
-        required: true
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
-  /admin/groups/remove_user/user={user}:
-    put:
-      tags:
-      - Finance Groups
-      summary: Deletes a user from a specific finance group
-      description: "Modifies the finance group attribute of a user, using the id provided.\
-        \ Returns the user on success"
-      operationId: removeUserFromGroup
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/FinanceGroup"
-  /admin/groups/remove_group/id={id}:
-    put:
-      tags:
-      - Finance Groups
-      summary: Removes a finance group
-      description: Takes in the id of a Finance Group and sets the deleted column
-        to 1. Returns the FinanceGroup object on success
-      operationId: removeGroup
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int32
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
-  /admin/groups/add_user/user={user}:
-    put:
-      tags:
-      - Finance Groups
-      summary: Adds a user to a specific finance group
-      description: "Modifies the finance group attribute of a user, using the id provided\
-        \ and the group name. Returns the user on success"
-      operationId: addUserToGroup
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/FinanceGroup"
   /requests/request_status_updated:
     post:
       tags:
@@ -769,6 +810,27 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/Request"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /groups/create_group:
+    post:
+      tags:
+      - Finance Groups
+      summary: Adds a new finance group
+      description: Takes in a JSON representation of a FinanceGroup object and adds
+        it to the Finance Group table. Returns the FinanceGroup object on success
+      operationId: createGroup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FinanceGroup"
         required: true
       responses:
         "200":
@@ -1044,44 +1106,23 @@ paths:
             '*/*':
               schema:
                 type: object
-  /admin/sources/create:
-    post:
+  /sources/all:
+    get:
       tags:
       - Sources
-      summary: Adds a source to the Sources table
-      description: Takes in a JSON object and adds that source to the Sources table.
-        Returns the object on success
-      operationId: createSource
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Source"
-        required: true
+      summary: Retrives all of the sources
+      description: "Takes in no input, and returns all of the rows in the Sources\
+        \ table"
+      operationId: getAllSources
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Book successfully created
           content:
             '*/*':
               schema:
                 type: object
-  /admin/groups/create_group:
-    post:
-      tags:
-      - Finance Groups
-      summary: Adds a new finance group
-      description: Takes in a JSON representation of a FinanceGroup object and adds
-        it to the Finance Group table. Returns the FinanceGroup object on success
-      operationId: createGroup
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/FinanceGroup"
-        required: true
-      responses:
-        "200":
-          description: OK
+        "400":
+          description: Invalid input supplied
           content:
             '*/*':
               schema:
@@ -1094,6 +1135,21 @@ paths:
       description: "Takes in no input, and returns all of the rows in the Requests\
         \ table"
       operationId: getAllRequests
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /groups/all:
+    get:
+      tags:
+      - Finance Groups
+      summary: Retrives all of the finance groups
+      description: "Takes in no input, and returns all of the rows in the Finance\
+        \ Group table"
+      operationId: getAllFinanceGroups
       responses:
         "200":
           description: OK
@@ -1162,38 +1218,147 @@ paths:
             '*/*':
               schema:
                 type: object
-  /admin/sources/all:
-    get:
+  /sources/delete/id={id}:
+    delete:
       tags:
       - Sources
-      summary: Retrives all of the sources
-      description: "Takes in no input, and returns all of the rows in the Sources\
-        \ table"
-      operationId: getAllSources
-      responses:
-        "201":
-          description: Book successfully created
-          content:
-            '*/*':
-              schema:
-                type: object
-        "400":
-          description: Invalid input supplied
-          content:
-            '*/*':
-              schema:
-                type: object
-  /admin/groups/all:
-    get:
-      tags:
-      - Finance Groups
-      summary: Retrives all of the finance groups
-      description: "Takes in no input, and returns all of the rows in the Finance\
-        \ Group table"
-      operationId: getAllFinanceGroups
+      summary: Deletes an source from the Sources table
+      description: "Deletes an source based on the id provided on success with a 200\
+        \ response code and the deleted source. On error, returns an error response\
+        \ code and text explaining the error"
+      operationId: deleteSource
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
       responses:
         "200":
-          description: OK
+          description: Source was successfully deleted
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: Unable to delete row
+          content:
+            '*/*':
+              schema:
+                type: object
+  /requests/delete/id={id}:
+    delete:
+      tags:
+      - Requests
+      summary: Deletes an request from the Requests table
+      description: "Deletes an request based on the id provided on success with a\
+        \ 200 response code and the deleted request. On error, returns an error response\
+        \ code and text explaining the error"
+      operationId: deleteRequest
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: Request was successfully deleted
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: Unable to delete row
+          content:
+            '*/*':
+              schema:
+                type: object
+  /groups/delete_group/id={id}:
+    delete:
+      tags:
+      - Finance Groups
+      summary: Deletes an financeGroup from the FinanceGroups table
+      description: "Deletes an financeGroup based on the id provided on success with\
+        \ a 200 response code and the deleted financeGroup. On error, returns an error\
+        \ response code and text explaining the error"
+      operationId: deleteFinanceGroup
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: FinanceGroup was successfully deleted
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: Unable to delete row
+          content:
+            '*/*':
+              schema:
+                type: object
+  /expense/delete/id={id}:
+    delete:
+      tags:
+      - Expense Controller
+      summary: Deletes an event from the Expenses table
+      description: "Deletes an event based on the id provided on success with a 200\
+        \ response code and the deleted event. On error, returns an error response\
+        \ code and text explaining the error"
+      operationId: deleteExpense
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: Expense was successfully deleted
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: Unable to delete row
+          content:
+            '*/*':
+              schema:
+                type: object
+  /event/delete/id={id}:
+    delete:
+      tags:
+      - Event Controller
+      summary: Deletes an event from the Events table
+      description: "Deletes an event based on the id provided on success with a 200\
+        \ response code and the deleted event. On error, returns an error response\
+        \ code and text explaining the error"
+      operationId: deleteEvent
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: Event was successfully deleted
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: Unable to delete row
           content:
             '*/*':
               schema:
@@ -1219,6 +1384,51 @@ components:
       - col
       - op
       - val
+    Source:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the source
+          example: WSA
+        type:
+          type: string
+          description: What type the source is
+          example: Event
+        internal:
+          type: integer
+          format: int32
+          description: A flag for if the source is internal or external
+          example: 0
+        moneyCap:
+          type: number
+          description: What the cap on money spent is for this source
+          example: 8000
+        spent:
+          type: number
+          description: How much money has already been spent for this source
+          example: 1000
+        budgeted:
+          type: number
+          description: How much money has been budgeted for for this source
+          example: 1500
+        available:
+          type: number
+          description: How much money is avaiable for this source
+          example: 6500
+        deleted:
+          type: integer
+          format: int32
+          description: A flag for if this source is deleted or not
+          example: 0
+      required:
+      - available
+      - budgeted
+      - deleted
+      - internal
+      - moneyCap
+      - name
+      - spent
     Request:
       type: object
       properties:
@@ -1275,6 +1485,52 @@ components:
       - purpose
       - quantity
       - requesteeUser
+    FinanceGroup:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        title:
+          type: string
+          description: The title of the finance group
+          example: Admin
+        deleted:
+          type: integer
+          format: int32
+          description: A flag for if this finance group is deleted or not
+          example: 1
+        read:
+          type: integer
+          format: int32
+          description: A flag for if this finance group has general permission to
+            read
+          example: 1
+        write:
+          type: integer
+          format: int32
+          description: A flag for if this finance group has general permission to
+            write
+          example: 1
+        delete:
+          type: integer
+          format: int32
+          description: A flag for if this finance group has general permission to
+            delete
+          example: 1
+        requests:
+          type: integer
+          format: int32
+          description: A flag for if this finance group has permission to read/write/delete
+            their own requests
+          example: 1
+      required:
+      - delete
+      - deleted
+      - read
+      - requests
+      - title
+      - write
     Expense:
       type: object
       properties:
@@ -1476,69 +1732,6 @@ components:
       - location
       - name
       - philanthropyFlag
-    Source:
-      type: object
-      properties:
-        name:
-          type: string
-          description: The name of the source
-          example: WSA
-        type:
-          type: string
-          description: What type the source is
-          example: Event
-        internal:
-          type: integer
-          format: int32
-          description: A flag for if the source is internal or external
-          example: 0
-        moneyCap:
-          type: number
-          description: What the cap on money spent is for this source
-          example: 8000
-        spent:
-          type: number
-          description: How much money has already been spent for this source
-          example: 1000
-        budgeted:
-          type: number
-          description: How much money has been budgeted for for this source
-          example: 1500
-        available:
-          type: number
-          description: How much money is avaiable for this source
-          example: 6500
-        deleted:
-          type: integer
-          format: int32
-          description: A flag for if this source is deleted or not
-          example: 0
-      required:
-      - available
-      - budgeted
-      - deleted
-      - internal
-      - moneyCap
-      - name
-      - spent
-    FinanceGroup:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        title:
-          type: string
-          description: The title of the finance group
-          example: Admin
-        deleted:
-          type: integer
-          format: int32
-          description: A flag for if this finance group is deleted or not
-          example: 1
-      required:
-      - deleted
-      - title
     AmountRequested:
       type: object
       properties:

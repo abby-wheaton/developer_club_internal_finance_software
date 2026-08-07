@@ -494,7 +494,7 @@ public class ExpenseController {
         }     
     }
 
-    @PutMapping("/item/delete_{id}")
+    @PutMapping("/safe_delete_{id}")
     @Operation(
         summary = "Deletes an expense from the Expenses table",
         description = "Modifies the deleted column of the expense based on the id provided to be 1"
@@ -521,6 +521,44 @@ public class ExpenseController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body("Error: unable to update expense");
         }    
+    }
+
+    @DeleteMapping("/delete/id={id}")
+    /** 
+   * DESCRIPTION
+   * 
+   * @param id the id of the event you want to delete
+   * @return returns the deleted event with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
+  */
+    @Operation(
+        summary = "Deletes an event from the Expenses table",
+        description = "Deletes an event based on the id provided on success with a 200 response code and the deleted event. On error, returns an error response code and text explaining the error"
+    )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200", description = "Expense was successfully deleted"),
+         @ApiResponse(responseCode = "500", description = "Unable to delete row")
+    })
+    public ResponseEntity<?> deleteExpense(@PathVariable("id") Integer id){
+        // deleteExpense(id): bool
+        //     INPUT: id: Integer - The id of the item to be deleted (from the database)
+        //     OUTPUT: deleted expense
+        // sets the delete flag to be 1 
+        Optional<Expense> expenseToDeleteOptional = this.expenseRepository.findById(id);
+        if (!expenseToDeleteOptional.isPresent()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: invalid expense id: " + id.toString()  );
+        }
+        Expense deleteExpense = expenseToDeleteOptional.get();
+        this.expenseRepository.delete(deleteExpense);
+        
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(deleteExpense);
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to delete expense");
+        }
     }
 
     @ApiResponses(value = {

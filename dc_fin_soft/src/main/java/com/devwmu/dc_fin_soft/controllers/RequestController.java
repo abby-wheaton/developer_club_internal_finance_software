@@ -11,6 +11,8 @@ import com.devwmu.dc_fin_soft.entities.Request;
 import com.devwmu.dc_fin_soft.repositories.RequestRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.time.LocalDateTime;
@@ -265,7 +267,7 @@ public class RequestController {
         }
     }
 
-    @PutMapping("/delete/id={id}")
+    @PutMapping("/safe_delete/id={id}")
     @Operation(
         summary = "Deletes an request from the Requests table",
         description = "Modifies the deleted column of the request based on the id provided to be 1"
@@ -276,7 +278,7 @@ public class RequestController {
    * @param id the id of the request you want to set the deleted flag for
    * @return returns the updated request with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
-    public ResponseEntity<?> deleteRequest(@PathVariable("id") Integer id){
+    public ResponseEntity<?> safeDeleteRequest(@PathVariable("id") Integer id){
 
         // sets the deleted flag to be 1
         Optional<Request> requestToUpdateOptional = this.requestRepository.findById(id);
@@ -294,6 +296,44 @@ public class RequestController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body("Error: unable to update request");
         } 
+    }
+
+    @DeleteMapping("/delete/id={id}")
+    /** 
+   * DESCRIPTION
+   * 
+   * @param id the id of the request you want to delete
+   * @return returns the deleted request with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
+  */
+    @Operation(
+        summary = "Deletes an request from the Requests table",
+        description = "Deletes an request based on the id provided on success with a 200 response code and the deleted request. On error, returns an error response code and text explaining the error"
+    )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200", description = "Request was successfully deleted"),
+         @ApiResponse(responseCode = "500", description = "Unable to delete row")
+    })
+    public ResponseEntity<?> deleteRequest(@PathVariable("id") Integer id){
+        // deleteRequest(id): bool
+        //     INPUT: id: Integer - The id of the item to be deleted (from the database)
+        //     OUTPUT: deleted request
+        // sets the delete flag to be 1 
+        Optional<Request> requestToDeleteOptional = this.requestRepository.findById(id);
+        if (!requestToDeleteOptional.isPresent()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: invalid request id: " + id.toString()  );
+        }
+        Request deleteRequest = requestToDeleteOptional.get();
+        this.requestRepository.delete(deleteRequest);
+        
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(deleteRequest);
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to delete request");
+        }
     }
 
 
