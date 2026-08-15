@@ -15,6 +15,8 @@ import com.devwmu.dc_fin_soft.repositories.EventRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -54,9 +56,21 @@ public class EventController {
         description = "Takes in a JSON array, where each element is a Filter object consisting of the column to filter by, the operation to filter based on, and the desired value, and returns all of the rows in the Events table which match the Filter objects on success with a 200 response code. On error, returns an error response code and text explaining the error"
     )
     @ApiResponses(value = {
-         @ApiResponse(responseCode = "200", description = "All filters successfully applied and returned the filtered rows"),
-         @ApiResponse(responseCode = "400", description = "No/wrong type of value provided for a column"),
-         @ApiResponse(responseCode = "403", description = "Not allowed to use that operator with that column")
+         @ApiResponse(responseCode = "200",
+            description = "All filters successfully applied and returned the filtered rows",
+            content = {@Content(mediaType = "application/json",
+            array = @ArraySchema(schema = @Schema(implementation = Event.class)),
+            examples = @ExampleObject(value = "[{\"conferenceFlag\":1,\"date\":\"2026-05-23T05:00:00\",\"deleted\":0,\"estAttendance\":25,\"feeFlag\":0,\"id\":2,\"location\":\"my house\",\"name\":\"Abby\",\"philanthropyFlag\":0}]"))}),
+         @ApiResponse(responseCode = "400",
+            description = "No/wrong type of value provided for a column",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: non-number value passed with GREATER THAN OR EQUAL TO operator"))}),
+         @ApiResponse(responseCode = "403",
+             description = "Not allowed to use that operator with that column",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: invalid column: name passed with EQUAL operator. Pass this with LIKE operator"))})
     })
     @PutMapping("/search")
     /** 
@@ -186,8 +200,17 @@ public class EventController {
         description = "Takes in no input, and returns all of the rows in the Events table on success with a 200 response code. On error, returns an error response code and text explaining the error"
     )
     @ApiResponses(value = {
-         @ApiResponse(responseCode = "200", description = "All rows were successfully returned"),
-         @ApiResponse(responseCode = "500", description = "Unable to retrieve rows")
+         @ApiResponse(responseCode = "200",
+            description = "All rows were successfully returned",
+            content = {@Content(mediaType = "application/json",
+            array = @ArraySchema(schema = @Schema(implementation = Event.class)),
+            examples = @ExampleObject(value = "[{\"conferenceFlag\":1,\"date\":\"2026-05-23T05:00:00\",\"deleted\":0,\"estAttendance\":25,\"feeFlag\":0,\"id\":2,\"location\":\"my house\",\"name\":\"Abby\",\"philanthropyFlag\":0}]"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to retrieve rows",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to retrieve all events"))}
+         )
     })
     /** 
    * DESCRIPTION
@@ -214,8 +237,16 @@ public class EventController {
         description = "Takes in a JSON object and adds that Event to the Events table. Returns the object on success with a 200 response code. On error, returns an error response code and text explaining the error"
     )
     @ApiResponses(value = {
-         @ApiResponse(responseCode = "200", description = "All rows were successfully returned"),
-         @ApiResponse(responseCode = "500", description = "Unable to create row")
+         @ApiResponse(responseCode = "200",
+            description = "Event was successfully returned",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Event.class),
+            examples = @ExampleObject(value = "{\"conferenceFlag\":1,\"date\":\"2026-05-23T05:00:00\",\"deleted\":0,\"estAttendance\":25,\"feeFlag\":0,\"id\":2,\"location\":\"my house\",\"name\":\"Abby\",\"philanthropyFlag\":0}"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to create row",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to create event: {\"conferenceFlag\":1,\"date\":\"2026-05-23T05:00:00\",\"deleted\":0,\"estAttendance\":25,\"feeFlag\":0,\"id\":2,\"location\":\"my house\",\"name\":\"Abby\",\"philanthropyFlag\":0}"))})
     })
     /** 
    * DESCRIPTION
@@ -242,12 +273,25 @@ public class EventController {
 
     @PutMapping("/edit/id={id}")
     @Operation(
-        summary = "Edits a calandar event in the Events table",
+        summary = "Edits an event in the Events table",
         description = "Takes in a JSON object and the id of the event to edit, and edits that Event in the Events table with the new values provided. Returns the object on success with a 200 response code. On error, returns an error response code and text explaining the error"
     )
     @ApiResponses(value = {
-         @ApiResponse(responseCode = "200", description = "All rows were successfully returned"),
-         @ApiResponse(responseCode = "500", description = "Unable to modify row")
+         @ApiResponse(responseCode = "200",
+            description = "The event was successfully modified",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Event.class),
+            examples = @ExampleObject(value = "{\"conferenceFlag\":1,\"date\":\"2026-05-23T05:00:00\",\"deleted\":0,\"estAttendance\":25,\"feeFlag\":0,\"id\":2,\"location\":\"my house\",\"name\":\"Abby\",\"philanthropyFlag\":0}"))}),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid Event id",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Invalid event id: 2"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to update event",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to update event"))})
     })
     /** 
    * DESCRIPTION
@@ -309,8 +353,21 @@ public class EventController {
         description = "Using the id provided, it will toggle the feeFlag for an event to either 1 or 0 on success with a 200 response code. On error, returns an error response code and text explaining the error"
     )
     @ApiResponses(value = {
-         @ApiResponse(responseCode = "200", description = "All rows were successfully returned"),
-         @ApiResponse(responseCode = "500", description = "Unable to modify row")
+         @ApiResponse(responseCode = "200",
+            description = "The event was successfully modified",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Event.class),
+            examples = @ExampleObject(value = "{\"conferenceFlag\":1,\"date\":\"2026-05-23T05:00:00\",\"deleted\":0,\"estAttendance\":25,\"feeFlag\":0,\"id\":2,\"location\":\"my house\",\"name\":\"Abby\",\"philanthropyFlag\":0}"))}),
+         @ApiResponse(responseCode = "400",
+            description = "Invalid Event id",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Invalid event id: 2"))}),
+        @ApiResponse(responseCode = "500",
+            description = "Unable to update event",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to update event"))})
     })
     /** 
    * DESCRIPTION
@@ -353,8 +410,21 @@ public class EventController {
         description = "Using the id provided, it will toggle the philanthropyFlag for an event to either 1 or 0 on success with a 200 response code. On error, returns an error response code and text explaining the error"
     )
     @ApiResponses(value = {
-         @ApiResponse(responseCode = "200", description = "All rows were successfully returned"),
-         @ApiResponse(responseCode = "500", description = "Unable to modify row")
+         @ApiResponse(responseCode = "200",
+            description = "The event was successfully modified",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Event.class),
+            examples = @ExampleObject(value = "{\"conferenceFlag\":1,\"date\":\"2026-05-23T05:00:00\",\"deleted\":0,\"estAttendance\":25,\"feeFlag\":0,\"id\":2,\"location\":\"my house\",\"name\":\"Abby\",\"philanthropyFlag\":0}"))}),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid Event id",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Invalid event id: 2"))}),
+        @ApiResponse(responseCode = "500",
+            description = "Unable to update event",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to update event"))})
     })
     /** 
    * DESCRIPTION
@@ -395,8 +465,21 @@ public class EventController {
         description = "Using the id provided, it will toggle the conferenceFlag for an event to either 1 or 0 on success with a 200 response code. On error, returns an error response code and text explaining the error"
     )
     @ApiResponses(value = {
-         @ApiResponse(responseCode = "200", description = "All rows were successfully returned"),
-         @ApiResponse(responseCode = "500", description = "Unable to modify row")
+         @ApiResponse(responseCode = "200",
+            description = "The event was successfully modified",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Event.class),
+            examples = @ExampleObject(value = "{\"conferenceFlag\":1,\"date\":\"2026-05-23T05:00:00\",\"deleted\":0,\"estAttendance\":25,\"feeFlag\":0,\"id\":2,\"location\":\"my house\",\"name\":\"Abby\",\"philanthropyFlag\":0}"))}),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid Event id",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Invalid event id: 2"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to update event",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to update event"))})
     })
     /** 
    * DESCRIPTION
@@ -445,8 +528,21 @@ public class EventController {
         description = "Deletes an event based on the id provided on success with a 200 response code and the deleted event. On error, returns an error response code and text explaining the error"
     )
     @ApiResponses(value = {
-         @ApiResponse(responseCode = "200", description = "Event was successfully deleted"),
-         @ApiResponse(responseCode = "500", description = "Unable to delete row")
+         @ApiResponse(responseCode = "200",
+            description = "The event was successfully deleted",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Event.class),
+            examples = @ExampleObject(value = "{\"conferenceFlag\":1,\"date\":\"2026-05-23T05:00:00\",\"deleted\":0,\"estAttendance\":25,\"feeFlag\":0,\"id\":2,\"location\":\"my house\",\"name\":\"Abby\",\"philanthropyFlag\":0}"))}),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid Event id",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Invalid event id: 2"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to delete event",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to delete event"))})
     })
     public ResponseEntity<?> deleteEvent(@PathVariable("id") Integer id){
         // deleteEvent(id): bool
@@ -482,9 +578,23 @@ public class EventController {
         summary = "Deletes an event from the Events table",
         description = "Modifies the deleted column of the event based on the id provided to be 1 on success with a 200 response code. On error, returns an error response code and text explaining the error"
     )
+    
     @ApiResponses(value = {
-         @ApiResponse(responseCode = "200", description = "All rows were successfully returned"),
-         @ApiResponse(responseCode = "500", description = "Unable to modify row")
+         @ApiResponse(responseCode = "200",
+            description = "The event was successfully safe deleted",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Event.class),
+            examples = @ExampleObject(value = "{\"conferenceFlag\":1,\"date\":\"2026-05-23T05:00:00\",\"deleted\":0,\"estAttendance\":25,\"feeFlag\":0,\"id\":2,\"location\":\"my house\",\"name\":\"Abby\",\"philanthropyFlag\":0}"))}),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid Event id",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Invalid event id: 2"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to delete event",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to update event"))})
     })
     public ResponseEntity<?> safeDeleteEvent(@PathVariable("id") Integer id){
         // deleteEvent(id): bool
@@ -515,14 +625,27 @@ public class EventController {
     )
     @ApiResponses(value = {
          @ApiResponse(responseCode = "200",
-          description = "Form was successfully created and returned"),
-         @ApiResponse(responseCode = "400", description = "Incorrect type provided to amount requested",
+            description = "Form was successfully created and returned",
+            content = {@Content(mediaType = "application/octet-stream",
+            schema = @Schema(type = "string", format = "binary"),
+            examples = @ExampleObject(value = "file.xlsx"))}),
+         @ApiResponse(responseCode = "400",
+            description = "Incorrect type provided to amount requested",
             content = {@Content(mediaType = "text/plain",
-            schema = @io.swagger.v3.oas.annotations.media.Schema(type = "string"),
+            schema = @Schema(type = "string"),
             examples = @ExampleObject(value = "Error: Incorrect type passed to amount requested for amount requested"))}
          ),
-         @ApiResponse(responseCode = "404", description = "Invalid event id provided | file not found"),
-         @ApiResponse(responseCode = "500", description = "Failure to open/delete/write to file")
+         @ApiResponse(responseCode = "404",
+            description = "Invalid event id provided or file not found", 
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: invalid event id: 1"))}),
+         @ApiResponse(responseCode = "500", 
+            description = "Failure to open/delete/write to file",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to create new form"))}
+         )
     })
     /** 
    * DESCRIPTION
@@ -765,10 +888,28 @@ public class EventController {
         description = "Takes in the id of the event, an array of amount requested objects, and several strings to represent club information, and returns the filled in excel form on success with a 200 response code. On error, returns an error response code and text explaining the error"
     )
     @ApiResponses(value = {
-         @ApiResponse(responseCode = "200", description = "Form was successfully created and returned"),
-         @ApiResponse(responseCode = "400", description = "Incorrect type provided to amount requested"),
-         @ApiResponse(responseCode = "404", description = "Invalid event id provided | file not found"),
-         @ApiResponse(responseCode = "500", description = "Failure to open/delete/write to file")
+         @ApiResponse(responseCode = "200",
+            description = "Form was successfully created and returned",
+            content = {@Content(mediaType = "application/octet-stream",
+            schema = @Schema(type = "string", format = "binary"),
+            examples = @ExampleObject(value = "file.xlsx"))}),
+         @ApiResponse(responseCode = "400",
+            description = "Incorrect type provided to amount requested",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Incorrect type passed to amount requested for amount requested"))}
+         ),
+         @ApiResponse(responseCode = "404",
+            description = "Invalid event id provided or file not found", 
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: invalid event id: 1"))}),
+         @ApiResponse(responseCode = "500", 
+            description = "Failure to open/delete/write to file",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to create new form"))}
+         )
     })
     /** 
    * DESCRIPTION

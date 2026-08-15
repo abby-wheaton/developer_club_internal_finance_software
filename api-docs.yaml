@@ -567,21 +567,37 @@ paths:
           description: All filters successfully applied and returned the filtered
             rows
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                type: array
+                items:
+                  $ref: "#/components/schemas/Event"
+              example:
+              - conferenceFlag: 1
+                date: 2026-05-23T05:00:00
+                deleted: 0
+                estAttendance: 25
+                feeFlag: 0
+                id: 2
+                location: my house
+                name: Abby
+                philanthropyFlag: 0
         "400":
           description: No/wrong type of value provided for a column
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: non-number value passed with GREATER THAN OR EQUAL\
+                \ TO operator"
         "403":
           description: Not allowed to use that operator with that column
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: invalid column: name passed with EQUAL operator. Pass\
+                \ this with LIKE operator"
   /event/safe_delete/id={id}:
     put:
       tags:
@@ -600,17 +616,35 @@ paths:
           format: int32
       responses:
         "200":
-          description: All rows were successfully returned
+          description: The event was successfully safe deleted
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Event"
+              example:
+                conferenceFlag: 1
+                date: 2026-05-23T05:00:00
+                deleted: 0
+                estAttendance: 25
+                feeFlag: 0
+                id: 2
+                location: my house
+                name: Abby
+                philanthropyFlag: 0
+        "400":
+          description: Invalid Event id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid event id: 2"
         "500":
-          description: Unable to modify row
+          description: Unable to delete event
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: unable to update event"
   /event/phil_flag/id={id}_val=_{val}:
     put:
       tags:
@@ -635,17 +669,35 @@ paths:
           format: int32
       responses:
         "200":
-          description: All rows were successfully returned
+          description: The event was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Event"
+              example:
+                conferenceFlag: 1
+                date: 2026-05-23T05:00:00
+                deleted: 0
+                estAttendance: 25
+                feeFlag: 0
+                id: 2
+                location: my house
+                name: Abby
+                philanthropyFlag: 0
+        "400":
+          description: Invalid Event id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid event id: 2"
         "500":
-          description: Unable to modify row
+          description: Unable to update event
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: unable to update event"
   /event/fee_flag/id={id}_val={val}:
     put:
       tags:
@@ -670,22 +722,40 @@ paths:
           format: int32
       responses:
         "200":
-          description: All rows were successfully returned
+          description: The event was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Event"
+              example:
+                conferenceFlag: 1
+                date: 2026-05-23T05:00:00
+                deleted: 0
+                estAttendance: 25
+                feeFlag: 0
+                id: 2
+                location: my house
+                name: Abby
+                philanthropyFlag: 0
+        "400":
+          description: Invalid Event id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid event id: 2"
         "500":
-          description: Unable to modify row
+          description: Unable to update event
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: unable to update event"
   /event/edit/id={id}:
     put:
       tags:
       - Event Controller
-      summary: Edits a calandar event in the Events table
+      summary: Edits an event in the Events table
       description: "Takes in a JSON object and the id of the event to edit, and edits\
         \ that Event in the Events table with the new values provided. Returns the\
         \ object on success with a 200 response code. On error, returns an error response\
@@ -706,17 +776,35 @@ paths:
         required: true
       responses:
         "200":
-          description: All rows were successfully returned
+          description: The event was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Event"
+              example:
+                conferenceFlag: 1
+                date: 2026-05-23T05:00:00
+                deleted: 0
+                estAttendance: 25
+                feeFlag: 0
+                id: 2
+                location: my house
+                name: Abby
+                philanthropyFlag: 0
+        "400":
+          description: Invalid Event id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid event id: 2"
         "500":
-          description: Unable to modify row
+          description: Unable to update event
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: unable to update event"
   /event/conf_flag/id={id}_val={val}:
     put:
       tags:
@@ -741,17 +829,35 @@ paths:
           format: int32
       responses:
         "200":
-          description: All rows were successfully returned
+          description: The event was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Event"
+              example:
+                conferenceFlag: 1
+                date: 2026-05-23T05:00:00
+                deleted: 0
+                estAttendance: 25
+                feeFlag: 0
+                id: 2
+                location: my house
+                name: Abby
+                philanthropyFlag: 0
+        "400":
+          description: Invalid Event id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid event id: 2"
         "500":
-          description: Unable to modify row
+          description: Unable to update event
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: unable to update event"
   /sources/create:
     post:
       tags:
@@ -980,9 +1086,11 @@ paths:
         "200":
           description: Form was successfully created and returned
           content:
-            '*/*':
+            application/octet-stream:
               schema:
-                type: object
+                type: string
+                format: binary
+              example: file.xlsx
         "400":
           description: Incorrect type provided to amount requested
           content:
@@ -992,17 +1100,19 @@ paths:
               example: "Error: Incorrect type passed to amount requested for amount\
                 \ requested"
         "404":
-          description: Invalid event id provided | file not found
+          description: Invalid event id provided or file not found
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: invalid event id: 1"
         "500":
           description: Failure to open/delete/write to file
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: unable to create new form"
   /event/create:
     post:
       tags:
@@ -1020,17 +1130,31 @@ paths:
         required: true
       responses:
         "200":
-          description: All rows were successfully returned
+          description: Event was successfully returned
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Event"
+              example:
+                conferenceFlag: 1
+                date: 2026-05-23T05:00:00
+                deleted: 0
+                estAttendance: 25
+                feeFlag: 0
+                id: 2
+                location: my house
+                name: Abby
+                philanthropyFlag: 0
         "500":
           description: Unable to create row
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: unable to create event: {\"conferenceFlag\":1,\"date\"\
+                :\"2026-05-23T05:00:00\",\"deleted\":0,\"estAttendance\":25,\"feeFlag\"\
+                :0,\"id\":2,\"location\":\"my house\",\"name\":\"Abby\",\"philanthropyFlag\"\
+                :0}"
   /event/conference_allocation_form/id={id}:
     post:
       tags:
@@ -1085,27 +1209,33 @@ paths:
         "200":
           description: Form was successfully created and returned
           content:
-            '*/*':
+            application/octet-stream:
               schema:
-                type: object
+                type: string
+                format: binary
+              example: file.xlsx
         "400":
           description: Incorrect type provided to amount requested
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: Incorrect type passed to amount requested for amount\
+                \ requested"
         "404":
-          description: Invalid event id provided | file not found
+          description: Invalid event id provided or file not found
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: invalid event id: 1"
         "500":
           description: Failure to open/delete/write to file
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: unable to create new form"
   /sources/all:
     get:
       tags:
@@ -1209,15 +1339,28 @@ paths:
         "200":
           description: All rows were successfully returned
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                type: array
+                items:
+                  $ref: "#/components/schemas/Event"
+              example:
+              - conferenceFlag: 1
+                date: 2026-05-23T05:00:00
+                deleted: 0
+                estAttendance: 25
+                feeFlag: 0
+                id: 2
+                location: my house
+                name: Abby
+                philanthropyFlag: 0
         "500":
           description: Unable to retrieve rows
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: unable to retrieve all events"
   /sources/delete/id={id}:
     delete:
       tags:
@@ -1352,17 +1495,35 @@ paths:
           format: int32
       responses:
         "200":
-          description: Event was successfully deleted
+          description: The event was successfully deleted
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Event"
+              example:
+                conferenceFlag: 1
+                date: 2026-05-23T05:00:00
+                deleted: 0
+                estAttendance: 25
+                feeFlag: 0
+                id: 2
+                location: my house
+                name: Abby
+                philanthropyFlag: 0
+        "400":
+          description: Invalid Event id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid event id: 2"
         "500":
-          description: Unable to delete row
+          description: Unable to delete event
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: unable to delete event"
 components:
   schemas:
     Filter:
