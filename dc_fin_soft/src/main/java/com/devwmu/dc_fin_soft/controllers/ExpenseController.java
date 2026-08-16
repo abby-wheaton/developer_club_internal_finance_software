@@ -2,6 +2,10 @@ package com.devwmu.dc_fin_soft.controllers;
 import com.devwmu.dc_fin_soft.repositories.ExpenseRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,11 +42,24 @@ public class ExpenseController {
         this.expenseRepository = expenseRepository;
     }
 
-    @GetMapping("/expenses")
+    @GetMapping("/all")
     @Operation(
         summary = "Retrieves all of the expenses",
         description = "Takes in no input, and returns all of the rows in the Expense table"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "All rows were successfully returned",
+            content = {@Content(mediaType = "application/json",
+            array = @ArraySchema(schema = @Schema(implementation = Expense.class)),
+            examples = @ExampleObject(value = "[{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":2,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":52,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":80.00,\"purpose\":\"need for x event\",\"quantity\":1,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":80.00,\"totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":2,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":53,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\":\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"}]"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to retrieve rows",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to retrieve all expenses"))}
+         )
+    })
     public ResponseEntity<?> getAllExpenses (){
         //     OUTPUT: all expenses
 
@@ -57,11 +74,28 @@ public class ExpenseController {
         }
     }
 
-    @PutMapping("/expenses/search")
+    @PutMapping("/search")
     @Operation(
         summary = "Filters through expenses based on specified values",
         description = "Takes in a JSON array, where each element is a Filter object consisting of the column to filter by, the operation to filter based on, and the desired value, and returns all of the rows in the Expenses table which match the Filter objects"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "All filters successfully applied and returned the filtered rows",
+            content = {@Content(mediaType = "application/json",
+            array = @ArraySchema(schema = @Schema(implementation = Expense.class)),
+            examples = @ExampleObject(value = "[{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":2,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":15.00,\"purpose\":\"need for x event\",\"quantity\":5,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":75.00,\"totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":1,\"id\":3,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\":\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"}]"))}),
+         @ApiResponse(responseCode = "400",
+            description = "No/wrong type of value provided for a column",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: non-number value passed with GREATER THAN OR EQUAL TO operator"))}),
+         @ApiResponse(responseCode = "403",
+             description = "Not allowed to use that operator with that column",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: invalid column: name passed with EQUAL operator. Pass this with LIKE operator"))})
+    })
     public ResponseEntity<?> filterExpenses(@RequestBody Filter[] filters){
         // filterExpenses(filterArray[]) ?
         //     Take an array of column names and the desired value, and output the selected SQL rows
@@ -168,11 +202,23 @@ public class ExpenseController {
                 .body(expenses);
     }
 
-    @PostMapping("/item")
+    @PostMapping("/create")
     @Operation(
         summary = "Adds an expense to the Expenses table",
         description = "Takes in a JSON object and adds that Expense to the Expenses table. Returns the object on success"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "Event was successfully returned",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Expense.class),
+            examples = @ExampleObject(value = "{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":2,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":15.00,\"purpose\":\"need for x event\",\"quantity\":5,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":75.00,\"totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":1,\"id\":3,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\":\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"}"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to create row",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to create expense: {\"conferenceFlag\":1,\"date\":\"2026-05-23T05:00:00\",\"deleted\":0,\"estAttendance\":25,\"feeFlag\":0,\"id\":2,\"location\":\"my house\",\"name\":\"Abby\",\"philanthropyFlag\":0}"))})
+    })
     public ResponseEntity<?> budgetItem(@RequestBody Expense expense){
         // budgetItem(name, qty, pricePerUnit, totalPrice, purpose, vendor, foodFlag, eventID, source, link, deadline, community, payment_type, pickup_location) bool
         //     Takes in info to create an entry in the Expenses table and outputs if successful
@@ -193,6 +239,23 @@ public class ExpenseController {
         summary = "Edits an expense in the Expenses table",
         description = "Takes in a JSON object and the id of the expense to edit, and edits that expense in the Expenses table with the new values provided. Returns the object on success"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "The expense was successfully modified",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Expense.class),
+            examples = @ExampleObject(value = "{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":2,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":15.00,\"purpose\":\"need for x event\",\"quantity\":5,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":75.00,\"totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":1,\"id\":3,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\":\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"}"))}),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid Expense id",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Invalid expense id: 2"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to update expense",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to update expense"))})
+    })
     public ResponseEntity<?> editItem(@PathVariable("id") Integer id, @RequestBody Expense expense){
         // editItem(id, editArray[]): bool
         //     The ID of the item and the array of columns to be changed
@@ -296,6 +359,24 @@ public class ExpenseController {
         summary = "Toggles the feeFlag for an expense",
         description = "Using the id provided, it will toggle the foodFlag for an expense to either 1 or 0"
     )
+    
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "The expense was successfully modified",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Expense.class),
+            examples = @ExampleObject(value = "{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":2,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":15.00,\"purpose\":\"need for x event\",\"quantity\":5,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":75.00,\"totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":1,\"id\":3,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\":\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"}"))}),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid Expense id",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Invalid expense id: 2"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to update expense",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to update expense"))})
+    })
     public ResponseEntity<?> FoodFlagItem(@PathVariable("id") Integer id, @PathVariable("num") Integer num) {
         // deleteItem(id): bool
         //     The id of the item to be updates (from display, not database)
@@ -329,6 +410,23 @@ public class ExpenseController {
         summary = "Toggles the requestedFlag for an expense",
         description = "Using the id provided, it will toggle the requestedFlag for an expense to either 1 or 0"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "The expense was successfully modified",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Expense.class),
+            examples = @ExampleObject(value = "{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":2,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":15.00,\"purpose\":\"need for x event\",\"quantity\":5,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":75.00,\"totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":1,\"id\":3,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\":\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"}"))}),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid Expense id",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Invalid expense id: 2"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to update expense",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to update expense"))})
+    })
     public ResponseEntity<?> requestedFlagItem(@PathVariable("id") Integer id, @PathVariable("num") Integer num) {
         // deleteItem(id): bool
         //     The id of the item to be updates (from display, not database)
@@ -397,6 +495,23 @@ public class ExpenseController {
         summary = "Toggles the finishedBuyingFlag for an expense",
         description = "Using the id provided, it will toggle the finishedBuyingFlag for an expense to either 1 or 0"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "The expense was successfully modified",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Expense.class),
+            examples = @ExampleObject(value = "{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":2,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":15.00,\"purpose\":\"need for x event\",\"quantity\":5,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":75.00,\"totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":1,\"id\":3,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\":\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"}"))}),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid Expense id",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Invalid expense id: 2"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to update expense",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to update expense"))})
+    })
     public ResponseEntity<?> fBuyingFlagItem(@PathVariable("id") Integer id, @PathVariable("num") Integer num) {
         // deleteItem(id): bool
         //     The id of the item to be updates (from display, not database)
@@ -431,6 +546,23 @@ public class ExpenseController {
         summary = "Toggles the pickedUpFlag for an expense",
         description = "Using the id provided, it will toggle the pickedUpFlag for an expense to either 1 or 0"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "The expense was successfully modified",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Expense.class),
+            examples = @ExampleObject(value = "{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":2,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":15.00,\"purpose\":\"need for x event\",\"quantity\":5,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":75.00,\"totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":1,\"id\":3,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\":\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"}"))}),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid Expense id",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Invalid expense id: 2"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to update expense",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to update expense"))})
+    })
     public ResponseEntity<?> pickedUpFlagItem(@PathVariable("id") Integer id, @PathVariable("num") Integer num) {
         // deleteItem(id): bool
         //     The id of the item to be updates (from display, not database)
@@ -465,6 +597,23 @@ public class ExpenseController {
         summary = "Toggles the reimbursedFlag for an expense",
         description = "Using the id provided, it will toggle the reimbursedFlag for an expense to either 1 or 0"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "The expense was successfully modified",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Expense.class),
+            examples = @ExampleObject(value = "{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":2,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":15.00,\"purpose\":\"need for x event\",\"quantity\":5,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":75.00,\"totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":1,\"id\":3,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\":\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"}"))}),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid Expense id",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Invalid expense id: 2"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to update expense",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to update expense"))})
+    })
     public ResponseEntity<?> reimbursedFlagItem(@PathVariable("id") Integer id, @PathVariable("num") Integer num) {
         // deleteItem(id): bool
         //     The id of the item to be updates (from display, not database)
@@ -499,6 +648,23 @@ public class ExpenseController {
         summary = "Deletes an expense from the Expenses table",
         description = "Modifies the deleted column of the expense based on the id provided to be 1"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "The expense was successfully modified",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Expense.class),
+            examples = @ExampleObject(value = "{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":2,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":15.00,\"purpose\":\"need for x event\",\"quantity\":5,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":75.00,\"totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":1,\"id\":3,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\":\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"}"))}),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid Expense id",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Invalid expense id: 2"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to update expense",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to update expense"))})
+    })
     public ResponseEntity<?> deleteItem(@PathVariable("id") Integer id) {
         // deleteItem(id): bool
         //     The id of the item to be deleted (from display, not database)
@@ -527,16 +693,29 @@ public class ExpenseController {
     /** 
    * DESCRIPTION
    * 
-   * @param id the id of the event you want to delete
-   * @return returns the deleted event with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
+   * @param id the id of the expense you want to delete
+   * @return returns the deleted expense with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
     @Operation(
-        summary = "Deletes an event from the Expenses table",
-        description = "Deletes an event based on the id provided on success with a 200 response code and the deleted event. On error, returns an error response code and text explaining the error"
+        summary = "Deletes an expense from the Expenses table",
+        description = "Deletes an expense based on the id provided on success with a 200 response code and the deleted expense. On error, returns an error response code and text explaining the error"
     )
     @ApiResponses(value = {
-         @ApiResponse(responseCode = "200", description = "Expense was successfully deleted"),
-         @ApiResponse(responseCode = "500", description = "Unable to delete row")
+         @ApiResponse(responseCode = "200",
+            description = "The expense was successfully deleted",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Expense.class),
+            examples = @ExampleObject(value = "{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":2,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":15.00,\"purpose\":\"need for x event\",\"quantity\":5,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":75.00,\"totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":1,\"id\":3,\"itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\":\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"}"))}),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid Expense id",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Invalid expense id: 2"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to delete expense",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to delete expense"))})
     })
     public ResponseEntity<?> deleteExpense(@PathVariable("id") Integer id){
         // deleteExpense(id): bool
@@ -562,10 +741,28 @@ public class ExpenseController {
     }
 
     @ApiResponses(value = {
-         @ApiResponse(responseCode = "200", description = "Form was successfully created and returned"),
-         @ApiResponse(responseCode = "400", description = "Incorrect type provided to amount requested"),
-         @ApiResponse(responseCode = "404", description = "Invalid event id provided | file not found"),
-         @ApiResponse(responseCode = "500", description = "Failure to open/delete/write to file")
+         @ApiResponse(responseCode = "200",
+            description = "Form was successfully created and returned",
+            content = {@Content(mediaType = "application/octet-stream",
+            schema = @Schema(type = "string", format = "binary"),
+            examples = @ExampleObject(value = "file.xlsx"))}),
+         @ApiResponse(responseCode = "400",
+            description = "Incorrect type provided to amount requested",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Incorrect type passed to amount requested for amount requested"))}
+         ),
+         @ApiResponse(responseCode = "404",
+            description = "Invalid expense id provided or file not found", 
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: invalid expense id: 1"))}),
+         @ApiResponse(responseCode = "500", 
+            description = "Failure to open/delete/write to file",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to create new form"))}
+         )
     })
 
     @PostMapping("/operational_allocation_form")

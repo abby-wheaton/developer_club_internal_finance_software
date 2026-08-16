@@ -2,7 +2,6 @@ package com.devwmu.dc_fin_soft.controllers;
 
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +10,10 @@ import com.devwmu.dc_fin_soft.entities.Request;
 import com.devwmu.dc_fin_soft.repositories.RequestRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,6 +39,19 @@ public class RequestController {
         summary = "Retrives all of the requests",
         description = "Takes in no input, and returns all of the rows in the Requests table"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "All rows were successfully returned",
+            content = {@Content(mediaType = "application/json",
+            array = @ArraySchema(schema = @Schema(implementation = Request.class)),
+            examples = @ExampleObject(value = "[{\"approval\":1,\"communityName\":2,\"deadline\":\"2026-05-22T00:00:00\",\"deleted\":0,\"id\":1,\"itemName\":\"blankets\",\"pricePerUnit\":24.99,\"purpose\":\"sleep\",\"quantity\":2,\"requesteeUser\":\"Abby”}]"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to retrieve rows",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to retrieve all requests"))}
+         )
+    })
     /** 
    * DESCRIPTION
    * 
@@ -61,6 +77,23 @@ public class RequestController {
         summary = "Filters through the requests based on specified values",
         description = "Takes in a JSON array, where each element is a Filter object consisting of the column to filter by, the operation to filter based on, and the desired value, and returns all of the rows in the Requests table which match the Filter objects"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "All filters successfully applied and returned the filtered rows",
+            content = {@Content(mediaType = "application/json",
+            array = @ArraySchema(schema = @Schema(implementation = Request.class)),
+            examples = @ExampleObject(value = "[{\"approval\":1,\"communityName\":2,\"deadline\":\"2026-05-22T00:00:00\",\"deleted\":0,\"id\":1,\"itemName\":\"blankets\",\"pricePerUnit\":24.99,\"purpose\":\"sleep\",\"quantity\":2,\"requesteeUser\":\"Abby”}]"))}),
+         @ApiResponse(responseCode = "400",
+            description = "No/wrong type of value provided for a column",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: non-number value passed with GREATER THAN OR EQUAL TO operator"))}),
+         @ApiResponse(responseCode = "403",
+             description = "Not allowed to use that operator with that column",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: invalid column: name passed with EQUAL operator. Pass this with LIKE operator"))})
+    })
     /** 
    * DESCRIPTION
    * 
@@ -182,6 +215,18 @@ public class RequestController {
         summary = "Adds a request to the Requests table",
         description = "Takes in a JSON object and adds that Request to the Requests table. Returns the object on success"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "The request was successfully modified",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Request.class),
+            examples = @ExampleObject(value = "{\"approval\":1,\"communityName\":2,\"deadline\":\"2026-05-22T00:00:00\",\"deleted\":0,\"id\":1,\"itemName\":\"blankets\",\"pricePerUnit\":24.99,\"purpose\":\"sleep\",\"quantity\":2,\"requesteeUser\":\"Abby”}"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to update request",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to update request"))})
+    })
     /** 
    * DESCRIPTION
    * 
@@ -208,6 +253,23 @@ public class RequestController {
         summary = "Edits a request in the Requests table",
         description = "Takes in a JSON object and the id of the request to edit, and edits that Request in the Requests table with the new values provided. Returns the object on success"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "The request was successfully modified",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Request.class),
+            examples = @ExampleObject(value = "{\"approval\":1,\"communityName\":2,\"deadline\":\"2026-05-22T00:00:00\",\"deleted\":0,\"id\":1,\"itemName\":\"blankets\",\"pricePerUnit\":24.99,\"purpose\":\"sleep\",\"quantity\":2,\"requesteeUser\":\"Abby”}"))}),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid request id",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Invalid request id: 2"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to update request",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to update request"))})
+    })
     /** 
    * DESCRIPTION
    * 
@@ -272,6 +334,23 @@ public class RequestController {
         summary = "Deletes an request from the Requests table",
         description = "Modifies the deleted column of the request based on the id provided to be 1"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "The request was successfully modified",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Request.class),
+            examples = @ExampleObject(value = "{\"approval\":1,\"communityName\":2,\"deadline\":\"2026-05-22T00:00:00\",\"deleted\":0,\"id\":1,\"itemName\":\"blankets\",\"pricePerUnit\":24.99,\"purpose\":\"sleep\",\"quantity\":2,\"requesteeUser\":\"Abby”}"))}),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid request id",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Invalid request id: 2"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to update request",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to update request"))})
+    })
     /** 
    * DESCRIPTION
    * 
@@ -310,8 +389,16 @@ public class RequestController {
         description = "Deletes an request based on the id provided on success with a 200 response code and the deleted request. On error, returns an error response code and text explaining the error"
     )
     @ApiResponses(value = {
-         @ApiResponse(responseCode = "200", description = "Request was successfully deleted"),
-         @ApiResponse(responseCode = "500", description = "Unable to delete row")
+         @ApiResponse(responseCode = "200",
+            description = "The request was successfully modified",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Request.class),
+            examples = @ExampleObject(value = "{\"approval\":1,\"communityName\":2,\"deadline\":\"2026-05-22T00:00:00\",\"deleted\":0,\"id\":1,\"itemName\":\"blankets\",\"pricePerUnit\":24.99,\"purpose\":\"sleep\",\"quantity\":2,\"requesteeUser\":\"Abby”}"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to update request",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to update request"))})
     })
     public ResponseEntity<?> deleteRequest(@PathVariable("id") Integer id){
         // deleteRequest(id): bool
@@ -323,10 +410,10 @@ public class RequestController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body("Error: invalid request id: " + id.toString()  );
         }
-        Request deleteRequest = requestToDeleteOptional.get();
-        this.requestRepository.delete(deleteRequest);
         
         try{
+            Request deleteRequest = requestToDeleteOptional.get();
+            this.requestRepository.delete(deleteRequest);
             return ResponseEntity.status(HttpStatus.OK)
             .contentType(MediaType.APPLICATION_JSON)
             .body(deleteRequest);
@@ -342,6 +429,24 @@ public class RequestController {
         summary = "Toggles the approved flag for an request",
         description = "Using the id provided, it will toggle the approved flag for an request to either 1 or 0"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "The request was successfully modified",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Request.class),
+            examples = @ExampleObject(value = "{\"approval\":1,\"communityName\":2,\"deadline\":\"2026-05-22T00:00:00\",\"deleted\":0,\"id\":1,\"itemName\":\"blankets\",\"pricePerUnit\":24.99,\"purpose\":\"sleep\",\"quantity\":2,\"requesteeUser\":\"Abby”}"))}),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid request id",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Invalid request id: 2"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to update request",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to update request"))})
+    })
+
     /** 
    * DESCRIPTION
    * 

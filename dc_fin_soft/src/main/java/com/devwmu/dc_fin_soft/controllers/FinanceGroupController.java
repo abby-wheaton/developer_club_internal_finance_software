@@ -11,6 +11,10 @@ import com.devwmu.dc_fin_soft.repositories.FinUserRepository;
 import com.devwmu.dc_fin_soft.repositories.FinanceGroupRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -40,6 +44,20 @@ public class FinanceGroupController {
         summary = "Retrives all of the finance groups",
         description = "Takes in no input, and returns all of the rows in the Finance Group table"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "All rows were successfully returned",
+            content = {@Content(mediaType = "application/json",
+            array = @ArraySchema(schema = @Schema(implementation = FinanceGroup.class)),
+            examples = @ExampleObject(value = "[{\"delete\":null,\"deleted\":1,\"id\":1,\"read\":null,\"requests\":null,\"title”:”Test”,”write\":null}]"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to retrieve rows",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to retrieve all finance groups"))}
+         )
+    })
+
     public ResponseEntity<?> getAllFinanceGroups() {
         try{
             return ResponseEntity.status(HttpStatus.OK)
@@ -63,6 +81,23 @@ public class FinanceGroupController {
         summary = "Filters through finance groups based on specified values",
         description = "Takes in a JSON array, where each element is a Filter object consisting of the column to filter by, the operation to filter based on, and the desired value, and returns all of the rows in the Finance Group table which match the Filter objects"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "All filters successfully applied and returned the filtered rows",
+            content = {@Content(mediaType = "application/json",
+            array = @ArraySchema(schema = @Schema(implementation = FinanceGroup.class)),
+            examples = @ExampleObject(value = "[{\"delete\":null,\"deleted\":1,\"id\":1,\"read\":null,\"requests\":null,\"title”:”Test”,”write\":null}]"))}),
+         @ApiResponse(responseCode = "400",
+            description = "No/wrong type of value provided for a column",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: non-number value passed with GREATER THAN OR EQUAL TO operator"))}),
+         @ApiResponse(responseCode = "403",
+             description = "Not allowed to use that operator with that column",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: invalid column: name passed with EQUAL operator. Pass this with LIKE operator"))})
+    })
     public ResponseEntity<?> filterFinanceGroups(@RequestBody Filter[] filters){
     // custom
     // filterFinanceGroups(filterArray[]): Iterable<FinGroup> 	
@@ -129,6 +164,23 @@ public class FinanceGroupController {
         summary = "Edits a user's finance group",
         description = "Modifies the finance group attribute of a user, using the id provided and the group name. Returns the user on success"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "The finance group was successfully modified",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = FinanceGroup.class),
+            examples = @ExampleObject(value = "{\"delete\":null,\"deleted\":1,\"id\":1,\"read\":null,\"requests\":null,\"title”:”Test”,”write\":null}"))}),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid finance group id or user id",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Invalid financeGroup id: 2"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to update finance group",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to update finance group"))})
+    })
     /** 
    * DESCRIPTION
    * 
@@ -179,6 +231,18 @@ public class FinanceGroupController {
         summary = "Adds a new finance group",
         description = "Takes in a JSON representation of a FinanceGroup object and adds it to the Finance Group table. Returns the FinanceGroup object on success"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "The finance group was successfully modified",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = FinanceGroup.class),
+            examples = @ExampleObject(value = "{\"delete\":null,\"deleted\":1,\"id\":1,\"read\":null,\"requests\":null,\"title”:”Test”,”write\":null}"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to update finance group",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to update finance group"))})
+    })
     /** 
    * DESCRIPTION
    * 
@@ -207,6 +271,23 @@ public class FinanceGroupController {
         summary = "Edits an existing finance group",
         description = "Modifies the finance group specified using the id provided. Returns the updated finance group on success"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "The finance group was successfully modified",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = FinanceGroup.class),
+            examples = @ExampleObject(value = "{\"delete\":null,\"deleted\":1,\"id\":1,\"read\":null,\"requests\":null,\"title”:”Test”,”write\":null}"))}),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid finance group id",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Invalid financeGroup id: 2"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to update finance group",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to update finance group"))})
+    })
     /** 
    * DESCRIPTION
    * 
@@ -263,6 +344,23 @@ public class FinanceGroupController {
         summary = "Removes a finance group",
         description = "Takes in the id of a Finance Group and sets the deleted column to 1. Returns the FinanceGroup object on success"
     )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "The finance group was successfully modified",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = FinanceGroup.class),
+            examples = @ExampleObject(value = "{\"delete\":null,\"deleted\":1,\"id\":1,\"read\":null,\"requests\":null,\"title”:”Test”,”write\":null}"))}),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid finance group id",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: Invalid financeGroup id: 2"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to update finance group",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to update finance group"))})
+    })
     /** 
    * DESCRIPTION
    * 
@@ -304,8 +402,16 @@ public class FinanceGroupController {
         description = "Deletes an financeGroup based on the id provided on success with a 200 response code and the deleted financeGroup. On error, returns an error response code and text explaining the error"
     )
     @ApiResponses(value = {
-         @ApiResponse(responseCode = "200", description = "FinanceGroup was successfully deleted"),
-         @ApiResponse(responseCode = "500", description = "Unable to delete row")
+         @ApiResponse(responseCode = "200",
+            description = "The finance group was successfully modified",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = FinanceGroup.class),
+            examples = @ExampleObject(value = "{\"delete\":null,\"deleted\":1,\"id\":1,\"read\":null,\"requests\":null,\"title”:”Test”,”write\":null}"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to delete finance group",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to delete finance group"))})
     })
     public ResponseEntity<?> deleteFinanceGroup(@PathVariable("id") Integer id){
         // deleteFinanceGroup(id): bool

@@ -42,11 +42,39 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: All filters successfully applied and returned the filtered
+            rows
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                type: array
+                items:
+                  $ref: "#/components/schemas/Source"
+              example:
+              - available: 760.0
+                budgeted: 40.0
+                deleted: 1
+                internal: 1
+                moneyCap: 800.0
+                name: Abby
+                spent: 20.0
+                type: editing
+        "400":
+          description: No/wrong type of value provided for a column
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: non-number value passed with GREATER THAN OR EQUAL\
+                \ TO operator"
+        "403":
+          description: Not allowed to use that operator with that column
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: invalid column: name passed with EQUAL operator. Pass\
+                \ this with LIKE operator"
   /sources/safe_delete/id={id}:
     put:
       tags:
@@ -64,11 +92,34 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
+          description: The source was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Source"
+              example:
+                available: 760.0
+                budgeted: 40.0
+                deleted: 1
+                internal: 1
+                moneyCap: 800.0
+                name: Abby
+                spent: 20.0
+                type: editing
+        "400":
+          description: Invalid source id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid source id: 2"
+        "500":
+          description: Unable to update source
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to update source"
   /sources/edit/id={id}:
     put:
       tags:
@@ -93,11 +144,34 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: The source was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Source"
+              example:
+                available: 760.0
+                budgeted: 40.0
+                deleted: 1
+                internal: 1
+                moneyCap: 800.0
+                name: Abby
+                spent: 20.0
+                type: editing
+        "400":
+          description: Invalid source id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid source id: 2"
+        "500":
+          description: Unable to update source
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to update source"
   /requests/search:
     put:
       tags:
@@ -118,11 +192,34 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: All filters successfully applied and returned the filtered
+            rows
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                type: array
+                items:
+                  $ref: "#/components/schemas/Request"
+              example: "[{\"approval\":1,\"communityName\":2,\"deadline\":\"2026-05-22T00:00:00\"\
+                ,\"deleted\":0,\"id\":1,\"itemName\":\"blankets\",\"pricePerUnit\"\
+                :24.99,\"purpose\":\"sleep\",\"quantity\":2,\"requesteeUser\":\"Abby”\
+                }]"
+        "400":
+          description: No/wrong type of value provided for a column
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: non-number value passed with GREATER THAN OR EQUAL\
+                \ TO operator"
+        "403":
+          description: Not allowed to use that operator with that column
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: invalid column: name passed with EQUAL operator. Pass\
+                \ this with LIKE operator"
   /requests/safe_delete/id={id}:
     put:
       tags:
@@ -140,11 +237,29 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
+          description: The request was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Request"
+              example: "{\"approval\":1,\"communityName\":2,\"deadline\":\"2026-05-22T00:00:00\"\
+                ,\"deleted\":0,\"id\":1,\"itemName\":\"blankets\",\"pricePerUnit\"\
+                :24.99,\"purpose\":\"sleep\",\"quantity\":2,\"requesteeUser\":\"Abby”\
+                }"
+        "400":
+          description: Invalid request id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid request id: 2"
+        "500":
+          description: Unable to update request
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to update request"
   /requests/edit/id={id}:
     put:
       tags:
@@ -169,11 +284,29 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: The request was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Request"
+              example: "{\"approval\":1,\"communityName\":2,\"deadline\":\"2026-05-22T00:00:00\"\
+                ,\"deleted\":0,\"id\":1,\"itemName\":\"blankets\",\"pricePerUnit\"\
+                :24.99,\"purpose\":\"sleep\",\"quantity\":2,\"requesteeUser\":\"Abby”\
+                }"
+        "400":
+          description: Invalid request id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid request id: 2"
+        "500":
+          description: Unable to update request
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to update request"
   /requests/approve/id={id}_val={val}:
     put:
       tags:
@@ -197,11 +330,29 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
+          description: The request was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Request"
+              example: "{\"approval\":1,\"communityName\":2,\"deadline\":\"2026-05-22T00:00:00\"\
+                ,\"deleted\":0,\"id\":1,\"itemName\":\"blankets\",\"pricePerUnit\"\
+                :24.99,\"purpose\":\"sleep\",\"quantity\":2,\"requesteeUser\":\"Abby”\
+                }"
+        "400":
+          description: Invalid request id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid request id: 2"
+        "500":
+          description: Unable to update request
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to update request"
   /groups/search:
     put:
       tags:
@@ -222,11 +373,37 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: All filters successfully applied and returned the filtered
+            rows
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                type: array
+                items:
+                  $ref: "#/components/schemas/FinanceGroup"
+              example:
+              - delete: null
+                deleted: 1
+                id: 1
+                read: null
+                requests: null
+                title”:”Test”,”write: null
+        "400":
+          description: No/wrong type of value provided for a column
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: non-number value passed with GREATER THAN OR EQUAL\
+                \ TO operator"
+        "403":
+          description: Not allowed to use that operator with that column
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: invalid column: name passed with EQUAL operator. Pass\
+                \ this with LIKE operator"
   /groups/safe_delete_group/id={id}:
     put:
       tags:
@@ -244,11 +421,32 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
+          description: The finance group was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/FinanceGroup"
+              example:
+                delete: null
+                deleted: 1
+                id: 1
+                read: null
+                requests: null
+                title”:”Test”,”write: null
+        "400":
+          description: Invalid finance group id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid financeGroup id: 2"
+        "500":
+          description: Unable to update finance group
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to update finance group"
   /groups/edit_user/user={user}/id={id}:
     put:
       tags:
@@ -272,11 +470,32 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
+          description: The finance group was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/FinanceGroup"
+              example:
+                delete: null
+                deleted: 1
+                id: 1
+                read: null
+                requests: null
+                title”:”Test”,”write: null
+        "400":
+          description: Invalid finance group id or user id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid financeGroup id: 2"
+        "500":
+          description: Unable to update finance group
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to update finance group"
   /groups/edit_group:
     put:
       tags:
@@ -294,11 +513,131 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: The finance group was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/FinanceGroup"
+              example:
+                delete: null
+                deleted: 1
+                id: 1
+                read: null
+                requests: null
+                title”:”Test”,”write: null
+        "400":
+          description: Invalid finance group id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid financeGroup id: 2"
+        "500":
+          description: Unable to update finance group
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to update finance group"
+  /expense/search:
+    put:
+      tags:
+      - Expense Controller
+      summary: Filters through expenses based on specified values
+      description: "Takes in a JSON array, where each element is a Filter object consisting\
+        \ of the column to filter by, the operation to filter based on, and the desired\
+        \ value, and returns all of the rows in the Expenses table which match the\
+        \ Filter objects"
+      operationId: filterExpenses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/Filter"
+        required: true
+      responses:
+        "200":
+          description: All filters successfully applied and returned the filtered
+            rows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Expense"
+              example:
+              - allocationDeadline: 2026-08-23T05:00:00
+                approvedFlag: 0
+                community: 1
+                deleted: 0
+                deliberationDeadline: 2026-08-30T05:00:00
+                eventId: 1
+                finishedBuyingFlag: 0
+                foodFlag: 0
+                id: 2
+                itemDeadline: 2026-09-23T05:00:00
+                link: www.link.com
+                moneyRemaining: 250.0
+                name: Abby
+                paymentType: club card
+                pickedUpFlag: 0
+                pickupLocation: my house
+                pricePerUnit: 15.0
+                purpose: need for x event
+                quantity: 5
+                reimbursedFlag: 0
+                reimbursementDeadline: 2026-09-01T05:00:00
+                requestedFlag: 0
+                sourceId: 3
+                startedBuyingFlag: 0
+                totalPrice: 75.0
+                totalSpent: 0.0
+                vendor: Sams Club
+              - allocationDeadline: 2026-08-23T05:00:00
+                approvedFlag: 0
+                community: 1
+                deleted: 0
+                deliberationDeadline: 2026-08-30T05:00:00
+                eventId: 1
+                finishedBuyingFlag: 0
+                foodFlag: 1
+                id: 3
+                itemDeadline: 2026-09-23T05:00:00
+                link: www.link.com
+                moneyRemaining: 250.0
+                name: Abby
+                paymentType: club card
+                pickedUpFlag: 0
+                pickupLocation: my house
+                pricePerUnit: 50.0
+                purpose: need for x event
+                quantity: 2
+                reimbursedFlag: 0
+                reimbursementDeadline: 2026-09-01T05:00:00
+                requestedFlag: 0
+                sourceId: 3
+                startedBuyingFlag: 0
+                totalPrice: 100.0
+                totalSpent: 0.0
+                vendor: Meijer
+        "400":
+          description: No/wrong type of value provided for a column
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: non-number value passed with GREATER THAN OR EQUAL\
+                \ TO operator"
+        "403":
+          description: Not allowed to use that operator with that column
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: invalid column: name passed with EQUAL operator. Pass\
+                \ this with LIKE operator"
   /expense/safe_delete_{id}:
     put:
       tags:
@@ -316,11 +655,45 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
+          description: The expense was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Expense"
+              example: "{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\"\
+                :0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\"\
+                ,\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":2,\"\
+                itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"\
+                moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\"\
+                ,\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\"\
+                :15.00,\"purpose\":\"need for x event\",\"quantity\":5,\"reimbursedFlag\"\
+                :0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\"\
+                :0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":75.00,\"\
+                totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\"\
+                :\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\"\
+                :0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"\
+                finishedBuyingFlag\":0,\"foodFlag\":1,\"id\":3,\"itemDeadline\":\"\
+                2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\"\
+                :250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\"\
+                :0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\"\
+                :\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\"\
+                :\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\"\
+                :0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"\
+                }"
+        "400":
+          description: Invalid Expense id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid expense id: 2"
+        "500":
+          description: Unable to update expense
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to update expense"
   /expense/item/s_buying_flag_id={id}_num={num}:
     put:
       tags:
@@ -372,11 +745,45 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
+          description: The expense was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Expense"
+              example: "{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\"\
+                :0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\"\
+                ,\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":2,\"\
+                itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"\
+                moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\"\
+                ,\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\"\
+                :15.00,\"purpose\":\"need for x event\",\"quantity\":5,\"reimbursedFlag\"\
+                :0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\"\
+                :0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":75.00,\"\
+                totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\"\
+                :\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\"\
+                :0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"\
+                finishedBuyingFlag\":0,\"foodFlag\":1,\"id\":3,\"itemDeadline\":\"\
+                2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\"\
+                :250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\"\
+                :0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\"\
+                :\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\"\
+                :\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\"\
+                :0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"\
+                }"
+        "400":
+          description: Invalid Expense id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid expense id: 2"
+        "500":
+          description: Unable to update expense
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to update expense"
   /expense/item/reimbursed_flag_id={id}_num={num}:
     put:
       tags:
@@ -400,11 +807,45 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
+          description: The expense was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Expense"
+              example: "{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\"\
+                :0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\"\
+                ,\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":2,\"\
+                itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"\
+                moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\"\
+                ,\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\"\
+                :15.00,\"purpose\":\"need for x event\",\"quantity\":5,\"reimbursedFlag\"\
+                :0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\"\
+                :0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":75.00,\"\
+                totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\"\
+                :\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\"\
+                :0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"\
+                finishedBuyingFlag\":0,\"foodFlag\":1,\"id\":3,\"itemDeadline\":\"\
+                2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\"\
+                :250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\"\
+                :0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\"\
+                :\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\"\
+                :\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\"\
+                :0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"\
+                }"
+        "400":
+          description: Invalid Expense id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid expense id: 2"
+        "500":
+          description: Unable to update expense
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to update expense"
   /expense/item/picked_up_flag_id={id}_num={num}:
     put:
       tags:
@@ -428,11 +869,45 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
+          description: The expense was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Expense"
+              example: "{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\"\
+                :0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\"\
+                ,\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":2,\"\
+                itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"\
+                moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\"\
+                ,\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\"\
+                :15.00,\"purpose\":\"need for x event\",\"quantity\":5,\"reimbursedFlag\"\
+                :0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\"\
+                :0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":75.00,\"\
+                totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\"\
+                :\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\"\
+                :0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"\
+                finishedBuyingFlag\":0,\"foodFlag\":1,\"id\":3,\"itemDeadline\":\"\
+                2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\"\
+                :250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\"\
+                :0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\"\
+                :\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\"\
+                :\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\"\
+                :0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"\
+                }"
+        "400":
+          description: Invalid Expense id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid expense id: 2"
+        "500":
+          description: Unable to update expense
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to update expense"
   /expense/item/food_flag_id={id}_num={num}:
     put:
       tags:
@@ -456,11 +931,45 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
+          description: The expense was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Expense"
+              example: "{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\"\
+                :0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\"\
+                ,\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":2,\"\
+                itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"\
+                moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\"\
+                ,\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\"\
+                :15.00,\"purpose\":\"need for x event\",\"quantity\":5,\"reimbursedFlag\"\
+                :0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\"\
+                :0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":75.00,\"\
+                totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\"\
+                :\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\"\
+                :0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"\
+                finishedBuyingFlag\":0,\"foodFlag\":1,\"id\":3,\"itemDeadline\":\"\
+                2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\"\
+                :250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\"\
+                :0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\"\
+                :\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\"\
+                :\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\"\
+                :0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"\
+                }"
+        "400":
+          description: Invalid Expense id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid expense id: 2"
+        "500":
+          description: Unable to update expense
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to update expense"
   /expense/item/f_buying_flag_id={id}_num={num}:
     put:
       tags:
@@ -484,11 +993,45 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
+          description: The expense was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Expense"
+              example: "{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\"\
+                :0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\"\
+                ,\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":2,\"\
+                itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"\
+                moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\"\
+                ,\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\"\
+                :15.00,\"purpose\":\"need for x event\",\"quantity\":5,\"reimbursedFlag\"\
+                :0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\"\
+                :0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":75.00,\"\
+                totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\"\
+                :\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\"\
+                :0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"\
+                finishedBuyingFlag\":0,\"foodFlag\":1,\"id\":3,\"itemDeadline\":\"\
+                2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\"\
+                :250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\"\
+                :0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\"\
+                :\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\"\
+                :\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\"\
+                :0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"\
+                }"
+        "400":
+          description: Invalid Expense id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid expense id: 2"
+        "500":
+          description: Unable to update expense
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to update expense"
   /expense/item/edit_{id}:
     put:
       tags:
@@ -513,36 +1056,45 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: The expense was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
-  /expense/expenses/search:
-    put:
-      tags:
-      - Expense Controller
-      summary: Filters through expenses based on specified values
-      description: "Takes in a JSON array, where each element is a Filter object consisting\
-        \ of the column to filter by, the operation to filter based on, and the desired\
-        \ value, and returns all of the rows in the Expenses table which match the\
-        \ Filter objects"
-      operationId: filterExpenses
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: "#/components/schemas/Filter"
-        required: true
-      responses:
-        "200":
-          description: OK
+                $ref: "#/components/schemas/Expense"
+              example: "{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\"\
+                :0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\"\
+                ,\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":2,\"\
+                itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"\
+                moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\"\
+                ,\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\"\
+                :15.00,\"purpose\":\"need for x event\",\"quantity\":5,\"reimbursedFlag\"\
+                :0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\"\
+                :0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":75.00,\"\
+                totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\"\
+                :\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\"\
+                :0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"\
+                finishedBuyingFlag\":0,\"foodFlag\":1,\"id\":3,\"itemDeadline\":\"\
+                2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\"\
+                :250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\"\
+                :0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\"\
+                :\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\"\
+                :\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\"\
+                :0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"\
+                }"
+        "400":
+          description: Invalid Expense id
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: Invalid expense id: 2"
+        "500":
+          description: Unable to update expense
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to update expense"
   /event/search:
     put:
       tags:
@@ -874,11 +1426,27 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: The source was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Source"
+              example:
+                available: 760.0
+                budgeted: 40.0
+                deleted: 1
+                internal: 1
+                moneyCap: 800.0
+                name: Abby
+                spent: 20.0
+                type: editing
+        "500":
+          description: Unable to update source
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to update source"
   /requests/request_status_updated:
     post:
       tags:
@@ -919,11 +1487,22 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: The request was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Request"
+              example: "{\"approval\":1,\"communityName\":2,\"deadline\":\"2026-05-22T00:00:00\"\
+                ,\"deleted\":0,\"id\":1,\"itemName\":\"blankets\",\"pricePerUnit\"\
+                :24.99,\"purpose\":\"sleep\",\"quantity\":2,\"requesteeUser\":\"Abby”\
+                }"
+        "500":
+          description: Unable to update request
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to update request"
   /groups/create_group:
     post:
       tags:
@@ -940,11 +1519,25 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: The finance group was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/FinanceGroup"
+              example:
+                delete: null
+                deleted: 1
+                id: 1
+                read: null
+                requests: null
+                title”:”Test”,”write: null
+        "500":
+          description: Unable to update finance group
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to update finance group"
   /expense/receipt:
     post:
       tags:
@@ -1000,28 +1593,34 @@ paths:
         "200":
           description: Form was successfully created and returned
           content:
-            '*/*':
+            application/octet-stream:
               schema:
-                type: object
+                type: string
+                format: binary
+              example: file.xlsx
         "400":
           description: Incorrect type provided to amount requested
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: Incorrect type passed to amount requested for amount\
+                \ requested"
         "404":
-          description: Invalid event id provided | file not found
+          description: Invalid expense id provided or file not found
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: invalid expense id: 1"
         "500":
           description: Failure to open/delete/write to file
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
-  /expense/item:
+                type: string
+              example: "Error: unable to create new form"
+  /expense/create:
     post:
       tags:
       - Expense Controller
@@ -1037,11 +1636,41 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: Event was successfully returned
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Expense"
+              example: "{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\"\
+                :0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\"\
+                ,\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":2,\"\
+                itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"\
+                moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\"\
+                ,\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\"\
+                :15.00,\"purpose\":\"need for x event\",\"quantity\":5,\"reimbursedFlag\"\
+                :0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\"\
+                :0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":75.00,\"\
+                totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\"\
+                :\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\"\
+                :0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"\
+                finishedBuyingFlag\":0,\"foodFlag\":1,\"id\":3,\"itemDeadline\":\"\
+                2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\"\
+                :250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\"\
+                :0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\"\
+                :\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\"\
+                :\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\"\
+                :0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"\
+                }"
+        "500":
+          description: Unable to create row
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to create expense: {\"conferenceFlag\":1,\"\
+                date\":\"2026-05-23T05:00:00\",\"deleted\":0,\"estAttendance\":25,\"\
+                feeFlag\":0,\"id\":2,\"location\":\"my house\",\"name\":\"Abby\",\"\
+                philanthropyFlag\":0}"
   /event/event_allocation_form/id={id}:
     post:
       tags:
@@ -1145,6 +1774,13 @@ paths:
                 location: my house
                 name: Abby
                 philanthropyFlag: 0
+        "400":
+          description: Invalid Event id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid event id: 2"
         "500":
           description: Unable to create row
           content:
@@ -1245,18 +1881,30 @@ paths:
         \ table"
       operationId: getAllSources
       responses:
-        "201":
-          description: Book successfully created
+        "200":
+          description: All rows were successfully returned
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
-        "400":
-          description: Invalid input supplied
+                type: array
+                items:
+                  $ref: "#/components/schemas/Source"
+              example:
+              - available: 760.0
+                budgeted: 40.0
+                deleted: 1
+                internal: 1
+                moneyCap: 800.0
+                name: Abby
+                spent: 20.0
+                type: editing
+        "500":
+          description: Unable to retrieve rows
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: unable to retrieve all sources"
   /requests/all:
     get:
       tags:
@@ -1267,11 +1915,24 @@ paths:
       operationId: getAllRequests
       responses:
         "200":
-          description: OK
+          description: All rows were successfully returned
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                type: array
+                items:
+                  $ref: "#/components/schemas/Request"
+              example: "[{\"approval\":1,\"communityName\":2,\"deadline\":\"2026-05-22T00:00:00\"\
+                ,\"deleted\":0,\"id\":1,\"itemName\":\"blankets\",\"pricePerUnit\"\
+                :24.99,\"purpose\":\"sleep\",\"quantity\":2,\"requesteeUser\":\"Abby”\
+                }]"
+        "500":
+          description: Unable to retrieve rows
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to retrieve all requests"
   /groups/all:
     get:
       tags:
@@ -1282,11 +1943,27 @@ paths:
       operationId: getAllFinanceGroups
       responses:
         "200":
-          description: OK
+          description: All rows were successfully returned
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                type: array
+                items:
+                  $ref: "#/components/schemas/FinanceGroup"
+              example:
+              - delete: null
+                deleted: 1
+                id: 1
+                read: null
+                requests: null
+                title”:”Test”,”write: null
+        "500":
+          description: Unable to retrieve rows
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to retrieve all finance groups"
   /expense/total_price:
     get:
       tags:
@@ -1311,7 +1988,7 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Expense"
-  /expense/expenses:
+  /expense/all:
     get:
       tags:
       - Expense Controller
@@ -1321,11 +1998,75 @@ paths:
       operationId: getAllExpenses
       responses:
         "200":
-          description: OK
+          description: All rows were successfully returned
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                type: array
+                items:
+                  $ref: "#/components/schemas/Expense"
+              example:
+              - allocationDeadline: 2026-08-23T05:00:00
+                approvedFlag: 0
+                community: 1
+                deleted: 0
+                deliberationDeadline: 2026-08-30T05:00:00
+                eventId: 2
+                finishedBuyingFlag: 0
+                foodFlag: 0
+                id: 52
+                itemDeadline: 2026-09-23T05:00:00
+                link: www.link.com
+                moneyRemaining: 250.0
+                name: Abby
+                paymentType: club card
+                pickedUpFlag: 0
+                pickupLocation: my house
+                pricePerUnit: 80.0
+                purpose: need for x event
+                quantity: 1
+                reimbursedFlag: 0
+                reimbursementDeadline: 2026-09-01T05:00:00
+                requestedFlag: 0
+                sourceId: 3
+                startedBuyingFlag: 0
+                totalPrice: 80.0
+                totalSpent: 0.0
+                vendor: Sams Club
+              - allocationDeadline: 2026-08-23T05:00:00
+                approvedFlag: 0
+                community: 1
+                deleted: 0
+                deliberationDeadline: 2026-08-30T05:00:00
+                eventId: 2
+                finishedBuyingFlag: 0
+                foodFlag: 0
+                id: 53
+                itemDeadline: 2026-09-23T05:00:00
+                link: www.link.com
+                moneyRemaining: 250.0
+                name: Abby
+                paymentType: club card
+                pickedUpFlag: 0
+                pickupLocation: my house
+                pricePerUnit: 50.0
+                purpose: need for x event
+                quantity: 2
+                reimbursedFlag: 0
+                reimbursementDeadline: 2026-09-01T05:00:00
+                requestedFlag: 0
+                sourceId: 3
+                startedBuyingFlag: 0
+                totalPrice: 100.0
+                totalSpent: 0.0
+                vendor: Meijer
+        "500":
+          description: Unable to retrieve rows
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to retrieve all expenses"
   /event/all:
     get:
       tags:
@@ -1379,17 +2120,27 @@ paths:
           format: int32
       responses:
         "200":
-          description: Source was successfully deleted
+          description: The source was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Source"
+              example:
+                available: 760.0
+                budgeted: 40.0
+                deleted: 1
+                internal: 1
+                moneyCap: 800.0
+                name: Abby
+                spent: 20.0
+                type: editing
         "500":
-          description: Unable to delete row
+          description: Unable to update source
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: unable to update source"
   /requests/delete/id={id}:
     delete:
       tags:
@@ -1408,17 +2159,22 @@ paths:
           format: int32
       responses:
         "200":
-          description: Request was successfully deleted
+          description: The request was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Request"
+              example: "{\"approval\":1,\"communityName\":2,\"deadline\":\"2026-05-22T00:00:00\"\
+                ,\"deleted\":0,\"id\":1,\"itemName\":\"blankets\",\"pricePerUnit\"\
+                :24.99,\"purpose\":\"sleep\",\"quantity\":2,\"requesteeUser\":\"Abby”\
+                }"
         "500":
-          description: Unable to delete row
+          description: Unable to update request
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: unable to update request"
   /groups/delete_group/id={id}:
     delete:
       tags:
@@ -1437,24 +2193,32 @@ paths:
           format: int32
       responses:
         "200":
-          description: FinanceGroup was successfully deleted
+          description: The finance group was successfully modified
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/FinanceGroup"
+              example:
+                delete: null
+                deleted: 1
+                id: 1
+                read: null
+                requests: null
+                title”:”Test”,”write: null
         "500":
-          description: Unable to delete row
+          description: Unable to delete finance group
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: unable to delete finance group"
   /expense/delete/id={id}:
     delete:
       tags:
       - Expense Controller
-      summary: Deletes an event from the Expenses table
-      description: "Deletes an event based on the id provided on success with a 200\
-        \ response code and the deleted event. On error, returns an error response\
+      summary: Deletes an expense from the Expenses table
+      description: "Deletes an expense based on the id provided on success with a\
+        \ 200 response code and the deleted expense. On error, returns an error response\
         \ code and text explaining the error"
       operationId: deleteExpense
       parameters:
@@ -1466,17 +2230,45 @@ paths:
           format: int32
       responses:
         "200":
-          description: Expense was successfully deleted
+          description: The expense was successfully deleted
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Expense"
+              example: "{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\"\
+                :0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\"\
+                ,\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":2,\"\
+                itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"\
+                moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\"\
+                ,\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\"\
+                :15.00,\"purpose\":\"need for x event\",\"quantity\":5,\"reimbursedFlag\"\
+                :0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\"\
+                :0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":75.00,\"\
+                totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\"\
+                :\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\"\
+                :0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"\
+                finishedBuyingFlag\":0,\"foodFlag\":1,\"id\":3,\"itemDeadline\":\"\
+                2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\"\
+                :250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\"\
+                :0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\"\
+                :\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\"\
+                :\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\"\
+                :0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"\
+                }"
+        "400":
+          description: Invalid Expense id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid expense id: 2"
         "500":
-          description: Unable to delete row
+          description: Unable to delete expense
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: object
+                type: string
+              example: "Error: unable to delete expense"
   /event/delete/id={id}:
     delete:
       tags:
