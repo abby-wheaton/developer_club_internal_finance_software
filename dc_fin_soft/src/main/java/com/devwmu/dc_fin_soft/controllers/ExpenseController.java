@@ -1,5 +1,7 @@
 package com.devwmu.dc_fin_soft.controllers;
 import com.devwmu.dc_fin_soft.repositories.ExpenseRepository;
+import com.devwmu.dc_fin_soft.repositories.SourceRepository;
+import com.devwmu.dc_fin_soft.entities.Source;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -19,6 +21,7 @@ import org.springframework.http.MediaType;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.ArrayList;
@@ -36,10 +39,12 @@ import com.devwmu.dc_fin_soft.entities.Expense;
 @RequestMapping("/expense")
 @Tag(name = "Expense Controller", description = "This controller interacts with the expense table in various ways")
 public class ExpenseController {
+    private final SourceRepository sourceRepository;
     private final ExpenseRepository expenseRepository;
 
-    ExpenseController(ExpenseRepository expenseRepository) {
+    ExpenseController(ExpenseRepository expenseRepository, SourceRepository sourceRepository) {
         this.expenseRepository = expenseRepository;
+        this.sourceRepository = sourceRepository;
     }
 
     @GetMapping("/all")
@@ -234,7 +239,7 @@ public class ExpenseController {
         }
     }
 
-    @PutMapping("/item/edit_{id}")
+    @PutMapping("/item/id={id}")
     @Operation(
         summary = "Edits an expense in the Expenses table",
         description = "Takes in a JSON object and the id of the expense to edit, and edits that expense in the Expenses table with the new values provided. Returns the object on success"
@@ -354,7 +359,7 @@ public class ExpenseController {
         }
     }
 
-    @PutMapping("/item/food_flag_id={id}_num={num}")
+    @PutMapping("/item/food_flag_id={id}/num={num}")
     @Operation(
         summary = "Toggles the feeFlag for an expense",
         description = "Using the id provided, it will toggle the foodFlag for an expense to either 1 or 0"
@@ -405,7 +410,7 @@ public class ExpenseController {
         }   
     }
 
-    @PutMapping("/item/requested_flag_id={id}_num={num}")
+    @PutMapping("/item/requested_flag_id={id}/num={num}")
     @Operation(
         summary = "Toggles the requestedFlag for an expense",
         description = "Using the id provided, it will toggle the requestedFlag for an expense to either 1 or 0"
@@ -456,7 +461,7 @@ public class ExpenseController {
         }   
     }
 
-    @PutMapping("/item/s_buying_flag_id={id}_num={num}")
+    @PutMapping("/item/s_buying_flag_id={id}/num={num}")
     @Operation(
         summary = "Toggles the startedBuyingFlag for an expense",
         description = "Using the id provided, it will toggle the startedBuyingFlag for an expense to either 1 or 0"
@@ -490,7 +495,7 @@ public class ExpenseController {
         }      
     }
 
-    @PutMapping("/item/f_buying_flag_id={id}_num={num}")
+    @PutMapping("/item/f_buying_flag_id={id}/num={num}")
     @Operation(
         summary = "Toggles the finishedBuyingFlag for an expense",
         description = "Using the id provided, it will toggle the finishedBuyingFlag for an expense to either 1 or 0"
@@ -541,7 +546,7 @@ public class ExpenseController {
         }      
     }
 
-    @PutMapping("/item/picked_up_flag_id={id}_num={num}")
+    @PutMapping("/item/picked_up_flag_id={id}/num={num}")
     @Operation(
         summary = "Toggles the pickedUpFlag for an expense",
         description = "Using the id provided, it will toggle the pickedUpFlag for an expense to either 1 or 0"
@@ -592,7 +597,7 @@ public class ExpenseController {
         }    
     }
 
-    @PutMapping("/item/reimbursed_flag_id={id}_num={num}")
+    @PutMapping("/item/reimbursed_flag_id={id}/num={num}")
     @Operation(
         summary = "Toggles the reimbursedFlag for an expense",
         description = "Using the id provided, it will toggle the reimbursedFlag for an expense to either 1 or 0"
@@ -904,22 +909,98 @@ public class ExpenseController {
         }
     }
 
-    @GetMapping("/total_price")
-    public Expense calculateRecommendedTotalPrice(){
+
+    @GetMapping("/total_price/price_per_unit={pricePerUnit}/units={units}")
+    /** 
+   * DESCRIPTION
+   * 
+   * @param pricePerUnit the price per unit of the expense
+   * @param units the amount of units you for the expense 
+   * @return returns the recommended total price with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
+  */
+    @Operation(
+        summary = "Calculates the recommended total price",
+        description = "Calculates the total price an expense based on the price per units and amount of units provided on success with a 200 response code and the recommend price. On error, returns an error response code and text explaining the error"
+    )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "The expense was successfully deleted",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Expense.class),
+            examples = @ExampleObject(value = "43.99"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to delete expense",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to calculate total price"))})
+    })
+    public ResponseEntity<?> calculateRecommendedTotalPrice(@PathVariable Float pricePerUnit, @PathVariable Integer units){
         // calcRecommendedTotalPrice(qty, pricePerUnit) double
         //     Calculating total price
         //     OUTPUT: recommended total price
 
-        return new Expense();
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(pricePerUnit * units);
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: unable to calculate total price");
+        }  
     }
 
-    @GetMapping("/source")
-    public Expense calculateRecommendedSource(){
+    @GetMapping("/source/total_price={totalPrice}")
+    /** 
+   * DESCRIPTION
+   * 
+   * @param totalPrice the total price of the expense you wish to budget
+   * @return returns the recommended source with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
+  */
+    @Operation(
+        summary = "Calculates the recommended source",
+        description = "Calculates the source for an expense based on the total price provided on success with a 200 response code and the recommended source. On error, returns an error response code and text explaining the error"
+    )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "The recommended source is successfully calculated and returned",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Expense.class),
+            examples = @ExampleObject(value = "{\"available\":760.00,\"budgeted\":40.00,\"deleted\":1,\"internal\":1,\"moneyCap\":800.00,\"name\":\"Abby\",\"spent\":20.00,\"type\":\"editing\"}"))}),
+         @ApiResponse(responseCode = "403",
+            description = "Unable to find a source which can handle the total price",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: unable to find a source which can accommodate that expense price"))})
+    })
+    public ResponseEntity<?> calculateRecommendedSource(@PathVariable BigDecimal totalPrice){
         // calcRecommendedSource(totalPrice, type, curDate) str
         //     Recommends a source
         //     OUTPUT: recommended source
 
-        return new Expense();
+        Iterable<Source> sources = this.sourceRepository.findAll();
+        BigDecimal largestAvailable = BigDecimal.valueOf(0.0);
+        Source recSource = null;
+        for (Source source: sources){
+            // if the new source has more available than the current largest
+            if (largestAvailable.compareTo(source.getAvailable()) < 0){
+                // then check if it is under the cap
+                BigDecimal check = source.getBudgeted().add(totalPrice);
+                if (check.compareTo(source.getMoneyCap()) <= 0){
+                    recSource = source;
+                }
+            }
+        }
+
+        if (recSource == null){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body("Error: unable to find a source which can accommodate that expense price");
+        }
+        
+
+        return ResponseEntity.status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(recSource);
     }
 
     @PostMapping("/receipt")

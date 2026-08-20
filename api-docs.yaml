@@ -694,7 +694,7 @@ paths:
               schema:
                 type: string
               example: "Error: unable to update expense"
-  /expense/item/s_buying_flag_id={id}_num={num}:
+  /expense/item/s_buying_flag_id={id}/num={num}:
     put:
       tags:
       - Expense Controller
@@ -722,7 +722,7 @@ paths:
             '*/*':
               schema:
                 type: object
-  /expense/item/requested_flag_id={id}_num={num}:
+  /expense/item/requested_flag_id={id}/num={num}:
     put:
       tags:
       - Expense Controller
@@ -784,7 +784,7 @@ paths:
               schema:
                 type: string
               example: "Error: unable to update expense"
-  /expense/item/reimbursed_flag_id={id}_num={num}:
+  /expense/item/reimbursed_flag_id={id}/num={num}:
     put:
       tags:
       - Expense Controller
@@ -846,7 +846,7 @@ paths:
               schema:
                 type: string
               example: "Error: unable to update expense"
-  /expense/item/picked_up_flag_id={id}_num={num}:
+  /expense/item/picked_up_flag_id={id}/num={num}:
     put:
       tags:
       - Expense Controller
@@ -908,7 +908,70 @@ paths:
               schema:
                 type: string
               example: "Error: unable to update expense"
-  /expense/item/food_flag_id={id}_num={num}:
+  /expense/item/id={id}:
+    put:
+      tags:
+      - Expense Controller
+      summary: Edits an expense in the Expenses table
+      description: "Takes in a JSON object and the id of the expense to edit, and\
+        \ edits that expense in the Expenses table with the new values provided. Returns\
+        \ the object on success"
+      operationId: editItem
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Expense"
+        required: true
+      responses:
+        "200":
+          description: The expense was successfully modified
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expense"
+              example: "{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\"\
+                :0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\"\
+                ,\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":2,\"\
+                itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"\
+                moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\"\
+                ,\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\"\
+                :15.00,\"purpose\":\"need for x event\",\"quantity\":5,\"reimbursedFlag\"\
+                :0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\"\
+                :0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":75.00,\"\
+                totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\"\
+                :\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\"\
+                :0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"\
+                finishedBuyingFlag\":0,\"foodFlag\":1,\"id\":3,\"itemDeadline\":\"\
+                2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\"\
+                :250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\"\
+                :0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\"\
+                :\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\"\
+                :\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\"\
+                :0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"\
+                }"
+        "400":
+          description: Invalid Expense id
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: Invalid expense id: 2"
+        "500":
+          description: Unable to update expense
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to update expense"
+  /expense/item/food_flag_id={id}/num={num}:
     put:
       tags:
       - Expense Controller
@@ -970,7 +1033,7 @@ paths:
               schema:
                 type: string
               example: "Error: unable to update expense"
-  /expense/item/f_buying_flag_id={id}_num={num}:
+  /expense/item/f_buying_flag_id={id}/num={num}:
     put:
       tags:
       - Expense Controller
@@ -991,69 +1054,6 @@ paths:
         schema:
           type: integer
           format: int32
-      responses:
-        "200":
-          description: The expense was successfully modified
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Expense"
-              example: "{\"allocationDeadline\":\"2026-08-23T05:00:00\",\"approvedFlag\"\
-                :0,\"community\":1,\"deleted\":0,\"deliberationDeadline\":\"2026-08-30T05:00:00\"\
-                ,\"eventId\":1,\"finishedBuyingFlag\":0,\"foodFlag\":0,\"id\":2,\"\
-                itemDeadline\":\"2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"\
-                moneyRemaining\":250.00,\"name\":\"Abby\",\"paymentType\":\"club card\"\
-                ,\"pickedUpFlag\":0,\"pickupLocation\":\"my house\",\"pricePerUnit\"\
-                :15.00,\"purpose\":\"need for x event\",\"quantity\":5,\"reimbursedFlag\"\
-                :0,\"reimbursementDeadline\":\"2026-09-01T05:00:00\",\"requestedFlag\"\
-                :0,\"sourceId\":3,\"startedBuyingFlag\":0,\"totalPrice\":75.00,\"\
-                totalSpent\":0.00,\"vendor\":\"Sams Club\"},{\"allocationDeadline\"\
-                :\"2026-08-23T05:00:00\",\"approvedFlag\":0,\"community\":1,\"deleted\"\
-                :0,\"deliberationDeadline\":\"2026-08-30T05:00:00\",\"eventId\":1,\"\
-                finishedBuyingFlag\":0,\"foodFlag\":1,\"id\":3,\"itemDeadline\":\"\
-                2026-09-23T05:00:00\",\"link\":\"www.link.com\",\"moneyRemaining\"\
-                :250.00,\"name\":\"Abby\",\"paymentType\":\"club card\",\"pickedUpFlag\"\
-                :0,\"pickupLocation\":\"my house\",\"pricePerUnit\":50.00,\"purpose\"\
-                :\"need for x event\",\"quantity\":2,\"reimbursedFlag\":0,\"reimbursementDeadline\"\
-                :\"2026-09-01T05:00:00\",\"requestedFlag\":0,\"sourceId\":3,\"startedBuyingFlag\"\
-                :0,\"totalPrice\":100.00,\"totalSpent\":0.00,\"vendor\":\"Meijer\"\
-                }"
-        "400":
-          description: Invalid Expense id
-          content:
-            text/plain:
-              schema:
-                type: string
-              example: "Error: Invalid expense id: 2"
-        "500":
-          description: Unable to update expense
-          content:
-            text/plain:
-              schema:
-                type: string
-              example: "Error: unable to update expense"
-  /expense/item/edit_{id}:
-    put:
-      tags:
-      - Expense Controller
-      summary: Edits an expense in the Expenses table
-      description: "Takes in a JSON object and the id of the expense to edit, and\
-        \ edits that expense in the Expenses table with the new values provided. Returns\
-        \ the object on success"
-      operationId: editItem
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int32
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Expense"
-        required: true
       responses:
         "200":
           description: The expense was successfully modified
@@ -1964,30 +1964,83 @@ paths:
               schema:
                 type: string
               example: "Error: unable to retrieve all finance groups"
-  /expense/total_price:
+  /expense/total_price/price_per_unit={pricePerUnit}/units={units}:
     get:
       tags:
       - Expense Controller
+      summary: Calculates the recommended total price
+      description: "Calculates the total price an expense based on the price per units\
+        \ and amount of units provided on success with a 200 response code and the\
+        \ recommend price. On error, returns an error response code and text explaining\
+        \ the error"
       operationId: calculateRecommendedTotalPrice
+      parameters:
+      - name: pricePerUnit
+        in: path
+        required: true
+        schema:
+          type: number
+          format: float
+      - name: units
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
       responses:
         "200":
-          description: OK
+          description: The expense was successfully deleted
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/Expense"
-  /expense/source:
+              example: 43.99
+        "500":
+          description: Unable to delete expense
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to calculate total price"
+  /expense/source/total_price={totalPrice}:
     get:
       tags:
       - Expense Controller
+      summary: Calculates the recommended source
+      description: "Calculates the source for an expense based on the total price\
+        \ provided on success with a 200 response code and the recommended source.\
+        \ On error, returns an error response code and text explaining the error"
       operationId: calculateRecommendedSource
+      parameters:
+      - name: totalPrice
+        in: path
+        required: true
+        schema:
+          type: number
       responses:
         "200":
-          description: OK
+          description: The recommended source is successfully calculated and returned
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/Expense"
+              example:
+                available: 760.0
+                budgeted: 40.0
+                deleted: 1
+                internal: 1
+                moneyCap: 800.0
+                name: Abby
+                spent: 20.0
+                type: editing
+        "403":
+          description: Unable to find a source which can handle the total price
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: unable to find a source which can accommodate that\
+                \ expense price"
   /expense/all:
     get:
       tags:
@@ -2340,6 +2393,9 @@ components:
     Source:
       type: object
       properties:
+        id:
+          type: integer
+          format: int32
         name:
           type: string
           description: The name of the source

@@ -46,7 +46,10 @@ public class Source {
     private Integer deleted;
 
     // getters
-
+    public Integer getId() {
+        return id;
+    }
+    
     public String getName() {
         return this.name;
     }
