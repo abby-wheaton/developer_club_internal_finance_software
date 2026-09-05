@@ -6,8 +6,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import com.devwmu.dc_fin_soft.entities.FinUser;
 import com.devwmu.dc_fin_soft.entities.Request;
+import com.devwmu.dc_fin_soft.repositories.FinUserRepository;
 import com.devwmu.dc_fin_soft.repositories.RequestRepository;
+import com.devwmu.dc_fin_soft.controllers.mail.*;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -29,9 +32,13 @@ import java.util.List;
 @Tag(name = "Requests", description = "This controller interacts with the requests table in various ways")
 public class RequestController {
     private final RequestRepository requestRepository;
+    private final EmailService emailService;
+    private final FinUserRepository finUserRepository;
 
-    public RequestController(final RequestRepository requestRepository) {
+    public RequestController(final RequestRepository requestRepository, final EmailService emailService, FinUserRepository finUserRepository) {
     this.requestRepository = requestRepository;
+    this.finUserRepository = finUserRepository;
+    this.emailService = emailService;
   }
 
     @GetMapping("/all")
@@ -469,9 +476,22 @@ public class RequestController {
             approveRequest.setApproval(0);
         }
         try{
-            return ResponseEntity.status(HttpStatus.OK)
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(this.requestRepository.save(approveRequest));
+            Request approvedRequest = this.requestRepository.save(approveRequest);
+
+            // notify user about update to their request
+            ResponseEntity<String> response= requestStatusUpdatedNotify(approvedRequest);
+            // check code to see if email properly sent
+            if (response.getStatusCode() == HttpStatus.OK){
+                // returned good, so return good status
+                return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(approvedRequest);
+            } else {
+                // did not return good, so return bad status
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error: unable to send email to requestee about updated request");
+            }
+
         } catch (Exception e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -479,19 +499,80 @@ public class RequestController {
         } 
     }
 
-    @PostMapping("/new_request")
-    public Request newRequestNotify(){
+    @PostMapping("/new_request_notif")
+    @Operation(
+        summary = "Sends an email to all admins about a new request",
+        description = "Does a search of the database to look for admins, then sends them all an email about a new request"
+    )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "The admins were successfully emailed",
+            content = {@Content(mediaType = "text/plains",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Email successfully sent to all admins"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to send email",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: failed to send email(s)"))})
+    })
+
+    /** 
+   * DESCRIPTION
+   * 
+   * @return returns a response entity with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
+  */
+    public ResponseEntity<String> newRequestNotify(){
         // custom
         // newRequestNotify(RequestID, email(s)): bool
         //     Sends a notification to the admin of the dev club about a new request
         //     OUTPUT: success or not
 
         // do a search of the admins of the database, and email them that a new request has been made
-        return new Request();
+        List<FinUser> admins = this.finUserRepository.findByFinGroup(1);
+        try{
+            for (FinUser admin: admins){
+                String body = "Hello " + admin.getName()+ ",\nThere has been a new request made for the WMU Developer Club and is ready to be reviewed for approval.";
+                this.emailService.sendMail(admin.getEmail(), "New request for Developer Club", body);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: failed to send email(s)");
+        }
+        return ResponseEntity.status(HttpStatus.OK)
+        .body("Email successfully sent to all admins");
     }
 
-    @PostMapping("/request_status_updated")
-    public Request requestStatusUpdatedNotify(){
+    @PostMapping("/request_updated_notif")
+    @Operation(
+        summary = "Sends an email to the requesting user about an update to their request",
+        description = "Takes in a request object, then extracts the requesting user to send them an email about their updated request"
+    )
+    @ApiResponses(value = {
+         @ApiResponse(responseCode = "200",
+            description = "The user was successfully emailed",
+            content = {@Content(mediaType = "text/plains",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Email successfully sent to user"))}),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid user id",
+            content = {@Content(mediaType = "text/plains",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: invalid user id: 3"))}),
+         @ApiResponse(responseCode = "500",
+            description = "Unable to send email",
+            content = {@Content(mediaType = "text/plain",
+            schema = @Schema(type = "string"),
+            examples = @ExampleObject(value = "Error: failed to send email"))})
+    })
+
+    /** 
+   * DESCRIPTION
+   * 
+   * @return returns a response entity with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
+  */
+    public ResponseEntity<String> requestStatusUpdatedNotify(Request request){
         // custom
         // requestStatusUpdatedNotify(requestID, update): bool
         //     Updates the requestee on the request that there has been a change to their request (and what the change is)
@@ -499,6 +580,24 @@ public class RequestController {
 
         // when admin changes approves/disapproves of a request, it will call this funcion
         // take in the id of the request, extract who made the request, and send them an email
-        return new Request();
+        Integer idUser = request.getRequesteeUser();
+
+        Optional<FinUser> userOptional = this.finUserRepository.findById(idUser);
+        if (!userOptional.isPresent()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Error: invalid user id: " + idUser.toString() );
+        }
+        FinUser user = userOptional.get();
+ 
+        try{
+            String body = "Hello " + user.getName()+ ",\nThere has been an update to your request made for the WMU Developer Club.";
+            this.emailService.sendMail(user.getEmail(), "Update to Developer Club request", body);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error: failed to send email");
+        }
+        return ResponseEntity.status(HttpStatus.OK)
+        .body("Email successfully sent to user");
+        
     }
 }

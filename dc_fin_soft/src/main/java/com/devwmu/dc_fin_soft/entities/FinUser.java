@@ -17,7 +17,12 @@ public class FinUser {
 
     @Schema(description = "The id of the finance group", example = "3", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="fin_group")
-    private String finGroup;
+    private Integer finGroup;
+
+    @Schema(description = "The email of the user", example = "email@email.com", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Column(name ="email")
+    private String email;
+
 
     public void setId(Integer id) {
         this.id = id;
@@ -27,8 +32,12 @@ public class FinUser {
         this.name = name;
     }
 
-    public void setFinGroup(String finGroup) {
+    public void setFinGroup(Integer finGroup) {
         this.finGroup = finGroup;
+    }
+
+     public void setEmail(String email) {
+        this.email = email;
     }
 
     public Integer getId() {
@@ -39,8 +48,12 @@ public class FinUser {
         return name;
     }
 
-    public String getFinGroup() {
+    public Integer getFinGroup() {
         return finGroup;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
 }

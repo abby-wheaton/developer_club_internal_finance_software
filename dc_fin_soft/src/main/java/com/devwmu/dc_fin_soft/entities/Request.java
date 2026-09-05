@@ -19,9 +19,9 @@ public class Request {
     @Column(name ="community_name")
     private Integer communityName;
 
-    @Schema(description = "The person who is submitting the request", example = "Khang", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "The id of the person who is submitting the request", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="requestee_user")
-    private String requesteeUser;
+    private Integer requesteeUser;
 
     @Schema(description = "The name of the item being requested", example = "Napkins", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(name ="item_name")
@@ -61,7 +61,7 @@ public class Request {
         return this.communityName;
     }
 
-    public String getRequesteeUser() {
+    public Integer getRequesteeUser() {
         return this.requesteeUser;
     }
 
@@ -99,7 +99,7 @@ public class Request {
         this.communityName = communityName;
     }
 
-    public void setRequesteeUser(String requesteeUser) {
+    public void setRequesteeUser(Integer requesteeUser) {
         this.requesteeUser = requesteeUser;
     }
 

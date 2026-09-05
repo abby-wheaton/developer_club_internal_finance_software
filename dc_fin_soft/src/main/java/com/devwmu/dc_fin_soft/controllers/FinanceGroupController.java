@@ -213,7 +213,7 @@ public class FinanceGroupController {
 
         FinUser finUserToUpdate = finUserToUpdateOptional.get();
 
-        finUserToUpdate.setFinGroup(financeGroup.getTitle());
+        finUserToUpdate.setFinGroup(financeGroup.getId());
         
         try{
             return ResponseEntity.status(HttpStatus.OK)

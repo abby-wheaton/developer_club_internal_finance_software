@@ -1002,13 +1002,4 @@ public class ExpenseController {
             .contentType(MediaType.APPLICATION_JSON)
             .body(recSource);
     }
-
-    @PostMapping("/receipt")
-    public Expense addReceipt(){
-        // addReceipt(imgFile) success
-        //     Adds a receipt to the Google Drive
-        //     OUTPUT: success or not
-
-        return new Expense();
-    }
 }
