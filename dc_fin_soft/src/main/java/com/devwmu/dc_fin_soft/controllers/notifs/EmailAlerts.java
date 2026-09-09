@@ -1,4 +1,4 @@
-package com.devwmu.dc_fin_soft.controllers.mail;
+package com.devwmu.dc_fin_soft.controllers.notifs;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

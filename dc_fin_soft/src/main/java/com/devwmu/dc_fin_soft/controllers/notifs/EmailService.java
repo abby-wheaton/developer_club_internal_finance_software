@@ -1,4 +1,4 @@
-package com.devwmu.dc_fin_soft.controllers.mail;
+package com.devwmu.dc_fin_soft.controllers.notifs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;

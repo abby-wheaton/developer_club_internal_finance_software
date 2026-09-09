@@ -1447,30 +1447,65 @@ paths:
               schema:
                 type: string
               example: "Error: unable to update source"
-  /requests/request_status_updated:
+  /requests/request_updated_notif:
     post:
       tags:
       - Requests
+      summary: Sends an email to the requesting user about an update to their request
+      description: "Takes in a request object, then extracts the requesting user to\
+        \ send them an email about their updated request"
       operationId: requestStatusUpdatedNotify
+      parameters:
+      - name: request
+        in: query
+        required: true
+        schema:
+          $ref: "#/components/schemas/Request"
       responses:
         "200":
-          description: OK
+          description: The user was successfully emailed
           content:
-            '*/*':
+            text/plains:
               schema:
-                $ref: "#/components/schemas/Request"
-  /requests/new_request:
+                type: string
+              example: Email successfully sent to user
+        "400":
+          description: Invalid user id
+          content:
+            text/plains:
+              schema:
+                type: string
+              example: "Error: invalid user id: 3"
+        "500":
+          description: Unable to send email
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: failed to send email"
+  /requests/new_request_notif:
     post:
       tags:
       - Requests
+      summary: Sends an email to all admins about a new request
+      description: "Does a search of the database to look for admins, then sends them\
+        \ all an email about a new request"
       operationId: newRequestNotify
       responses:
         "200":
-          description: OK
+          description: The admins were successfully emailed
           content:
-            '*/*':
+            text/plains:
               schema:
-                $ref: "#/components/schemas/Request"
+                type: string
+              example: Email successfully sent to all admins
+        "500":
+          description: Unable to send email
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Error: failed to send email(s)"
   /requests/create:
     post:
       tags:
@@ -1538,18 +1573,6 @@ paths:
               schema:
                 type: string
               example: "Error: unable to update finance group"
-  /expense/receipt:
-    post:
-      tags:
-      - Expense Controller
-      operationId: addReceipt
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Expense"
   /expense/operational_allocation_form:
     post:
       tags:
@@ -2450,9 +2473,10 @@ components:
           description: The community name for the requestee
           example: Web team
         requesteeUser:
-          type: string
-          description: The person who is submitting the request
-          example: Khang
+          type: integer
+          format: int32
+          description: The id of the person who is submitting the request
+          example: 1
         itemName:
           type: string
           description: The name of the item being requested
