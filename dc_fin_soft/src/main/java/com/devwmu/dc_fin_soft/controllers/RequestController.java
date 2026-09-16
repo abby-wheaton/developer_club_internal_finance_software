@@ -484,20 +484,9 @@ public class RequestController {
         }
         try{
             Request approvedRequest = this.requestRepository.save(approveRequest);
-
-            // notify user about update to their request
-            ResponseEntity<String> response= requestStatusUpdatedNotify(approvedRequest);
-            // check code to see if email properly sent
-            if (response.getStatusCode() == HttpStatus.OK){
-                // returned good, so return good status
                 return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(approvedRequest);
-            } else {
-                // did not return good, so return bad status
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error: unable to send email to requestee about updated request");
-            }
 
         } catch (Exception e){
             e.printStackTrace();
@@ -539,7 +528,7 @@ public class RequestController {
         List<FinUser> admins = this.finUserRepository.findByFinGroup(1);
         try{
             for (FinUser admin: admins){
-                String body = "Hello " + admin.getName()+ ",\nThere has been a new request made for the WMU Developer Club and is ready to be reviewed for approval.";
+                String body = "Dear " + admin.getName()+ ",\nThere has been a new request made for the WMU Developer Club and is ready to be reviewed for approval.";
                 this.emailService.sendMail(admin.getEmail(), "New request for Developer Club", body);
             }
         } catch (Exception e) {
@@ -579,7 +568,7 @@ public class RequestController {
    * 
    * @return returns a response entity with a 200 response code on success. On error, the appropriate error code will be set with text body explaining the error
   */
-    public ResponseEntity<String> requestStatusUpdatedNotify(Request request){
+    public ResponseEntity<String> requestStatusUpdatedNotify(@RequestBody Request request){
         // custom
         // requestStatusUpdatedNotify(requestID, update): bool
         //     Updates the requestee on the request that there has been a change to their request (and what the change is)
@@ -590,14 +579,14 @@ public class RequestController {
         Integer idUser = request.getRequesteeUser();
 
         Optional<FinUser> userOptional = this.finUserRepository.findById(idUser);
-        if (!userOptional.isPresent()){
+        if (userOptional.isEmpty()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body("Error: invalid user id: " + idUser.toString() );
         }
         FinUser user = userOptional.get();
  
         try{
-            String body = "Hello " + user.getName()+ ",\nThere has been an update to your request made for the WMU Developer Club.";
+            String body = "Dear " + user.getName()+ ",\nThere has been an update to your request made for the WMU Developer Club.";
             this.emailService.sendMail(user.getEmail(), "Update to Developer Club request", body);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

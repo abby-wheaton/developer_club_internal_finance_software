@@ -10,6 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.devwmu.dc_fin_soft.controllers.notifs.AlertsNeeded;
 import com.devwmu.dc_fin_soft.controllers.notifs.EmailAlerts;
@@ -29,6 +31,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
+@RestController
+@RequestMapping("/notifs")
 public class NotificationController {
 
     private final ExpenseRepository expenseRepository;
@@ -79,8 +83,8 @@ public class NotificationController {
                 String deadline = expense.getReimbursementDeadline().toString();
 
                 for (FinUser admin: admins){
-                    String body = "Hello " + admin.getName()+ ",\nThe reimbursement deadline for expense item " + name;
-                    body = body + " with id of " + id + "is approaching with deadline of " + deadline + ".";
+                    String body = "Dear " + admin.getName()+ ",\nThe reimbursement deadline for expense item " + name;
+                    body = body + " with id of " + id + " is approaching with deadline of " + deadline + ".";
                     this.emailService.sendMail(admin.getEmail(), "WMU Dev Club reimbursement deadline upcoming", body);
                 }
             } catch (Exception e) {
@@ -105,8 +109,8 @@ public class NotificationController {
                 String deadline = expense.getDeliberationDeadline().toString();
 
                 for (FinUser admin: admins){
-                    String body = "Hello " + admin.getName()+ ",\nThe Deliberation deadline for expense item " + name;
-                    body = body + " with id of " + id + "is approaching with deadline of " + deadline + ".";
+                    String body = "Dear " + admin.getName()+ ",\nThe Deliberation deadline for expense item " + name;
+                    body = body + " with id of " + id + " is approaching with deadline of " + deadline + ".";
                     this.emailService.sendMail(admin.getEmail(), "WMU Dev Club deliberation deadline upcoming", body);
                 }
             } catch (Exception e) {
@@ -131,8 +135,8 @@ public class NotificationController {
                 String deadline = expense.getItemDeadline().toString();
 
                 for (FinUser admin: admins){
-                    String body = "Hello " + admin.getName()+ ",\nThe item deadline for expense item " + name;
-                    body = body + " with id of " + id + "is approaching with deadline of " + deadline + ".";
+                    String body = "Dear " + admin.getName()+ ",\nThe item deadline for expense item " + name;
+                    body = body + " with id of " + id + " is approaching with deadline of " + deadline + ".";
                     this.emailService.sendMail(admin.getEmail(), "WMU Dev Club item deadline upcoming", body);
                 }
             } catch (Exception e) {
@@ -157,8 +161,8 @@ public class NotificationController {
                 String deadline = expense.getAllocationDeadline().toString();
 
                 for (FinUser admin: admins){
-                    String body = "Hello " + admin.getName()+ ",\nThe allocation deadline for expense item " + name;
-                    body = body + " with id of " + id + "is approaching with deadline of " + deadline + ".";
+                    String body = "Dear " + admin.getName()+ ",\nThe allocation deadline for expense item " + name;
+                    body = body + " with id of " + id + " is approaching with deadline of " + deadline + ".";
                     this.emailService.sendMail(admin.getEmail(), "WMU Dev Club allocation deadline upcoming", body);
                 }
             } catch (Exception e) {
@@ -184,7 +188,7 @@ public class NotificationController {
                 String deadline = request.getDeadline().toString();
 
                 for (FinUser admin: admins){
-                    String body = "Hello " + admin.getName()+ ",\nThe item deadline for request item " + name;
+                    String body = "Dear " + admin.getName()+ ",\nThe item deadline for request item " + name;
                     body = body + " with id of " + id + ", which has not been marked for approval or disapproval, is approaching with deadline of " + deadline + ".";
                     this.emailService.sendMail(admin.getEmail(), "WMU Dev Club item deadline request upcoming", body);
                 }
@@ -207,8 +211,8 @@ public class NotificationController {
                 String id = expense.getId().toString();
 
                 for (FinUser admin: admins){
-                    String body = "Hello " + admin.getName()+ ",\nThe item deadline for expense item " + name;
-                    body = body + " with id of " + id + "has allocated money not yet spent.";
+                    String body = "Dear " + admin.getName()+ ",\nThe item deadline for expense item " + name;
+                    body = body + " with id of " + id + " has allocated money not yet spent.";
                     this.emailService.sendMail(admin.getEmail(), "WMU Dev Club allocated money not yet spent", body);
                 }
             } catch (Exception e) {
