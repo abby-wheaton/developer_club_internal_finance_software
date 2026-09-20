@@ -2,12 +2,29 @@ package com.devwmu.dc_fin_soft.entities;
 import java.time.LocalDateTime;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "EventFin")
 public class Event {
         // initalization
+
+    public Event(Integer conferenceFlag, LocalDateTime date, Integer deleted, Integer estAttendance, Integer feeFlag, Integer id, String location, String name, Integer philanthropyFlag) {
+        this.conferenceFlag = conferenceFlag;
+        this.date = date;
+        this.deleted = deleted;
+        this.estAttendance = estAttendance;
+        this.feeFlag = feeFlag;
+        this.id = id;
+        this.location = location;
+        this.name = name;
+        this.philanthropyFlag = philanthropyFlag;
+    }
+    
     @Id
     @GeneratedValue
     private Integer id;
