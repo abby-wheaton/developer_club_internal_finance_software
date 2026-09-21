@@ -4,27 +4,33 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.mockito.ArgumentMatchers.any;
+import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.devwmu.dc_fin_soft.entities.Event;
 import com.devwmu.dc_fin_soft.repositories.EventRepository;
 import com.devwmu.dc_fin_soft.repositories.ExpenseRepository;
 
 
-@ExtendWith(SpringExtension.class)
+
 @WebMvcTest(EventController.class)
 @AutoConfigureJsonTesters
 public class EventControllerTest {
@@ -38,103 +44,169 @@ public class EventControllerTest {
     @MockitoBean 
     private ExpenseRepository expenseRepository;
 
-    @Nested
-    class filterEventsTest{
-        // invididual tests
+    private final ObjectMapper objectMapper = new ObjectMapper()
+        .registerModule(new JavaTimeModule());
 
+    // /filter events tests
 
+    // /all
+    @Test
+    void allEventsSuccessTest() throws Exception{
+        LocalDateTime datetime = LocalDateTime.of(2026, 5, 23, 5, 0, 0);
+        Event event1 = new Event(0, datetime, 0, 15, 0, 1, "Floyd", "Testing Event", 0);
+
+        Event event2 = new Event(1, datetime, 0, 25, 0, 2, "Rood Hall", "Testing Event 2", 0);
+
+        List<Event> mockEvents = new ArrayList<>();
+        mockEvents.add(event1);
+        mockEvents.add(event2);
+
+        // mock the return from find all call
+        doReturn(mockEvents).when(eventRepository).findAll();
+
+        // assert the actual pathing is returning what it should with the mocked arr above
+        mockMvc.perform(get("/event/all")
+            .accept(MediaType.APPLICATION_JSON))
+            //check status code and that output is an array of correct length
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$.length()").value(2))
+
+            //checl that the content of each event is correct
+            // event 1
+            .andExpect(jsonPath("$[0].conferenceFlag").value(0))
+            .andExpect(jsonPath("$[0].date").value("2026-05-23T05:00:00"))
+            .andExpect(jsonPath("$[0].deleted").value(0))
+            .andExpect(jsonPath("$[0].estAttendance").value(15))
+            .andExpect(jsonPath("$[0].feeFlag").value(0))
+            .andExpect(jsonPath("$[0].id").value(1))
+            .andExpect(jsonPath("$[0].location").value("Floyd"))
+            .andExpect(jsonPath("$[0].name").value("Testing Event"))
+            .andExpect(jsonPath("$[0].philanthropyFlag").value(0))
+
+            // event 2
+            .andExpect(jsonPath("$[1].conferenceFlag").value(1))
+            .andExpect(jsonPath("$[1].date").value("2026-05-23T05:00:00"))
+            .andExpect(jsonPath("$[1].deleted").value(0))
+            .andExpect(jsonPath("$[1].estAttendance").value(25))
+            .andExpect(jsonPath("$[1].feeFlag").value(0))
+            .andExpect(jsonPath("$[1].id").value(2))
+            .andExpect(jsonPath("$[1].location").value("Rood Hall"))
+            .andExpect(jsonPath("$[1].name").value("Testing Event 2"))
+            .andExpect(jsonPath("$[1].philanthropyFlag").value(0))
+            ;
     }
 
-    @Nested
-    class getAllEventsTest{
-        // invididual tests
-        @Test
-        void allEventsSuccessTest() throws Exception{
-            LocalDateTime datetime = LocalDateTime.of(2026, 5, 23, 5, 0, 0);
-            Event event1 = new Event(0, datetime, 0, 15, 0, 1, "Floyd", "Testing Event", 0);
+    @Test
+    void allEventsEmptyTest() throws Exception{
+        List<Event> mockEvents = new ArrayList<>();
 
-            Event event2 = new Event(1, datetime, 0, 25, 0, 2, "Rood Hall", "Testing Event 2", 0);
+        // mock the return from find all call
+        when(eventRepository.findAll()).thenReturn(mockEvents);
 
-            List<Event> mockEvents = new ArrayList<>();
-            mockEvents.add(event1);
-            mockEvents.add(event2);
+        // check that the array returned is empty and with 200 code
+        mockMvc.perform(get("/event/all")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$.length()").value(0));
 
-            // mock the return from find all call
-            doReturn(mockEvents).when(eventRepository).findAll();
-
-            // assert the actual pathing is returning what it should with the mocked arr above
-            mockMvc.perform(get("/event/all")
-                .accept(MediaType.APPLICATION_JSON))
-                //check status code and that output is an array of correct length
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(2))
-
-                //checl that the content of each event is correct
-                // event 1
-                .andExpect(jsonPath("$[0].conferenceFlag").value(0))
-                .andExpect(jsonPath("$[0].date").value("2026-05-23T05:00:00"))
-                .andExpect(jsonPath("$[0].deleted").value(0))
-                .andExpect(jsonPath("$[0].estAttendance").value(15))
-                .andExpect(jsonPath("$[0].feeFlag").value(0))
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].location").value("Floyd"))
-                .andExpect(jsonPath("$[0].name").value("Testing Event"))
-                .andExpect(jsonPath("$[0].philanthropyFlag").value(0))
-
-                // event 2
-                .andExpect(jsonPath("$[1].conferenceFlag").value(1))
-                .andExpect(jsonPath("$[1].date").value("2026-05-23T05:00:00"))
-                .andExpect(jsonPath("$[1].deleted").value(0))
-                .andExpect(jsonPath("$[1].estAttendance").value(25))
-                .andExpect(jsonPath("$[1].feeFlag").value(0))
-                .andExpect(jsonPath("$[1].id").value(2))
-                .andExpect(jsonPath("$[1].location").value("Rood Hall"))
-                .andExpect(jsonPath("$[1].name").value("Testing Event 2"))
-                .andExpect(jsonPath("$[1].philanthropyFlag").value(0))
-                ;
-        }
+            
     }
 
-    @Nested
-    class createEventTest{
-        // invididual tests
+    @Test
+    void allEventsExceptionTest() throws Exception{
+        // mock the return from find all call
+        when(eventRepository.findAll()).thenThrow(new RuntimeException("Database error"));
+
+        // check that the array returned is empty and with 500 code
+        mockMvc.perform(get("/event/all")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isInternalServerError())
+            .andExpect(content().string("Error: unable to retrieve all events"));
+
+            
     }
 
-    @Nested
-    class editEventTest{
-        // invididual tests
+
+
+    // /create tests
+    @Test
+    void createSuccessTest() throws Exception{
+        LocalDateTime datetime = LocalDateTime.of(2026, 5, 23, 5, 0, 0);
+        Event event = new Event(0, datetime, 0, 15, 0, 1, "Floyd", "Testing Event", 0);
+
+        // mock the return from find all call
+        when(eventRepository.save(any(Event.class))).thenReturn(event);
+
+        // assert the actual pathing is returning what it should with the mocked arr above
+        mockMvc.perform(post("/event/create")
+            .content(objectMapper.writeValueAsString(event))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            //check status code and that output is correct
+            .andExpect(status().isOk())
+
+            // event 
+            .andExpect(jsonPath("$.conferenceFlag").value(0))
+            .andExpect(jsonPath("$.date").value("2026-05-23T05:00:00"))
+            .andExpect(jsonPath("$.deleted").value(0))
+            .andExpect(jsonPath("$.estAttendance").value(15))
+            .andExpect(jsonPath("$.feeFlag").value(0))
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.location").value("Floyd"))
+            .andExpect(jsonPath("$.name").value("Testing Event"))
+            .andExpect(jsonPath("$.philanthropyFlag").value(0));
     }
 
-    @Nested
-    class feeFlagEventTest{
-        // invididual tests
+    @Test
+    void createFailureTest() throws Exception{
+         LocalDateTime datetime = LocalDateTime.of(2026, 5, 23, 5, 0, 0);
+        Event event = new Event(0, datetime, 0, 15, 0, 1, "Floyd", "Testing Event", 0);
+
+        // mock the return from find all call
+        when(eventRepository.save(any(Event.class))).thenThrow(new RuntimeException("Database Error"));
+
+        // check that the array returned is empty and with 500 code
+        mockMvc.perform(post("/event/create")
+            .content(objectMapper.writeValueAsString(event))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isInternalServerError())
+            .andExpect(content().string(startsWith("Error: unable to create event: ")));
     }
 
-    @Nested
-    class philFlagEventTest{
-        // invididual tests
-    }
+    // /edit tests
 
-    @Nested
-    class confFlagEventTest{
+    
+    //feeFlagEventTest{
         // invididual tests
-    }
+    
 
-    @Nested
-    class deleteEventTest{
+    
+    //philFlagEventTest{
         // invididual tests
-    }
+    
 
-    @Nested
-    class createEventAllocationFormTest{
+    
+    //confFlagEventTest{
+        // invididual tests
+    
+
+    
+    //deleteEventTest{
+        // invididual tests
+    
+
+    
+    //createEventAllocationFormTest{
         // individual tests
-    }
+    
 
-    @Nested
-    class createConferenceAllocationFormTest{
+    
+    //createConferenceAllocationFormTest{
         // individual tests
-    }
+    
 
 }
 
@@ -144,54 +216,54 @@ public class EventControllerTest {
 //@SpringBootTest
 class EventControllerTestInt {
     // standard testing
-    @Nested
-    class filterEventsTest{
+    
+    //filterEventsTest{
         // invididual tests
-    }
+    
 
-    @Nested
-    class getAllEventsTest{
+    
+    //getAllEventsTest{
         // invididual tests
-    }
+    
 
-    @Nested
-    class createEventTest{
+    
+    //createEventTest{
         // invididual tests
-    }
+    
 
-    @Nested
-    class editEventTest{
+    
+    //editEventTest{
         // invididual tests
-    }
+    
 
-    @Nested
-    class feeFlagEventTest{
+    
+    //feeFlagEventTest{
         // invididual tests
-    }
+    
 
-    @Nested
-    class philFlagEventTest{
+    
+    //philFlagEventTest{
         // invididual tests
-    }
+    
 
-    @Nested
-    class confFlagEventTest{
+    
+    //confFlagEventTest{
         // invididual tests
-    }
+    
 
-    @Nested
-    class deleteEventTest{
+    
+    //deleteEventTest{
         // invididual tests
-    }
+    
 
-    @Nested
-    class createEventAllocationFormTest{
+    
+    //createEventAllocationFormTest{
         // individual tests
-    }
+    
 
-    @Nested
-    class createConferenceAllocationFormTest{
+    
+    //createConferenceAllocationFormTest{
         // individual tests
-    }
+    
 
 }

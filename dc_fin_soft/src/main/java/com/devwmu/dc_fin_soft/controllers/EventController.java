@@ -1,39 +1,48 @@
 package com.devwmu.dc_fin_soft.controllers;
-import com.devwmu.dc_fin_soft.repositories.ExpenseRepository;
-import com.devwmu.dc_fin_soft.entities.Expense;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.devwmu.dc_fin_soft.controllers.forms.AmountRequested;
 import com.devwmu.dc_fin_soft.entities.Event;
+import com.devwmu.dc_fin_soft.entities.Expense;
 import com.devwmu.dc_fin_soft.repositories.EventRepository;
+import com.devwmu.dc_fin_soft.repositories.ExpenseRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.List;
-
-import org.apache.poi.ss.usermodel.*;
-import org.apache.commons.io.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 
 
 // Fix outputs and inputs
@@ -242,11 +251,6 @@ public class EventController {
             content = {@Content(mediaType = "application/json",
             schema = @Schema(implementation = Event.class),
             examples = @ExampleObject(value = "{\"conferenceFlag\":1,\"date\":\"2026-05-23T05:00:00\",\"deleted\":0,\"estAttendance\":25,\"feeFlag\":0,\"id\":2,\"location\":\"my house\",\"name\":\"Abby\",\"philanthropyFlag\":0}"))}),
-        @ApiResponse(responseCode = "400",
-            description = "Invalid Event id",
-            content = {@Content(mediaType = "text/plain",
-            schema = @Schema(type = "string"),
-            examples = @ExampleObject(value = "Error: Invalid event id: 2"))}),
          @ApiResponse(responseCode = "500",
             description = "Unable to create row",
             content = {@Content(mediaType = "text/plain",
