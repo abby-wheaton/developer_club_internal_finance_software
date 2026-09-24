@@ -12,7 +12,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "ClubRequests")
 public class Request {
-    
+    protected Request() {}
     // initalization
     @Id
     @GeneratedValue

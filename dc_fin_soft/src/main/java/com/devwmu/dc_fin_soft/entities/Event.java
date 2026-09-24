@@ -13,6 +13,7 @@ import jakarta.persistence.Table;
 public class Event {
         // initalization
 
+    protected Event() {}
     public Event(Integer conferenceFlag, LocalDateTime date, Integer deleted, Integer estAttendance, Integer feeFlag, Integer id, String location, String name, Integer philanthropyFlag) {
         this.conferenceFlag = conferenceFlag;
         this.date = date;
