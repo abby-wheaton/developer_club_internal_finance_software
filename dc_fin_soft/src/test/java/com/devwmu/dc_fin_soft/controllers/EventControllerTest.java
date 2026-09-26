@@ -331,21 +331,254 @@ public class EventControllerTest {
             .andExpect(jsonPath("$.philanthropyFlag").value(0));
     }
         // fee invalid id test
+
+    @Test
+    void feeFlagInvalidIdTest() throws Exception{
+        LocalDateTime datetime = LocalDateTime.of(2026, 5, 23, 5, 0, 0);
+        Event event = new Event(0, datetime, 0, 15, 0, 1, "Floyd", "Testing Event", 0);
+        
+        // mock the find by id
+        when(eventRepository.findById(2)).thenReturn(Optional.empty());
+
+        //mock the save
+        when(eventRepository.save(any(Event.class))).thenReturn(event);
+
+        mockMvc.perform(put("/event/fee_flag/id=2_val=1", 2, 1)
+            .content(objectMapper.writeValueAsString(event))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("Error: Invalid event id: 2"));
+    }
         // fee failure test
 
+    @Test
+    void feeFlagFailureTest() throws Exception{
+        LocalDateTime datetime = LocalDateTime.of(2026, 5, 23, 5, 0, 0);
+        Event event = new Event(0, datetime, 0, 15, 0, 1, "Floyd", "Testing Event", 0);
+        Optional<Event> optEvent = Optional.ofNullable(event);
 
+        // mock the find by id
+        when(eventRepository.findById(1)).thenReturn(optEvent);
+
+        //mock the save
+        when(eventRepository.save(any(Event.class))).thenThrow(new RuntimeException("Database Error"));
+
+        mockMvc.perform(put("/event/fee_flag/id=1_val=1", 1, 1)
+            .content(objectMapper.writeValueAsString(event))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isInternalServerError())
+            .andExpect(content().string("Error: unable to update event"));
+    }
 
     
 
     
     //philFlagEventTest{
         // invididual tests
+
+    @Test
+    void philFlagZeroSuccessTest() throws Exception{
+        LocalDateTime datetime = LocalDateTime.of(2026, 5, 23, 5, 0, 0);
+        Event event = new Event(0, datetime, 0, 15, 0, 1, "Floyd", "Testing Event", 0);
+        Optional<Event> optEvent = Optional.ofNullable(event);
+        // mock the find by id
+        when(eventRepository.findById(1)).thenReturn(optEvent);
+
+        //mock the save
+        when(eventRepository.save(any(Event.class))).thenReturn(event);
+
+        mockMvc.perform(put("/event/phil_flag/id=1_val=0", 1, 0)
+            .content(objectMapper.writeValueAsString(event))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            // event 
+            .andExpect(jsonPath("$.conferenceFlag").value(0))
+            .andExpect(jsonPath("$.date").value("2026-05-23T05:00:00"))
+            .andExpect(jsonPath("$.deleted").value(0))
+            .andExpect(jsonPath("$.estAttendance").value(15))
+            .andExpect(jsonPath("$.feeFlag").value(0))
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.location").value("Floyd"))
+            .andExpect(jsonPath("$.name").value("Testing Event"))
+            .andExpect(jsonPath("$.philanthropyFlag").value(0));
+    }
+        // phil flag 1 success test
+
+    @Test
+    void philFlagOneSuccessTest() throws Exception{
+        LocalDateTime datetime = LocalDateTime.of(2026, 5, 23, 5, 0, 0);
+        Event event = new Event(0, datetime, 0, 15, 0, 1, "Floyd", "Testing Event", 0);
+        Optional<Event> optEvent = Optional.ofNullable(event);
+        // mock the find by id
+        when(eventRepository.findById(1)).thenReturn(optEvent);
+
+        //mock the save
+        when(eventRepository.save(any(Event.class))).thenReturn(event);
+
+        mockMvc.perform(put("/event/phil_flag/id=1_val=1", 1, 1)
+            .content(objectMapper.writeValueAsString(event))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            // event 
+            .andExpect(jsonPath("$.conferenceFlag").value(0))
+            .andExpect(jsonPath("$.date").value("2026-05-23T05:00:00"))
+            .andExpect(jsonPath("$.deleted").value(0))
+            .andExpect(jsonPath("$.estAttendance").value(15))
+            .andExpect(jsonPath("$.feeFlag").value(0))
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.location").value("Floyd"))
+            .andExpect(jsonPath("$.name").value("Testing Event"))
+            .andExpect(jsonPath("$.philanthropyFlag").value(1));
+    }
+        // fee invalid id test
+
+    @Test
+    void philFlagInvalidIdTest() throws Exception{
+        LocalDateTime datetime = LocalDateTime.of(2026, 5, 23, 5, 0, 0);
+        Event event = new Event(0, datetime, 0, 15, 0, 1, "Floyd", "Testing Event", 0);
+        
+        // mock the find by id
+        when(eventRepository.findById(2)).thenReturn(Optional.empty());
+
+        //mock the save
+        when(eventRepository.save(any(Event.class))).thenReturn(event);
+
+        mockMvc.perform(put("/event/phil_flag/id=2_val=1", 2, 1)
+            .content(objectMapper.writeValueAsString(event))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("Error: invalid event id: 2"));
+    }
+        // phil failure test
+
+    @Test
+    void philFlagFailureTest() throws Exception{
+        LocalDateTime datetime = LocalDateTime.of(2026, 5, 23, 5, 0, 0);
+        Event event = new Event(0, datetime, 0, 15, 0, 1, "Floyd", "Testing Event", 0);
+        Optional<Event> optEvent = Optional.ofNullable(event);
+
+        // mock the find by id
+        when(eventRepository.findById(1)).thenReturn(optEvent);
+
+        //mock the save
+        when(eventRepository.save(any(Event.class))).thenThrow(new RuntimeException("Database Error"));
+
+        mockMvc.perform(put("/event/phil_flag/id=1_val=1", 1, 1)
+            .content(objectMapper.writeValueAsString(event))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isInternalServerError())
+            .andExpect(content().string("Error: unable to update event"));
+    }
+
     
 
     
     //confFlagEventTest{
         // invididual tests
-    
+    @Test
+    void confFlagZeroSuccessTest() throws Exception{
+        LocalDateTime datetime = LocalDateTime.of(2026, 5, 23, 5, 0, 0);
+        Event event = new Event(0, datetime, 0, 15, 0, 1, "Floyd", "Testing Event", 0);
+        Optional<Event> optEvent = Optional.ofNullable(event);
+        // mock the find by id
+        when(eventRepository.findById(1)).thenReturn(optEvent);
+
+        //mock the save
+        when(eventRepository.save(any(Event.class))).thenReturn(event);
+
+        mockMvc.perform(put("/event/conf_flag/id=1_val=0", 1, 0)
+            .content(objectMapper.writeValueAsString(event))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            // event 
+            .andExpect(jsonPath("$.conferenceFlag").value(0))
+            .andExpect(jsonPath("$.date").value("2026-05-23T05:00:00"))
+            .andExpect(jsonPath("$.deleted").value(0))
+            .andExpect(jsonPath("$.estAttendance").value(15))
+            .andExpect(jsonPath("$.feeFlag").value(0))
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.location").value("Floyd"))
+            .andExpect(jsonPath("$.name").value("Testing Event"))
+            .andExpect(jsonPath("$.philanthropyFlag").value(0));
+    }
+        // conf flag 1 success test
+
+    @Test
+    void confFlagOneSuccessTest() throws Exception{
+        LocalDateTime datetime = LocalDateTime.of(2026, 5, 23, 5, 0, 0);
+        Event event = new Event(0, datetime, 0, 15, 0, 1, "Floyd", "Testing Event", 0);
+        Optional<Event> optEvent = Optional.ofNullable(event);
+        // mock the find by id
+        when(eventRepository.findById(1)).thenReturn(optEvent);
+
+        //mock the save
+        when(eventRepository.save(any(Event.class))).thenReturn(event);
+
+        mockMvc.perform(put("/event/conf_flag/id=1_val=1", 1, 1)
+            .content(objectMapper.writeValueAsString(event))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            // event 
+            .andExpect(jsonPath("$.conferenceFlag").value(1))
+            .andExpect(jsonPath("$.date").value("2026-05-23T05:00:00"))
+            .andExpect(jsonPath("$.deleted").value(0))
+            .andExpect(jsonPath("$.estAttendance").value(15))
+            .andExpect(jsonPath("$.feeFlag").value(0))
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.location").value("Floyd"))
+            .andExpect(jsonPath("$.name").value("Testing Event"))
+            .andExpect(jsonPath("$.philanthropyFlag").value(0));
+    }
+        // conf invalid id test
+
+    @Test
+    void confFlagInvalidIdTest() throws Exception{
+        LocalDateTime datetime = LocalDateTime.of(2026, 5, 23, 5, 0, 0);
+        Event event = new Event(0, datetime, 0, 15, 0, 1, "Floyd", "Testing Event", 0);
+        
+        // mock the find by id
+        when(eventRepository.findById(2)).thenReturn(Optional.empty());
+
+        //mock the save
+        when(eventRepository.save(any(Event.class))).thenReturn(event);
+
+        mockMvc.perform(put("/event/conf_flag/id=2_val=1", 2, 1)
+            .content(objectMapper.writeValueAsString(event))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("Error: event id invalid: 2"));
+    }
+        // fee failure test
+
+    @Test
+    void confFlagFailureTest() throws Exception{
+        LocalDateTime datetime = LocalDateTime.of(2026, 5, 23, 5, 0, 0);
+        Event event = new Event(0, datetime, 0, 15, 0, 1, "Floyd", "Testing Event", 0);
+        Optional<Event> optEvent = Optional.ofNullable(event);
+
+        // mock the find by id
+        when(eventRepository.findById(1)).thenReturn(optEvent);
+
+        //mock the save
+        when(eventRepository.save(any(Event.class))).thenThrow(new RuntimeException("Database Error"));
+
+        mockMvc.perform(put("/event/conf_flag/id=1_val=1", 1, 1)
+            .content(objectMapper.writeValueAsString(event))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isInternalServerError())
+            .andExpect(content().string("Error: unable to update event"));
+    }
+
 
     
     //safeDeleteEventTest{

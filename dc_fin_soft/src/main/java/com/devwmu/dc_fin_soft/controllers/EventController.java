@@ -413,7 +413,7 @@ public class EventController {
         }
     }
 
-    @PutMapping("/phil_flag/id={id}_val=_{val}")
+    @PutMapping("/phil_flag/id={id}_val={val}")
     @Operation(
         summary = "Toggles the philanthropyFlag for an event",
         description = "Using the id provided, it will toggle the philanthropyFlag for an event to either 1 or 0 on success with a 200 response code. On error, returns an error response code and text explaining the error"
