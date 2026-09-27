@@ -564,9 +564,9 @@ public class EventController {
             .body("Error: invalid event id: " + id.toString()  );
         }
         Event deleteEvent = eventToDeleteOptional.get();
-        this.eventRepository.delete(deleteEvent);
         
         try{
+            this.eventRepository.delete(deleteEvent);
             return ResponseEntity.status(HttpStatus.OK)
             .contentType(MediaType.APPLICATION_JSON)
             .body(deleteEvent);

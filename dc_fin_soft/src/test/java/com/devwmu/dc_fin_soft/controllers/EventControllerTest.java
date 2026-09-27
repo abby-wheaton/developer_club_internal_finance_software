@@ -9,12 +9,15 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -557,7 +560,7 @@ public class EventControllerTest {
             .andExpect(status().isBadRequest())
             .andExpect(content().string("Error: event id invalid: 2"));
     }
-        // fee failure test
+        // conf failure test
 
     @Test
     void confFlagFailureTest() throws Exception{
@@ -579,13 +582,152 @@ public class EventControllerTest {
             .andExpect(content().string("Error: unable to update event"));
     }
 
+    //deleteEventTest{
+        // invididual tests
+     @Test
+    void deleteSuccessTest() throws Exception{
+        LocalDateTime datetime = LocalDateTime.of(2026, 5, 23, 5, 0, 0);
+        Event event = new Event(0, datetime, 0, 15, 0, 1, "Floyd", "Testing Event", 0);
+        Optional<Event> optEvent = Optional.ofNullable(event);
+        // mock the find by id
+        when(eventRepository.findById(1)).thenReturn(optEvent);
 
+        //mock the delete
+        doNothing().when(eventRepository).delete(any(Event.class));
+
+        mockMvc.perform(delete("/event/delete/id=1", 1)
+            .content(objectMapper.writeValueAsString(event))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            // event 
+            .andExpect(jsonPath("$.conferenceFlag").value(0))
+            .andExpect(jsonPath("$.date").value("2026-05-23T05:00:00"))
+            .andExpect(jsonPath("$.deleted").value(0))
+            .andExpect(jsonPath("$.estAttendance").value(15))
+            .andExpect(jsonPath("$.feeFlag").value(0))
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.location").value("Floyd"))
+            .andExpect(jsonPath("$.name").value("Testing Event"))
+            .andExpect(jsonPath("$.philanthropyFlag").value(0));
+    }
+
+    
+        // delete invalid id test
+
+    @Test
+    void deleteInvalidIdTest() throws Exception{
+        LocalDateTime datetime = LocalDateTime.of(2026, 5, 23, 5, 0, 0);
+        Event event = new Event(0, datetime, 0, 15, 0, 1, "Floyd", "Testing Event", 0);
+        
+        // mock the find by id
+        when(eventRepository.findById(2)).thenReturn(Optional.empty());
+
+        //mock the save
+        doThrow(new RuntimeException("Database Error")).when(eventRepository).delete(any(Event.class));
+
+        mockMvc.perform(delete("/event/delete/id={id}", 2)
+            .content(objectMapper.writeValueAsString(event))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("Error: invalid event id: 2"));
+    }
+        // delete failure test
+
+    @Test
+    void deleteFailureTest() throws Exception{
+        LocalDateTime datetime = LocalDateTime.of(2026, 5, 23, 5, 0, 0);
+        Event event = new Event(0, datetime, 0, 15, 0, 1, "Floyd", "Testing Event", 0);
+        Optional<Event> optEvent = Optional.ofNullable(event);
+
+        // mock the find by id
+        when(eventRepository.findById(1)).thenReturn(optEvent);
+
+        //mock the delete
+        doThrow(new RuntimeException("Database Error")).when(eventRepository).delete(any(Event.class));
+        
+
+        mockMvc.perform(delete("/event/delete/id=1", 1)
+            .content(objectMapper.writeValueAsString(event))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isInternalServerError())
+            .andExpect(content().string("Error: unable to delete event"));
+    }
     
     //safeDeleteEventTest{
         // invididual tests
-    
-    //deleteEventTest{
-        // invididual tests
+    @Test
+    void safeDeleteSuccessTest() throws Exception{
+        LocalDateTime datetime = LocalDateTime.of(2026, 5, 23, 5, 0, 0);
+        Event event = new Event(0, datetime, 0, 15, 0, 1, "Floyd", "Testing Event", 0);
+        Optional<Event> optEvent = Optional.ofNullable(event);
+        // mock the find by id
+        when(eventRepository.findById(1)).thenReturn(optEvent);
+
+        //mock the save
+        when(eventRepository.save(any(Event.class))).thenReturn(event);
+
+        mockMvc.perform(put("/event/safe_delete/id={id}", 1)
+            .content(objectMapper.writeValueAsString(event))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            // event 
+            .andExpect(jsonPath("$.conferenceFlag").value(0))
+            .andExpect(jsonPath("$.date").value("2026-05-23T05:00:00"))
+            .andExpect(jsonPath("$.deleted").value(1))
+            .andExpect(jsonPath("$.estAttendance").value(15))
+            .andExpect(jsonPath("$.feeFlag").value(0))
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.location").value("Floyd"))
+            .andExpect(jsonPath("$.name").value("Testing Event"))
+            .andExpect(jsonPath("$.philanthropyFlag").value(0));
+    }
+        // safe delete invalid id test
+
+    @Test
+    void safeDeleteInvalidIdTest() throws Exception{
+        LocalDateTime datetime = LocalDateTime.of(2026, 5, 23, 5, 0, 0);
+        Event event = new Event(0, datetime, 0, 15, 0, 1, "Floyd", "Testing Event", 0);
+        
+        // mock the find by id
+        when(eventRepository.findById(2)).thenReturn(Optional.empty());
+
+        //mock the save
+        when(eventRepository.save(any(Event.class))).thenReturn(event);
+
+        mockMvc.perform(put("/event/safe_delete/id={id}", 2)
+            .content(objectMapper.writeValueAsString(event))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("Error: invalid event id: 2"));
+    }
+        // safe delete failure test
+
+    @Test
+    void safeDeleteFailureTest() throws Exception{
+        LocalDateTime datetime = LocalDateTime.of(2026, 5, 23, 5, 0, 0);
+        Event event = new Event(0, datetime, 0, 15, 0, 1, "Floyd", "Testing Event", 0);
+        Optional<Event> optEvent = Optional.ofNullable(event);
+
+        // mock the find by id
+        when(eventRepository.findById(1)).thenReturn(optEvent);
+
+        //mock the save
+        when(eventRepository.save(any(Event.class))).thenThrow(new RuntimeException("Database Error"));
+
+        mockMvc.perform(put("/event/safe_delete/id={id}", 1)
+            .content(objectMapper.writeValueAsString(event))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isInternalServerError())
+            .andExpect(content().string("Error: unable to delete event"));
+    }
+
+
     
     //createEventAllocationFormTest{
         // individual tests
