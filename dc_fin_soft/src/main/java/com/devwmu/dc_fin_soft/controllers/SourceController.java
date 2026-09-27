@@ -1,9 +1,21 @@
 package com.devwmu.dc_fin_soft.controllers;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.devwmu.dc_fin_soft.entities.Source;
 import com.devwmu.dc_fin_soft.repositories.SourceRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,14 +23,9 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-
-import com.devwmu.dc_fin_soft.entities.Source;
-
-import java.util.Optional;
-import java.util.List;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/sources")
@@ -112,28 +119,21 @@ public class SourceController {
             Specification<Source> condition = null;
             switch (op) {
                 case "like":
-                    try{
                         List<String> allowedCols = List.of("name", "type");
                         if (!(allowedCols.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with LIKE operator");
+                            .body("Error: invalid column <" + col +  "> passed with LIKE operator");
                         }
                         String lower = "%" + value.toString().toLowerCase() + "%";
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.like(criteraBuilder.lower(root.get(col)), lower);
                         break;
-                    }
-                    catch (ClassCastException e){
-                        System.out.println(e );
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Error: non-string value passed with LIKE operator");
-                    }
                 case "leq": 
                     try{
                         List<String> allowedOps = List.of("id", "quantity", "moneycap", "spent", "budgeted", "available");
                         if (!(allowedOps.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with LESS THAN OR EQUAL operator");
+                            .body("Error: invalid column <" + col +  "> passed with LESS THAN OR EQUAL operator");
                         }
                         Integer val = (Integer) value;
                         condition =  (root, query, criteraBuilder) ->
@@ -148,7 +148,7 @@ public class SourceController {
                         List<String> allowedOps = List.of("id", "quantity", "moneycap", "spent", "budgeted", "available");
                         if (!(allowedOps.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with LESS THAN OR EQUAL operator");
+                            .body("Error: invalid column <" + col +  "> passed with LESS THAN OR EQUAL operator");
                         }
                         Integer val = (Integer) value;
                         condition =  (root, query, criteraBuilder) ->
@@ -162,7 +162,7 @@ public class SourceController {
                     List<String> notAllowedCols = List.of("name", "type");
                         if (notAllowedCols.contains(col.toLowerCase())){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with EQUAL operator. Pass this with LIKE operator");
+                            .body("Error: invalid column <" + col +  "> passed with EQUAL operator. Pass this with LIKE operator");
                         }
                     condition = (root, query, criteriaBuilder) -> 
                         criteriaBuilder.equal(root.get(col), value);

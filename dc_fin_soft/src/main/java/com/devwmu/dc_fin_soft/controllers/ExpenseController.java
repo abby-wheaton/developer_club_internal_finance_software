@@ -1,7 +1,40 @@
 package com.devwmu.dc_fin_soft.controllers;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.devwmu.dc_fin_soft.controllers.forms.AmountRequested;
+import com.devwmu.dc_fin_soft.entities.Expense;
+import com.devwmu.dc_fin_soft.entities.Source;
 import com.devwmu.dc_fin_soft.repositories.ExpenseRepository;
 import com.devwmu.dc_fin_soft.repositories.SourceRepository;
-import com.devwmu.dc_fin_soft.entities.Source;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -11,29 +44,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.MediaType;
-
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.ArrayList;
-import java.util.List;
-import java.io.File;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.commons.io.*;
-
-import org.springframework.http.HttpHeaders;
-
-import com.devwmu.dc_fin_soft.controllers.forms.AmountRequested;
-import com.devwmu.dc_fin_soft.entities.Expense;
 
 @RestController
 @RequestMapping("/expense")
@@ -119,29 +129,22 @@ public class ExpenseController {
             Specification<Expense> condition = null;
             switch (op) {
                 case "like":
-                    try{
-                        List<String> allowedCols = List.of("name", "purpose", "vendor", "link", "pickuplocation", "paymenttype");
-                        if (!(allowedCols.contains(col.toLowerCase()))){
-                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with LIKE operator");
-                        }
-                        String lower = "%" + value.toString().toLowerCase() + "%";
-                        condition =  (root, query, criteraBuilder) ->
-                            criteraBuilder.like(criteraBuilder.lower(root.get(col)), lower);
-                        break;
-                    }
-                    catch (ClassCastException e){
-                        System.out.println(e );
+                    List<String> allowedLikeCols = List.of("name", "purpose", "vendor", "link", "pickuplocation", "paymenttype");
+                    if (!(allowedLikeCols.contains(col.toLowerCase()))){
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Error: non-string value passed with LIKE operator");
+                        .body("Error: invalid column <" + col +  "> passed with LIKE operator");
                     }
+                    String lower = "%" + value.toString().toLowerCase() + "%";
+                    condition =  (root, query, criteraBuilder) ->
+                        criteraBuilder.like(criteraBuilder.lower(root.get(col)), lower);
+                    break;
                  case "bw":
                     // between two dates
                     try {
                         List<String> allowedCols = List.of("itemdeadline", "allocationdeadline", "deliberationdeadline", "reimbursementdeadline");
                         if (!(allowedCols.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with BETWEEN operator");
+                            .body("Error: invalid column <" + col +  "> passed with BETWEEN operator");
                         }
                         ArrayList<String> value2 = (ArrayList<String>) value;
                         LocalDateTime date1 = LocalDateTime.parse(value2.get(0));
@@ -160,7 +163,7 @@ public class ExpenseController {
                         List<String> allowedOps = List.of("id", "quantity", "priceperunit", "totalprice", "eventid", "sourceid", "moneyremaining", "totalspent");
                         if (!(allowedOps.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with LESS THAN OR EQUAL operator");
+                            .body("Error: invalid column <" + col +  "> passed with LESS THAN OR EQUAL operator");
                         }
                         Integer val = (Integer) value;
                         condition =  (root, query, criteraBuilder) ->
@@ -175,7 +178,7 @@ public class ExpenseController {
                         List<String> allowedOps = List.of("id", "quantity", "priceperunit", "totalprice", "eventid", "sourceid", "moneyremaining", "totalspent");
                         if (!(allowedOps.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with GREATER THAN OR EQUAL operator");
+                            .body("Error: invalid column <" + col +  "> passed with GREATER THAN OR EQUAL operator");
                         }
                         Integer val = (Integer) value;
                         condition =  (root, query, criteraBuilder) ->
@@ -189,7 +192,7 @@ public class ExpenseController {
                     List<String> notAllowedCols = List.of("name", "purpose", "vendor", "link", "pickuplocation", "paymenttype");
                         if (notAllowedCols.contains(col.toLowerCase())){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with EQUAL operator. Pass this with LIKE operator");
+                            .body("Error: invalid column <" + col +  "> passed with EQUAL operator. Pass this with LIKE operator");
                         }
                     condition = (root, query, criteriaBuilder) -> 
                         criteriaBuilder.equal(root.get(col), value);

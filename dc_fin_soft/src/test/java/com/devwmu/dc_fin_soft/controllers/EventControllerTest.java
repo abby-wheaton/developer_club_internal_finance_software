@@ -21,6 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -48,7 +49,85 @@ public class EventControllerTest {
     private final ObjectMapper objectMapper = new ObjectMapper()
         .registerModule(new JavaTimeModule());
 
-    // /filter events tests
+    // /filter events 
+    
+    // filter one success test
+
+    // filter multiple success test
+
+    // filter no value failure test
+    @Test
+    void filterNoValueTest() throws Exception{
+        List<Filter> filters = new ArrayList<>();
+        Filter filter = new Filter();
+        filter.setCol("name");
+        filter.setOp("like");
+        filters.add(filter);
+
+        // check that the correct code is sent
+        mockMvc.perform(put("/event/search")
+            .content(objectMapper.writeValueAsString(filters))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest())
+            .andDo(print())
+            .andExpect(content().string("Error: No value provided for filter on column: name"));
+
+            
+    }
+
+    // filter invalid column like test
+    @Test
+    void filterInvalidColLikeTest() throws Exception{
+        List<Filter> filters = new ArrayList<>();
+        Filter filter = new Filter();
+        filter.setCol("id");
+        filter.setOp("like");
+        filter.setVal(1);
+        filters.add(filter);
+
+        // check that the correct code is sent
+        mockMvc.perform(put("/event/search")
+            .content(objectMapper.writeValueAsString(filters))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden())
+            .andDo(print())
+            .andExpect(content().string("Error: invalid column <id> passed with LIKE operator"));  
+    }
+
+    
+    // filter invalid column between test
+    @Test
+    void filterInvalidColBWTest() throws Exception{
+        List<Filter> filters = new ArrayList<>();
+        Filter filter = new Filter();
+        filter.setCol("id");
+        filter.setOp("bw");
+        filter.setVal(1);
+        filters.add(filter);
+
+        // check that the correct code is sent
+        mockMvc.perform(put("/event/search")
+            .content(objectMapper.writeValueAsString(filters))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden())
+            .andDo(print())
+            .andExpect(content().string("Error: invalid column <id> passed with BETWEEN operator"));  
+    }
+    // filter invalid value between test
+
+    // filter invalid column leq test
+
+    // filter invalid value leq test
+
+    // filter invalid column geq test
+
+    // filter invalid value geq test\
+
+    // filter invalid column eq test
+
 
     // /all
     @Test
@@ -732,68 +811,33 @@ public class EventControllerTest {
     //createEventAllocationFormTest{
         // individual tests
     
+        // form success test
+
+        // form invalid id test
+
+        // form dupe failure
+
+        // form file open failure
+
+        // form amt requesting not number failure
+
+        // form writing failure
 
     
     //createConferenceAllocationFormTest{
         // individual tests
-    
 
-}
+        // form success test
 
+        // form invalid id test
 
-// Needs integrated testing and standard testing (add integration testing later)
+        // form dupe failure
 
-//@SpringBootTest
-class EventControllerTestInt {
-    // standard testing
-    
-    //filterEventsTest{
-        // invididual tests
-    
+        // form file open failure
 
-    
-    //getAllEventsTest{
-        // invididual tests
-    
+        // form amt requesting not number failure
 
-    
-    //createEventTest{
-        // invididual tests
-    
-
-    
-    //editEventTest{
-        // invididual tests
-    
-
-    
-    //feeFlagEventTest{
-        // invididual tests
-    
-
-    
-    //philFlagEventTest{
-        // invididual tests
-    
-
-    
-    //confFlagEventTest{
-        // invididual tests
-    
-
-    
-    //deleteEventTest{
-        // invididual tests
-    
-
-    
-    //createEventAllocationFormTest{
-        // individual tests
-    
-
-    
-    //createConferenceAllocationFormTest{
-        // individual tests
+        // form writing failure
     
 
 }

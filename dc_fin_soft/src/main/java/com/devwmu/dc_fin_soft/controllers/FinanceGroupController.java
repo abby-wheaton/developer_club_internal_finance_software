@@ -129,26 +129,20 @@ public class FinanceGroupController {
             // goes through every possiable operation for that table
             switch (op) {
                 case "like":
-                    try{
                         List<String> allowedCols = List.of("title");
                         if (!(allowedCols.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with LIKE operator");
+                            .body("Error: invalid column <" + col +  "> passed with LIKE operator");
                         }
                         String lower = "%" + value.toString().toLowerCase() + "%";
                         condition =  (root, query, criteraBuilder) ->
                             criteraBuilder.like(criteraBuilder.lower(root.get(col)), lower);
                         break;
-                    } catch (ClassCastException e){
-                        System.out.println(e );
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Error: non-string value passed with LIKE operator");
-                    }
                 case "eq":
                     List<String> notAllowedCols = List.of("title");
                         if (notAllowedCols.contains(col.toLowerCase())){
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Error: invalid column: " + col +  " passed with EQUAL operator. Pass this with LIKE operator");
+                            .body("Error: invalid column <" + col +  "> passed with EQUAL operator. Pass this with LIKE operator");
                         }
                     condition = (root, query, criteriaBuilder) -> 
                         criteriaBuilder.equal(root.get(col), value);

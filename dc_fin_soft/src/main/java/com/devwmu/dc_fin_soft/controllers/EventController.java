@@ -112,30 +112,23 @@ public class EventController {
             // looks through the different cases of operations
             switch (op) {
                 case "like":
-                    try{
-                        if (!(col.equalsIgnoreCase("name") | col.equalsIgnoreCase("location"))){
-                            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                            .body("Error: invalid column: " + col +  "passed with LIKE operator");
-                        }
-                        
-                        String lower = "%" + value.toString().toLowerCase() + "%";
-                        condition =  (root, query, criteraBuilder) ->
-                            criteraBuilder.like(criteraBuilder.lower(root.get(col)), lower);
-
-                 
-                        break;
-                    }
-                    catch (ClassCastException e){
-                        System.out.println(e);
+                    if (!(col.equalsIgnoreCase("name") | col.equalsIgnoreCase("location"))){
                         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body("Error: non-string value passed with LIKE operator");
+                        .body("Error: invalid column <" + col +  "> passed with LIKE operator");
                     }
+                    
+                    String lower = "%" + value.toString().toLowerCase() + "%";
+                    condition =  (root, query, criteraBuilder) ->
+                        criteraBuilder.like(criteraBuilder.lower(root.get(col)), lower);
+
+                
+                    break;
                 case "bw":
                     // between two dates
                     try {
                         if (!col.equalsIgnoreCase("date")){
                             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                            .body("Error: invalid column: " + col +  " passed with BETWEEN operator");
+                            .body("Error: invalid column <" + col +  "> passed with BETWEEN operator");
                         }
                         ArrayList<String> value2 = (ArrayList<String>) value;
                         LocalDateTime date1 = LocalDateTime.parse(value2.get(0));
@@ -154,7 +147,7 @@ public class EventController {
                         List<String> allowedOps = List.of("id", "estattendance");
                         if (!(allowedOps.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                            .body("Error: invalid column: " + col +  " passed with LESS THAN OR EQUAL operator");
+                            .body("Error: invalid column <" + col +  "> passed with LESS THAN OR EQUAL operator");
                         }
                         Integer val = (Integer) value;
                         condition =  (root, query, criteraBuilder) ->
@@ -170,7 +163,7 @@ public class EventController {
                         List<String> allowedOps = List.of("id", "estattendance");
                         if (!(allowedOps.contains(col.toLowerCase()))){
                             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                            .body("Error: invalid column: " + col +  " passed with GREATER THAN OR EQUAL operator");
+                            .body("Error: invalid column <" + col +  "> passed with GREATER THAN OR EQUAL operator");
                         }
 
                         Integer val = (Integer) value;
@@ -186,7 +179,7 @@ public class EventController {
                     List<String> notAllowedOps = List.of("name", "location");
                         if (notAllowedOps.contains(col.toLowerCase())){
                             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                            .body("Error: invalid column: " + col +  " passed with EQUAL operator. Pass this with LIKE operator");
+                            .body("Error: invalid column <" + col +  "> passed with EQUAL operator. Pass this with LIKE operator");
                         }
                     condition = (root, query, criteriaBuilder) -> 
                         criteriaBuilder.equal(root.get(col), value);
