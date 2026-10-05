@@ -21,7 +21,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -70,7 +69,6 @@ public class EventControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isBadRequest())
-            .andDo(print())
             .andExpect(content().string("Error: No value provided for filter on column: name"));
 
             
@@ -92,7 +90,6 @@ public class EventControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isForbidden())
-            .andDo(print())
             .andExpect(content().string("Error: invalid column <id> passed with LIKE operator"));  
     }
 
@@ -113,21 +110,118 @@ public class EventControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isForbidden())
-            .andDo(print())
             .andExpect(content().string("Error: invalid column <id> passed with BETWEEN operator"));  
     }
     // filter invalid value between test
 
+    @Test
+    void filterInvalidValBWTest() throws Exception{
+        List<Filter> filters = new ArrayList<>();
+        Filter filter = new Filter();
+        filter.setCol("date");
+        filter.setOp("bw");
+        filter.setVal(1);
+        filters.add(filter);
+
+        // check that the correct code is sent
+        mockMvc.perform(put("/event/search")
+            .content(objectMapper.writeValueAsString(filters))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("Error: non-date value passed with BETWEEN operator"));  
+    }
     // filter invalid column leq test
+    @Test
+    void filterInvalidColLeqTest() throws Exception{
+        List<Filter> filters = new ArrayList<>();
+        Filter filter = new Filter();
+        filter.setCol("date");
+        filter.setOp("leq");
+        filter.setVal(1);
+        filters.add(filter);
+
+        // check that the correct code is sent
+        mockMvc.perform(put("/event/search")
+            .content(objectMapper.writeValueAsString(filters))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden())
+            .andExpect(content().string("Error: invalid column <date> passed with LESS THAN OR EQUAL operator"));  
+    }
 
     // filter invalid value leq test
+    @Test
+    void filterInvalidValLeqTest() throws Exception{
+        List<Filter> filters = new ArrayList<>();
+        Filter filter = new Filter();
+        filter.setCol("id");
+        filter.setOp("leq");
+        filter.setVal("a");
+        filters.add(filter);
 
+        // check that the correct code is sent
+        mockMvc.perform(put("/event/search")
+            .content(objectMapper.writeValueAsString(filters))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("Error: non-number value passed with LESS THAN OR EQUAL TO operator"));  
+    }
     // filter invalid column geq test
+    @Test
+    void filterInvalidColGeqTest() throws Exception{
+        List<Filter> filters = new ArrayList<>();
+        Filter filter = new Filter();
+        filter.setCol("date");
+        filter.setOp("geq");
+        filter.setVal(1);
+        filters.add(filter);
 
+        // check that the correct code is sent
+        mockMvc.perform(put("/event/search")
+            .content(objectMapper.writeValueAsString(filters))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden())
+            .andExpect(content().string("Error: invalid column <date> passed with GREATER THAN OR EQUAL operator"));  
+    }
     // filter invalid value geq test\
+    @Test
+    void filterInvalidValGeqTest() throws Exception{
+        List<Filter> filters = new ArrayList<>();
+        Filter filter = new Filter();
+        filter.setCol("id");
+        filter.setOp("geq");
+        filter.setVal("a");
+        filters.add(filter);
 
+        // check that the correct code is sent
+        mockMvc.perform(put("/event/search")
+            .content(objectMapper.writeValueAsString(filters))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("Error: non-number value passed with GREATER THAN OR EQUAL TO operator"));  
+    }
     // filter invalid column eq test
+    @Test
+    void filterInvalidColEqTest() throws Exception{
+        List<Filter> filters = new ArrayList<>();
+        Filter filter = new Filter();
+        filter.setCol("name");
+        filter.setOp("eq");
+        filter.setVal(1);
+        filters.add(filter);
 
+        // check that the correct code is sent
+        mockMvc.perform(put("/event/search")
+            .content(objectMapper.writeValueAsString(filters))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden())
+            .andExpect(content().string("Error: invalid column <name> passed with EQUAL operator. Pass this with LIKE operator"));  
+    }
 
     // /all
     @Test

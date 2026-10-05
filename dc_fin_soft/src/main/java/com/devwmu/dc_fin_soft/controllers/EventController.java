@@ -139,7 +139,7 @@ public class EventController {
                         break;
                     } catch (ClassCastException e){
                         System.out.println(e );
-                        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body("Error: non-date value passed with BETWEEN operator");
                     }
                 case "leq": 
@@ -155,7 +155,7 @@ public class EventController {
                         break;
                     } catch (ClassCastException e){
                         System.out.println(e );
-                        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body("Error: non-number value passed with LESS THAN OR EQUAL TO operator");
                     }
                 case "geq":

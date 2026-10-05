@@ -162,7 +162,7 @@ public class ExpenseController {
                     try{
                         List<String> allowedOps = List.of("id", "quantity", "priceperunit", "totalprice", "eventid", "sourceid", "moneyremaining", "totalspent");
                         if (!(allowedOps.contains(col.toLowerCase()))){
-                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            return ResponseEntity.status(HttpStatus.FORBIDDEN)
                             .body("Error: invalid column <" + col +  "> passed with LESS THAN OR EQUAL operator");
                         }
                         Integer val = (Integer) value;
@@ -171,7 +171,8 @@ public class ExpenseController {
                         break;
                     } catch (ClassCastException e){
                         System.out.println(e );
-                        break;
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Error: non-number value passed with LESS THAN OR EQUAL TO operator");
                     }
                 case "geq":
                     try{
@@ -185,8 +186,8 @@ public class ExpenseController {
                             criteraBuilder.greaterThanOrEqualTo(root.get(col), val);
                         break;
                     } catch (ClassCastException e){
-                        System.out.println(e );
-                        break;
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Error: non-number value passed with GREATER THAN OR EQUAL TO operator");
                     }
                 case "eq":
                     List<String> notAllowedCols = List.of("name", "purpose", "vendor", "link", "pickuplocation", "paymenttype");

@@ -141,7 +141,8 @@ public class SourceController {
                         break;
                     } catch (ClassCastException e){
                         System.out.println(e );
-                        break;
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Error: non-number value passed with LESS THAN OR EQUAL TO operator");
                     }
                 case "geq":
                     try{
@@ -156,7 +157,8 @@ public class SourceController {
                         break;
                     } catch (ClassCastException e){
                         System.out.println(e );
-                        break;
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Error: non-number value passed with GREATER THAN OR EQUAL TO operator");
                     }
                 case "eq":
                     List<String> notAllowedCols = List.of("name", "type");
