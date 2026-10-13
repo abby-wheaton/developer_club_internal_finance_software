@@ -1,204 +1,124 @@
 package com.devwmu.dc_fin_soft.controllers;
 
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
 import com.devwmu.dc_fin_soft.entities.Expense;
+import com.devwmu.dc_fin_soft.repositories.ExpenseRepository;
+import com.devwmu.dc_fin_soft.repositories.SourceRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 
-@ExtendWith(SpringExtension.class)
 @WebMvcTest(Expense.class)
-@AutoConfigureJsonTesters
 public class ExpenseControllerTest {
+    @Autowired 
+    private MockMvc mockMvc;
+
+    @MockitoBean 
+    private SourceRepository sourceRepository;
+
+    @MockitoBean 
+    private ExpenseRepository expenseRepository;
+
+    private final ObjectMapper objectMapper = new ObjectMapper()
+        .registerModule(new JavaTimeModule());
     // web level testing - tests that path goes to correct function
-    @Nested
-    class filterExpensesTest{
+
+    // allTests
+        // all expenses success
+        // all expenses empty test
+        // all expenses exception test
+
+
+    // filterExpensesTest{
         // individual tests
-    }
+        // filter one success test
+        // filter no value test
+        // filter invalid col like test
+        // filter invalid col bw test
+        // filter invalid val bw test
+        // filter invalid col leq test
+        // filter invalid val leq test
+        // filter invalid col geq test
+        // filter invalid val geq test
+        // filter invlaid col eq test
+        // filter invalid val eq test
 
-    @Nested
-    class editItemTest{
+    // editItemTest{
         // individual tests
-    }
+        // edit success test
+        // edit invalid id test
+        // edit null test 
+        // edit failire test
+    
 
-    @Nested
-    class budgetItemTest{
+    // budgetItemTest{
         // individual tests
-    }
+        // create success test
+        // create failure test
 
-    @Nested
-    class FoodFlagItemTest{
+    
+
+    // FoodFlagItemTest{
         // individual tests
-    }
+        // flag one test
+        // flag invalid id test
+        // flag failure test
+    
 
-    @Nested
-    class requestedFlagItemTest{
+    // requestedFlagItemTest{
         // individual tests
-    }
+        // flag one test
+        // flag invalid id test
+        // flag failure test
 
-    @Nested
-    class SBuyingFlagItemTest{
+    // SBuyingFlagItemTest{
         // individual tests
-    }
+        // flag one test
+        // flag invalid id test
+        // flag failure test
 
-    @Nested
-    class fBuyingFlagItemTest{
+    // fBuyingFlagItemTest{
         // individual tests
-    }
+        // flag one test
+        // flag invalid id test
+        // flag failure test
 
-    @Nested
-    class pickedUpFlagItemTest{
+    // pickedUpFlagItemTest{
         // individual tests
-    }
+        // flag one test
+        // flag invalid id test
+        // flag failure test
 
-    @Nested
-    class reimbursedFlagItemTest{
+    // reimbursedFlagItemTest{
         // individual tests
-    }
+        // flag one test
+        // flag invalid id test
+        // flag failure test
 
-    @Nested
-    class deleteItemTest{
+    // safeDeleteItemTest{
         // individual tests
-    }
+        // safe delete one test
+        // safe delete invalid id test
+        // safe delete failure test
 
-    @Nested
-    class createOperationalAllocationFormTest{
+    // deleteItemTest{
         // individual tests
-    }
+        // delete one test
+        // delete invalid id test
+        // delete failure test    
 
-    @Nested
-    class allocationNotSpentAlertTest{
+    // calculateRecommendedTotalPriceTest{
         // individual tests
-    }
+        // total success test
+        // total failure test
 
-    @Nested
-    class foodBudgetTooHighAlertTest{
+    // calculateRecommendedSourceTest{
         // individual tests
-    }
-
-    @Nested
-    class allocationTooBigAlertTest{
-        // individual tests
-    }
-
-    @Nested
-    class deadlinePastAlertTest{
-        // individual tests
-    }
-
-    @Nested
-    class calculateRecommendedTotalPriceTest{
-        // individual tests
-    }
-
-    @Nested
-    class calculateRecommendedSourceTest{
-        // individual tests
-    }
-
-    @Nested
-    class addReceiptTest{
-        // individual tests
-    }
-
-}
-
-
-// Needs integrated testing and standard testing (add integration testing later)
-//@SpringBootTest
-class ExpenseControllerTestInt {
-    // web level testing - tests that path goes to correct function
-    @Nested
-    class filterExpensesTest{
-        // individual tests
-    }
-
-    @Nested
-    class editItemTest{
-        // individual tests
-    }
-
-    @Nested
-    class budgetItemTest{
-        // individual tests
-    }
-
-    @Nested
-    class FoodFlagItemTest{
-        // individual tests
-    }
-
-    @Nested
-    class requestedFlagItemTest{
-        // individual tests
-    }
-
-    @Nested
-    class SBuyingFlagItemTest{
-        // individual tests
-    }
-
-    @Nested
-    class fBuyingFlagItemTest{
-        // individual tests
-    }
-
-    @Nested
-    class pickedUpFlagItemTest{
-        // individual tests
-    }
-
-    @Nested
-    class reimbursedFlagItemTest{
-        // individual tests
-    }
-
-    @Nested
-    class deleteItemTest{
-        // individual tests
-    }
-
-    @Nested
-    class createOperationalAllocationFormTest{
-        // individual tests
-    }
-
-    @Nested
-    class allocationNotSpentAlertTest{
-        // individual tests
-    }
-
-    @Nested
-    class foodBudgetTooHighAlertTest{
-        // individual tests
-    }
-
-    @Nested
-    class allocationTooBigAlertTest{
-        // individual tests
-    }
-
-    @Nested
-    class deadlinePastAlertTest{
-        // individual tests
-    }
-
-    @Nested
-    class calculateRecommendedTotalPriceTest{
-        // individual tests
-    }
-
-    @Nested
-    class calculateRecommendedSourceTest{
-        // individual tests
-    }
-
-    @Nested
-    class addReceiptTest{
-        // individual tests
-    }
+        // source success
+        // unable to find source test    
 
 }
