@@ -14,6 +14,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -49,10 +50,66 @@ public class EventControllerTest {
         .registerModule(new JavaTimeModule());
 
     // /filter events 
+
     
     // filter one success test
+    @Test
+    void filterOneSuccessTest() throws Exception{
+        // set filters array
+        List<Filter> filters = new ArrayList<>();
+        Filter filter = new Filter();
+        filter.setCol("name");
+        filter.setOp("like");
+        filter.setVal("Testing Event");
+        filters.add(filter);
 
-    // filter multiple success test
+        // set events array
+        LocalDateTime datetime = LocalDateTime.of(2026, 5, 23, 5, 0, 0);
+        Event event1 = new Event(0, datetime, 0, 15, 0, 1, "Floyd", "Testing Event", 0);
+
+        Event event2 = new Event(1, datetime, 0, 25, 0, 2, "Rood Hall", "Testing Event", 0);
+
+        List<Event> mockEvents = new ArrayList<>();
+        mockEvents.add(event1);
+        mockEvents.add(event2);
+
+        when(eventRepository.findAll(any(Specification.class))).thenReturn(mockEvents);
+
+        // check that the correct code is sent
+        mockMvc.perform(put("/event/search")
+            .content(objectMapper.writeValueAsString(filters))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$.length()").value(2))
+
+            //checl that the content of each event is correct
+            // event 1
+            .andExpect(jsonPath("$[0].conferenceFlag").value(0))
+            .andExpect(jsonPath("$[0].date").value("2026-05-23T05:00:00"))
+            .andExpect(jsonPath("$[0].deleted").value(0))
+            .andExpect(jsonPath("$[0].estAttendance").value(15))
+            .andExpect(jsonPath("$[0].feeFlag").value(0))
+            .andExpect(jsonPath("$[0].id").value(1))
+            .andExpect(jsonPath("$[0].location").value("Floyd"))
+            .andExpect(jsonPath("$[0].name").value("Testing Event"))
+            .andExpect(jsonPath("$[0].philanthropyFlag").value(0))
+
+            // event 2
+            .andExpect(jsonPath("$[1].conferenceFlag").value(1))
+            .andExpect(jsonPath("$[1].date").value("2026-05-23T05:00:00"))
+            .andExpect(jsonPath("$[1].deleted").value(0))
+            .andExpect(jsonPath("$[1].estAttendance").value(25))
+            .andExpect(jsonPath("$[1].feeFlag").value(0))
+            .andExpect(jsonPath("$[1].id").value(2))
+            .andExpect(jsonPath("$[1].location").value("Rood Hall"))
+            .andExpect(jsonPath("$[1].name").value("Testing Event"))
+            .andExpect(jsonPath("$[1].philanthropyFlag").value(0))
+            ;
+
+            
+    }
 
     // filter no value failure test
     @Test
@@ -898,40 +955,6 @@ public class EventControllerTest {
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isInternalServerError())
             .andExpect(content().string("Error: unable to delete event"));
-    }
-
-
-    
-    //createEventAllocationFormTest{
-        // individual tests
-    
-        // form success test
-
-        // form invalid id test
-
-        // form dupe failure
-
-        // form file open failure
-
-        // form amt requesting not number failure
-
-        // form writing failure
-
-    
-    //createConferenceAllocationFormTest{
-        // individual tests
-
-        // form success test
-
-        // form invalid id test
-
-        // form dupe failure
-
-        // form file open failure
-
-        // form amt requesting not number failure
-
-        // form writing failure
-    
+    }    
 
 }
